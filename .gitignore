@@ -1,0 +1,17 @@
+frontend/.DS_Store
+frontend/node_modules
+frontend/build
+frontend/.svelte-kit
+frontend/package
+frontend/.env
+frontend/.env.*
+frontend/!.env.example
+frontend/vite.config.js.timestamp-*
+frontend/vite.config.ts.timestamp-*
+
+backend/.env
+backend/.venv
+backend/env/
+backend/.python-version
+backend/data/*
+backend/__pycache__/
