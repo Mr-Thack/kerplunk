@@ -9,9 +9,9 @@ frontend/!.env.example
 frontend/vite.config.js.timestamp-*
 frontend/vite.config.ts.timestamp-*
 
-backend/.env
-backend/.venv
-backend/env/
-backend/.python-version
+backend/api/.env
+backend/api/.venv
+backend/api/env/
+backend/api/.python-version
 backend/data/*
-backend/__pycache__/
+backend/api/__pycache__/
