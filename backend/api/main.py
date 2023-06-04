@@ -129,8 +129,10 @@ STATICDIR = STATICDIR + "/build"
 
 # Check if this exists
 if not path.isdir(STATICDIR):
-    print("You also need to install https://github.com/Mr-Thack/kerplunk-frontend.")
-    print("Then keep the frontend code's directory in the same parent directory as the backend's code.")
+    print("Run \"cd ../../frontend; npm build\" in the terminal!")
+    print("You are missing the built frontend code for serving.")
+    print("This doesn't affect testing and writing the code,")
+    print("but I've got more important stuff to do that add an \"isProduction?\" check.")    
     quit(1)
     
 app.mount('/', StaticFiles(directory=STATICDIR,
