@@ -46,3 +46,9 @@ docker run \
 ```
 docker ps -aq | xargs docker stop | xargs docker rm
 ```
+
+# Clear DB
+```
+sudo rm -r /var/lib/docker/volumes/kerplunk-db/_data
+sudo mkdir /var/lib/docker/volumes/kerplunk-db/_data
+```

@@ -9,7 +9,7 @@
 <AppRail class="">
   <svelte:fragment slot="lead">
     <AppRailAnchor href="/">
-      <img src="/icon.jpg" alt="icon" class="w-auto h-auto" />
+      <img src="/icon.jpg" alt="icon" class="w-auto h-auto p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
   
@@ -20,7 +20,7 @@
     </AppRailAnchor>
   {/each}
 
-  <div class="lightswitch m-4">
-    <LightSwitch />
-  </div>
+  <AppRailAnchor>
+    <LightSwitch class="mx-auto"/>
+  </AppRailAnchor>
 </AppRail>

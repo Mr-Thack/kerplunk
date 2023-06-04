@@ -14,7 +14,7 @@
 
 <Modal />
 
-<AppShell slotSidebarLeft="bg-surface-500/5 w-56 p-4">
+<AppShell slotSidebarLeft="p-4">
 	<svelte:fragment slot="sidebarLeft">
 		<Navbar/>
 	</svelte:fragment>
