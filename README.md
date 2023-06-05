@@ -5,7 +5,7 @@ Hey Abdul. This is a little inspiration for you. GA Tech is probably where you a
 
 In addition, I was thinking about a feature of where a blind person can use the buttons on their device to create a message in Morse Code, where it will be transformed into an audio file, where the person on the other side will hear it (who is also blind). It will be a good feature for our SPED kids in our school, since most of them have disablities. Just consider this please. Thanks for all the effort you have given to this project.
 
-Johnathan. Everything I said to Abdul applies to you to. You made the UI much cleaner. The code will not stand where it is now without your expertise. Thanks for your input as well. I will be helping soon after I get my life back together. Thanks, again. 
+Hey Johnathan. Majority of things I said to Abdul applies to you to perhaps. You want to go to an Ivy League. This project will get you there. It will make all the difference in the world for our community. You made the UI much cleaner. The code will not stand where it is now without your expertise. Thanks for your input as well. I will be helping soon after I get my life back together. Thanks, again. 
 
 Imagine yall are superstars in the programming scene. Never give up your dreams. 
 
