@@ -28,15 +28,15 @@ docker build \
     -t kerplunk-frontend .
 
 docker run \
-    --rm -dp 8000:8000 \
+    --rm -p 8000:8000 \
     --mount type=volume,src=kerplunk-db,target=/kerplunk/backend/data \
     --mount type=bind,src="$(pwd)",target=/kerplunk \
      kerplunk-backend
 
 docker run \
-    --rm -p 5173:5173 \
+    --rm -itp 5173:5173 \
     --mount type=bind,src="$(pwd)",target=/kerplunk \
-     kerplunk-frontend
+    kerplunk-frontend
 
 # Site is at http://localhost:5173/
 ```

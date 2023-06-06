@@ -2,4 +2,5 @@
 
 FROM node
 WORKDIR /kerplunk/frontend
-CMD npm install;npm run dev
+EXPOSE 5173
+CMD npm install;npm run dev 
