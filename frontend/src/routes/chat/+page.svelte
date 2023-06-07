@@ -10,7 +10,7 @@
     var inputText = '';
 
     function scrollChatBottom(behavior?: ScrollBehavior): void {
-	      chatbox.scrollTo({ top: chatbox.scrollHeight, behavior });
+          chatbox.scrollTo({ top: chatbox.scrollHeight, behavior });
     }
 		  
 
@@ -56,6 +56,7 @@
             };
             chatInput.addEventListener('keypress', function(event) {
                 console.log(event);
+                scrollChatBottom('smooth');
                 if (event.key == "Enter") {
                     event.preventDefault();
                     sendMessage()
@@ -71,11 +72,11 @@
             */
         }
     });
- 
 </script>
 
+<div class="grid grid-rows-2 max-h-screen p-4">
 <section bind:this={chatbox}
-    class="w-full max-h-[600px] p-4 overflow-y-auto space-y-4"
+    class="w-full row-span-full p-4 overflow-y-auto space-y-4"
     class:placeholder='{!messages.length}'
     class:animate-pulse='{!messages.length}'
     >
@@ -92,18 +93,19 @@
             </div>
         </div>
     {/each}
+    <script>scrollChatBottom('smooth');</script>
 </section>
 
-<div class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token">
+<div class="input-group input-group-divider flex rounded-container-token">
     <textarea
         bind:this={chatInput}
         bind:value={inputText}
-        class="bg-transparent border-0 ring-0"
+        class="bg-transparent border-0 ring-0 flex-grow"
         name="prompt"
         placeholder="Message Here..."
         rows="1"
     />
-    <button class="variant-filled-primary" on:click={sendMessage}>Send!</button>
+    <button class="variant-filled-primary material-symbols-outlined" on:click={sendMessage}>send</button>
 </div>
 <!--
 <div style='margin-top: 1%; margin-left: 15%'>
@@ -111,3 +113,4 @@
     <button on:click={sendMessage}>Send!</button>
 </div>
 -->
+</div>
