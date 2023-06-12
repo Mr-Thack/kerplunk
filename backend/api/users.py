@@ -17,6 +17,7 @@ user_data: db = db("UserData", UserSchema)
 def is_email_used(email: str):
     for uuid, user in user_data:
         if user.email == email:
+            print(user.email)
             return True
     return False
 

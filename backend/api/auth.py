@@ -66,3 +66,4 @@ async def signup_user(data: SignUpData):
         uuid = make_user(data.email, data.uname)
         creds[ahash] = CredsSchema(uuid, data.email)
         return True
+
