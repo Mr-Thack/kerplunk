@@ -27,7 +27,7 @@
     // We use navs.pop() to get rid of login and signup when you're already logged in
     new Page('login', 'Login!', 'login'),
     // the logic of swapping between login and signup is handled in the markup
-    new Page('signup', 'Sign Up!', 'signup')
+    new Page('signup', 'Sign Up!', 'person_add')
   ];
 
   var navs = ALLNAVS;
@@ -45,7 +45,7 @@
 <AppRail class="w-auto h-auto">
   <svelte:fragment slot="lead">
     <AppRailAnchor href="/">
-      <img src="/icon.jpg" alt="icon" class="w-40 h-40 p-2 hover:p-0 transition-all" />
+      <img src="/icon.jpg" alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
   
