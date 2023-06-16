@@ -86,12 +86,6 @@
 
 	let schoolOptions: AutocompleteOption[] = [];
 
-	interface School {
-		name: string;
-		id: number;
-		altnames: [string];
-	}
-
 	async function focusHandler() {
 		if (document.visibilityState === "visible") {
 			let tmp = await get('schools');
@@ -100,16 +94,17 @@
 			if (tmp.error) {
 				//@ts-ignore
 				salert('Error: '  + tmp.error.detail);
+			} else {
+				console.log(tmp);
+				// @ts-ignore
+				for (var school of tmp.data.schools) {
+					schoolOptions.push({
+						'label': school.name,
+						'value': school.id,
+						'keywords': school.altnames 
+					});
+				}
 			}
-			// @ts-ignore
-			for (var school: School of tmp.data.schools) {
-				schoolOptions.push({
-					'label': school.name,
-					'value': school.id,
-					'keywords': school.altnames 
-				});
-			}
-			// We should implement polling here
 		}
 	}
 
