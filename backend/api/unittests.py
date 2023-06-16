@@ -307,4 +307,4 @@ if __name__ == '__main__':
     # server.daemon = True
     # server.start()
     # sleep(1)  # To give server time to start
-    unittest.main()
+    unittest.main(argv=['first-arg-is-ignored'],)
