@@ -68,7 +68,7 @@
   <svelte:fragment slot="lead">
     <!-- If you're logged in, we want you to go to home instead of the front page -->
     <AppRailAnchor href={isLoggedIn? "/home":"/"}>
-      <img src="/icon.jpg" alt="icon" class="w-40 h-40 p-2 hover:p-0 transition-all" />
+      <img src="/icon.jpg" alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
   
