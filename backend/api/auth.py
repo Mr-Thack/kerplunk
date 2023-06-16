@@ -4,7 +4,8 @@ from sid import makeSID
 from users import make_user, is_email_used
 from dblib import db
 from dataclasses import dataclass
-
+from mail import send_signup_email, gen_code
+from os import environ
 
 @dataclass
 class CredsSchema():
@@ -58,12 +59,30 @@ def login_user(email: str, pwd: str, ip: str):
         # req.client = (client_ip_addr, client_port)
 
 
-async def signup_user(data: SignUpData):
+# These users are waiting to be signed up
+waiting_users = {}
+
+def core_signup_user(data: SignUpData):
+    # We combine the email and password
+    # incase the email or username are the same
+    ahash: str = gen_hash(data.email + data.pwd)
+    uuid = make_user(data.email, data.uname, data.schid)
+    creds[ahash] = CredsSchema(uuid, data.email)
+
+async def start_signup_user(data: SignUpData) -> bool:
     if not is_email_used(data.email):
-        # We combine the email and password
-        # incase the email or username are the same
-        ahash: str = gen_hash(data.email + data.pwd)
-        uuid = make_user(data.email, data.uname, data.schid)
-        creds[ahash] = CredsSchema(uuid, data.email)
+        if environ.get('ISPRODUCTION'):
+            code = gen_code()
+            waiting_users[code] = data    
+            await send_signup_email(data.email, data.uname, code)            
+            # This will be continued in finish_signup_user
+        else:
+            core_signup_user(data)
         return True
 
+def finish_signup_user(code: str) -> bool:
+    if not environ.get('ISPRODUCTION'):
+        return True
+    elif code in waiting_users:
+        core_signup_user(waiting_users[code])
+        return True

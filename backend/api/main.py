@@ -3,8 +3,8 @@ from fastapi import (Depends, FastAPI, Request, Query, WebSocket,
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from auth import login_user, signup_user
-from schools import register_school, list_all_schools
+from auth import login_user, start_signup_user, finish_signup_user
+from schools import start_register_school, finish_register_school, list_all_schools
 from users import multi_get, multi_set, valid_keys, valid_fields
 from chats import (list_chats, create_chatroom, InitChatRoomData,
                    usr_in_chatroom, add_user_to_chatroom,
@@ -13,6 +13,8 @@ from chats import (list_chats, create_chatroom, InitChatRoomData,
 from sid import SIDValidity
 from os import path
 
+
+# [NOTE] In the OS Env, set isProduction to True for production 
 api = FastAPI(title='api')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
@@ -27,16 +29,34 @@ def oauth_uuid(req: Request, token: str = Depends(oauth2_scheme)):
 
 
 @api.post('/signup')
-async def signup(success: bool = Depends(signup_user)):
+async def start_signup(success: bool = Depends(start_signup_user)):
     if success:
         return success
     else:
         raise HTTPException(status_code=401,
                             detail='Email already in use!')
 
+@api.get('/signup')
+def finish_signup(success: bool = Depends(finish_signup_user)):
+    if success:
+        return success
+    else:
+        raise HTTPException(status_code=401,
+                            detail='Code Not Found')
+
+
+@api.get('/register')
+def finish_register(success: bool = Depends(finish_register_school)):
+    if success:
+        return success
+    else:
+        raise HTTPException(status_code=401,
+                            detail='Code Not Found')
+
+
 # This is registration for schools
 @api.post('/register')
-async def register(success: bool = Depends(register_school)):
+async def register(success: bool = Depends(start_register_school)):
     if success:
         return success
     else:
@@ -96,6 +116,7 @@ async def user_join_chatroom(name: str, pwd: str | None = None,
     else:
         raise HTTPException(status_code=403,
                             detail='Invalid chatroom name or pwd')
+
 
 
 # We'll only be using this for chat room, God willing,

@@ -1,6 +1,8 @@
 from dblib import db
 from dataclasses import dataclass
 from pydantic import BaseModel
+from os import environ
+from mail import gen_code, send_register_email
 
 @dataclass
 class SchoolSchema():
@@ -28,12 +30,33 @@ class RegisterData(BaseModel):
     altnames: list[str]
     email: str
 
-def register_school(data: RegisterData) -> bool:
+
+waiting_users = {}
+
+def core_register_school(data: RegisterData):
+    schid = len(school_data)  # school id
+    school_data[schid] = SchoolSchema(data.name, data.email, data.altnames)
+
+
+async def start_register_school(data: RegisterData) -> bool:
     if not is_email_used(data.email):
-        schid = len(school_data)  # school id
-        school_data[schid] = SchoolSchema(data.name, data.email, data.altnames)
+        if environ.get('ISPRODUCTION'):
+            code = gen_code()
+            waiting_users[code] = data
+            await send_register_email(data.email, data.name, code)
+        else:
+            core_register_school(data)
         return True
 
+def finish_register_school(code: str) -> bool:
+    if not environ.get('ISPRODUCTION'):
+        return True
+    elif code in waiting_users:
+        core_register_school(waiting_users[code])
+        del waiting_users[code]
+        return True
+    
+    
 
 # The stuff below is specificially for searching for a school when registering
 
@@ -42,6 +65,7 @@ class SchoolSearchInfo():
     name: str
     id: int
     altnames: [str]
+
 
 def list_all_schools() -> [SchoolSearchInfo]:
     return [SchoolSearchInfo(school.name, schid, school.altnames) for schid, school in school_data]

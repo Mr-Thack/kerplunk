@@ -1,5 +1,6 @@
 gunicorn
 fastapi
+fastapi-mail
 uvicorn[standard]
 python-multipart
 bcrypt

@@ -12,7 +12,8 @@
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
-	let password='', uname='', email='', school='', schid=-1, isStudent = false;
+	let password = '', uname = '', email = '',
+		  school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
@@ -24,6 +25,7 @@
 		title: '',
 		body: ''
 	}
+
 
 	// This is shown on success
 	const successSignupModal: ModalSettings = {
@@ -63,16 +65,11 @@
 	}
 
 	async function onCompleteHandler() {
-		// Technically, what I wrote is correct, but data: object is more correct
-		// TypeScript can't understand that I'm right in this case, so I turned off type checking
-		// @ts-ignore
-		const rez: {error: boolean, data: {detail: string}} = await post('signup', {
-			'uname': uname,
-			'pwd': password,
-			'email': email,
-			'schid': schid
-		})
+		const rez = await get('signup', {
+			'code': signupcode
+		});
 		if (rez.error) {
+			// @ts-ignore
 			failureSignupModal.body = rez.data.detail;
 			modalStore.trigger(failureSignupModal);
 		} else {
@@ -81,6 +78,25 @@
 			userDataStore.write('token', token);
 			modalStore.trigger(successSignupModal);
 		}
+	}
+	
+	async function startSignup() {
+		// @ts-ignore
+		const rez = await post('signup', {
+			'uname': uname,
+			'pwd': password,
+			'email': email,
+			'schid': schid
+		})
+		if (rez.error) {
+			// @ts-ignore
+			failureSignupModal.body = rez.data.detail;
+			modalStore.trigger(failureSignupModal);
+			return false;
+		} else {
+			salert("Check you Email!");
+		}
+		return true;
 	}
 
 
@@ -127,6 +143,7 @@
 		if (e.detail.step + 1 !== e.detail.state.current) {
 			return;
 		}
+
 		switch(e.detail.step) {
 			case 0:
 				if (!checkUserDetails()) {
@@ -135,9 +152,8 @@
 				}
 				break;
 			case 2:
-				if (schid == -1) {
+				if (!startSignup()) {
 					e.detail.state.current = 2;
-					salert("Select a school!");	
 				}
 				break;
 		}
@@ -185,5 +201,9 @@
 		<!--<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">-->
 		<Autocomplete class="card w-auto p-4 max-h-48 overflow-y-auto" tabindex="-1" bind:input={school} options={schoolOptions} on:selection={onSchoolSelection} />
 
+	</Step>
+	<Step locked={!signupcode}>
+		<svelte:fragment slot="header">Email Signup Code</svelte:fragment>
+		<input class="input m-2" type="text" name="Code" bind:value={signupcode} placeholder="Check your Email!" />
 	</Step>
 </Stepper>
