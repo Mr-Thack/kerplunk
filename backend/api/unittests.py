@@ -2,8 +2,8 @@
 import unittest
 from dataclasses import dataclass, field
 
-import os
-os.chdir("backend/api")
+# import os
+# os.chdir("backend/api")
 
 # ALERT: Set to true for performance test
 PERF = False
