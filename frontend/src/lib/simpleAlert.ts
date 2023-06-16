@@ -1,5 +1,4 @@
-import { modalStore } from '@skeletonlabs/skeleton';
-import type { ModalSettings } from '@skeletonlabs/skeleton';
+import { modalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 
 
 
@@ -26,3 +25,17 @@ export function falert(title: string, fn: () => void) {
   }
   modalStore.trigger(FunctionAlert)
 }
+
+// Proompt
+export function proompt(title: string, fn: (r: string) => void) {
+  const Proompt: ModalSettings = {
+    type: 'prompt',
+    title: title,
+    valueAttr: {
+      'type': 'text',
+      'required': true
+    },
+    response: fn
+  };
+  modalStore.trigger(Proompt);
+} 

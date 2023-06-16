@@ -51,6 +51,16 @@ async def send_register_email(email: str, school_name: str, code: str):
         'register.html'
     )
 
+async def send_reset_email(email: str, uname: str, pwd: str, code: str):
+    await send_email(
+        'Reset Password for Kerplunk',
+        email,
+        {
+            'username': uname,
+            'resetcode': code
+        },
+        'reset.html'
+    )
 
 def gen_code(length: int = 12):
     return ''.join(choices(ascii_letters + digits, k=length))

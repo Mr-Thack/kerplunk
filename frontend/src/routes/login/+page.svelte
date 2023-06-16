@@ -29,7 +29,7 @@
 		<!-- We have to do it twice bcz Svelte can't handle one {} doing both, also we only check passwd.len in 2nd bc it has priority-->
 		<button type="button" class="btn variant-filled" disabled={!(email && pwd)} on:click={send}>Log In!</button>
 		
-		<a type="button" class='btn variant-filled' href='/signup'>Sign Up Instead!</a>
+		<a type="button" class='btn variant-filled-success' href='/reset'>Forgot Your Password?</a>
 	</footer>
 	
 </div>
