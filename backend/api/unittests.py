@@ -3,7 +3,13 @@ import unittest
 from dataclasses import dataclass, field
 
 # ALERT: Set to true for performance test
-PERF = False
+import sys
+if sys.argv == 1:
+    PERF = False
+elif sys.argv == 2:
+    PERF = True
+else:
+    PERF = False
 LONGDEBUG = False
 # Make true, if you wanna run these tests then your own l8tr
 # All it does is not load our Kerplunk backend,
