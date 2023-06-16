@@ -56,11 +56,11 @@
         goto('/login')  
       });
     } else {
-      const r = await patch('chats', {}, {'name': room}, $userDataStore.token);
+      const r = await patch('chats', {}, {'name': room}, userDataStore.readonce('token'));
       if (r.error) {
         salert(`JOIN ERROR: ${r.data}`);
       } else {
-        $userDataStore.cid = r.data.cid;
+        userDataStore.write('cid', r.data.cid);
         goto('/chat');
       }
     }

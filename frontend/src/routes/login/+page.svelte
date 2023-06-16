@@ -1,21 +1,36 @@
 <script lang="ts">
-	import checkCredentials from '$lib/login';
-	import Credentials from '$components/Credentials.svelte';
-  import { userDataStore } from '$lib/stores'
-  import { onMount } from 'svelte';
+	import { checkCredentials } from '$lib/auth';
+  import { userDataStore } from '$lib/stores';
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
 
-  let check = (uname:string, pwd:string, email:string) => Promise<void>;
-		
-  onMount(() => {
-	  check = async function (uname: string, pwd: string, email: string) {
-		  const token = await checkCredentials(email, pwd);
-      if (browser && token) {
-          userDataStore.write('token', token);
-          goto('/home');
-      }
-	  }
-  });
+
+	var email = "", pwd = "";
+	
+ 	async function send() {
+	  const token = await checkCredentials(email, pwd);
+    if (browser && token) {
+      userDataStore.write('token', token);
+      goto('/home');
+    }
+	}
+
 </script>
-<Credentials check={check} title='Log In!'/>
+<div class='card p-7'>
+	<header class='mx-auto mb-5 text-center'>
+		<h2 class="h2">Welcome</h2>
+	</header>
+	
+	<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Email' />
+	<input class="input m-2" title="Password" type='password' bind:value={pwd} placeholder='Your Password' />
+ 
+	
+	<footer class='flex justify-between m-2'>
+		<!-- We have to do it twice bcz Svelte can't handle one {} doing both, also we only check passwd.len in 2nd bc it has priority-->
+		<button type="button" class="btn variant-filled" disabled={!(email && pwd)} on:click={send}>Log In!</button>
+		
+		<a type="button" class='btn variant-filled' href='/signup'>Sign Up Instead!</a>
+	</footer>
+	
+</div>
+

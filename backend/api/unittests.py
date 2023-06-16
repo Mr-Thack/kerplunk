@@ -32,28 +32,47 @@ else:
     # NOTE: To reduce bloat, we need to get rid of this
 
 
-class performance_test_client():
+class PerformanceTestClient():
     def __init__(self, url: str):
         self.url = url
 
     def get(self, url: str, params={}, headers={}):
-        return get(self.url + url, params=params, headers=headers)
+        return get(self.url + '/api' + url, params=params, headers=headers)
 
     def post(self, url: str, data={}, json={}, headers={}):
-        return post(self.url + url, data=data, json=json, headers=headers)
+        return post(self.url + '/api' + url, data=data, json=json, headers=headers)
 
-    def patch(self, url: str, json: dict, params: dict, headers: dict):
-        return put(self.url + url, json=json, params=params, headers=headers)
+    def patch(self, url: str, json={}, params={}, headers={}):
+        return put(self.url + '/api' + url, json=json, params=params, headers=headers)
 
     def delete(self, url: str, params: dict):
-        return delete(self.url + url, params=params)
+        return delete(self.url + '/api' + url, params=params)
+
+
+class NormalTestClient():
+    def __init__(self):
+        self.client = TestClient(app);
+        self.websocket_connect = self.client.websocket_connect
+
+    def get(self, url: str, params={}, headers={}):
+        return self.client.get('/api' + url, params=params, headers=headers)
+
+    def post(self, url: str, data={}, json={}, headers={}):
+        return self.client.post('/api' + url, data=data, json=json, headers=headers)
+
+    def patch(self, url: str, json={}, params={}, headers={}):
+        return self.client.put('/api' + url, json=json, params=params, headers=headers)
+
+    def delete(self, url: str, params={}):
+        return self.client.delete('/api' + url, params=params)
+
 
 
 def make_client():
     if not PERF:
-        return TestClient(app)
+        return NormalTestClient()
     else:
-        return performance_test_client('http://127.0.0.1:8000')
+        return PerformanceTestClient('http://127.0.0.1:8000')
 
 
 client = make_client()
@@ -106,7 +125,8 @@ def sign_up_user(user: User):
     return client.post('/signup', json={
         'uname': user.uname,
         'pwd': user.pwd,
-        'email': user.email
+        'email': user.email,
+        'schid': 0
     })
 
 
@@ -121,6 +141,17 @@ def get_user_sid(user: User):
         'client_secret': ''
     }
     return client.post('/login', data=con).json()['access_token']
+
+
+class Test005_schools(unittest.TestCase):
+    def test010_make_school(self):
+        result = client.post('/register', json={
+            'name': 'Test School',
+            'altnames': ['tst', 'schl'],
+            'email': 'test@school.org'
+        })
+        print(result.json())
+        self.assertEqual(result.status_code, 200)
 
 
 class Test010_auth(unittest.TestCase):
@@ -226,9 +257,10 @@ class Test030_Chat_Rooms(unittest.TestCase):
         """Check what data is being given back from the
         first time a user joins the chat"""
         chat: Chat = chat_rooms[0]
-        r = client.patch('/chats', params={
+        r = client.patch('/chats',json={}, params={
             'name': chat.name
-            }, headers=genhed(user1)).json()
+            }, headers=genhed(user1))
+        print(r)
         self.assertEqual(r['owner'], user1.uname)
         self.assertEqual(r['cid'], chat.cid)
         self.assertListEqual(r['joiners'], [user1.uname])
@@ -241,8 +273,9 @@ class Test030_Chat_Rooms(unittest.TestCase):
     def test040_2nd_user_join_chat(self):
         """Check if users other than the owner can join"""
         chat: Chat = chat_rooms[0]
-        r = client.patch('/chats', params={
+        r = client.patch('/chats',json={}, params={
             'name': chat.name}, headers=genhed(user2)).json()
+        print(r)
         self.assertEqual(r['joiners'], [user1.uname, user2.uname])
 
     def test050_1st_user_send_msg(self):

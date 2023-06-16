@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from auth import login_user, signup_user
+from schools import register_school, list_all_schools
 from users import multi_get, multi_set, valid_keys, valid_fields
 from chats import (list_chats, create_chatroom, InitChatRoomData,
                    usr_in_chatroom, add_user_to_chatroom,
@@ -33,6 +34,19 @@ async def signup(success: bool = Depends(signup_user)):
         raise HTTPException(status_code=401,
                             detail='Email already in use!')
 
+# This is registration for schools
+@api.post('/register')
+async def register(success: bool = Depends(register_school)):
+    if success:
+        return success
+    else:
+        raise HTTPException(status_code=401,
+                            detail='Email already in use!')
+
+# Just get a list of all schools
+@api.get('/schools')
+async def ret_list_schools():
+    return {'schools': list_all_schools()}
 
 @api.post('/login')
 async def login(req: Request, fd: OAuth2PasswordRequestForm = Depends()):
@@ -44,8 +58,8 @@ async def login(req: Request, fd: OAuth2PasswordRequestForm = Depends()):
 
 
 @api.get('/userme')
-async def user_get_field(fields: list[str] = Query(),
-                         uuid: str = Depends(oauth_uuid)):
+async def user_get_field(uuid: str = Depends(oauth_uuid),
+                         fields: list[str] = Query()):
     if not valid_keys(fields):
         raise HTTPException(status_code=400, detail='Invalid Fields')
     return multi_get(uuid, fields)

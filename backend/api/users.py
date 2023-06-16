@@ -6,25 +6,25 @@ from dataclasses import dataclass
 @dataclass
 class UserSchema():
     email: str
-    uname: str
-    lname: str | None = None
+    uname: str  # username
+    schid: int  # school ID
+    lname: str | None = None  # legal name
 
 
-# Eventually hold uuid: email. username, fname+lname, phone#, school, classes
+# Eventually hold uuid: email, username, fname+lname, phone#, school, classes
 user_data: db = db("UserData", UserSchema)
 
 
 def is_email_used(email: str):
     for uuid, user in user_data:
         if user.email == email:
-            print(user.email)
             return True
     return False
 
 
-def make_user(email: str, username: str) -> str:
+def make_user(email: str, username: str, schid: int) -> str:
     uuid: str = str(uuid1())
-    user_data[uuid] = UserSchema(email, username)
+    user_data[uuid] = UserSchema(email, username, schid)
     return uuid
 
 

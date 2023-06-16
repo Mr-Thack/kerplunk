@@ -9,8 +9,8 @@
     let chatbox: HTMLElement, chatInput: HTMLElement;
     var inputText = '';
 
-    function scrollChatBottom(behavior?: ScrollBehavior): void {
-          chatbox.scrollTo({ top: chatbox.scrollHeight, behavior });
+    function scrollChatBottom(): void {
+        chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
     }
 		  
 
@@ -36,7 +36,6 @@
                 goto('/chatrooms')
             });
         } else {
-            console.log(endpoint('chats'));
             socket = new WebSocket(`ws://${endpoint('chats')}/${$userDataStore.cid}?token=${$userDataStore.token}`);
             socket.onmessage = function(event) {
                 if (!messages.length) {
@@ -47,29 +46,19 @@
                     messages = messages;
                 } else {
                     messages = [...messages, new Message(event.data, '')]
-                    setTimeout(() => scrollChatBottom('smooth'), 0);
                 }
+                setTimeout(scrollChatBottom, 75);
             }
             sendMessage = () => {
                 socket.send(inputText);
                 inputText = '';
             };
             chatInput.addEventListener('keypress', function(event) {
-                console.log(event);
-                scrollChatBottom('smooth');
                 if (event.key == "Enter") {
                     event.preventDefault();
                     sendMessage()
                 }
             });
-            // Auto Scroll to bottom
-            /*function scrollToBottom() {
-                chatbox.scrollTop = chatbox.scrollHeight;
-            }
-            const observer = new MutationObserver(scrollToBottom);
-            const config = {childList: true};
-            observer.observe(chatbox, config);
-            */
         }
     });
 </script>
@@ -93,7 +82,6 @@
             </div>
         </div>
     {/each}
-    <script>scrollChatBottom('smooth');</script>
 </section>
 
 <div class="input-group input-group-divider flex rounded-container-token">

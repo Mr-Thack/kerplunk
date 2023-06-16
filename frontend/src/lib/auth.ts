@@ -1,6 +1,7 @@
-import {formdata_post} from '$library/endpoint'
+import { formdata_post } from '$lib/endpoint'
+import { userDataStore } from '$lib/stores'
 
-export default async function checkCredentials(email: string, pwd: string) {
+export async function checkCredentials(email: string, pwd: string) {
     const data = {
         'grant_type': '',
         // We login with email cuz that doesn't change often
@@ -18,4 +19,13 @@ export default async function checkCredentials(email: string, pwd: string) {
         alert(`LOGIN ERROR: ${rez.data.detail}`);
         return false;
     }
+}
+
+export function logout() {
+    // [TODO]
+    // As of now, the backend doesn't actually have a logout function
+    // But all we really need to do is wipe the user data and reload
+    userDataStore.wipe();
+    console.log(window.location.pathname)
+    window.location.replace(window.location.pathname);
 }

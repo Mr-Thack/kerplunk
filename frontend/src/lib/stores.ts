@@ -2,8 +2,6 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 
-
-
 type UserData = {
     token: string,
     uname: string,
@@ -12,23 +10,31 @@ type UserData = {
 
 
 
+// This is for getting the user information that's already there,
+// in case they like left for a while and came back to their own computer
 var initVal;
 if (browser) {
     initVal = JSON.parse(window.sessionStorage.getItem('userDataStore') || '{}');
 }
 
-
-
 function createUserDataStore() {
     const {subscribe, set, update } = writable<UserData>(initVal);
-
     // Setup our own custom function for updating the userDataStore
     return {
         subscribe,
         write: (key: string, value: any) => update(u => {
             u[key] = value;
             return u;        
-        })  
+        }),
+        wipe: () => set({}),
+        readonce: (key: string) => {
+            let val = ""
+            const unsub = subscribe(v => {
+                val = (v)? v[key]: v;
+            });
+            unsub();
+            return val;
+        }
     }
 }
 
@@ -40,8 +46,3 @@ userDataStore.subscribe((value) => {
         window.sessionStorage.setItem('userDataStore', JSON.stringify(value));
     }
 });
-
-
-export function isLoggedIn() {
-    return userDataStore.token !== "" && userDataStore.token !== undefined;
-}

@@ -36,7 +36,7 @@ class SignUpData(BaseModel):
     uname: str
     pwd: str
     email: str
-
+    schid: int
 
 def get_user(ahash: str) -> list[str, str]:
     data = creds[ahash]
@@ -63,7 +63,7 @@ async def signup_user(data: SignUpData):
         # We combine the email and password
         # incase the email or username are the same
         ahash: str = gen_hash(data.email + data.pwd)
-        uuid = make_user(data.email, data.uname)
+        uuid = make_user(data.email, data.uname, data.schid)
         creds[ahash] = CredsSchema(uuid, data.email)
         return True
 

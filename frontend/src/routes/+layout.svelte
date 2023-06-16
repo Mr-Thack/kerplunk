@@ -19,7 +19,7 @@
 		<Navbar/>
 	</svelte:fragment>
 
-	<div class="h-full w-full">
+	<div class="h-full w-full content-center text-center">
 		<slot />
 	</div>
 	<!-- Put this down when we have a footer!

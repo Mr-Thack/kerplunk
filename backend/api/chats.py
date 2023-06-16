@@ -83,9 +83,12 @@ def usr_in_chatroom(uuid: str, cid: str):
 def write_msg(cid: str, msg: str):
     # TODO: Check for problems in txt msg or smth
     chat = open_chat(cid)
-    chat[len(chat)] = msg
-    # Since indices start at 0, len() will return 1 + the last index
-    return True
+
+    if msg not in ("", None):
+        chat[len(chat)] = msg
+        # Since indices start at 0, len() will return 1 + the last index
+        return True
+    return False
 
 
 def read_msgs(cid: str, msg_start: int, msg_end: int):
