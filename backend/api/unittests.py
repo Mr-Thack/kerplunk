@@ -3,7 +3,7 @@ import unittest
 from dataclasses import dataclass, field
 
 import os
-os.system("ls")
+os.system("ls ../")
 
 # ALERT: Set to true for performance test
 PERF = False
