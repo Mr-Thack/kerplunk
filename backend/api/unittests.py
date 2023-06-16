@@ -2,9 +2,6 @@
 import unittest
 from dataclasses import dataclass, field
 
-import os
-os.system("ls ../")
-
 # ALERT: Set to true for performance test
 PERF = False
 LONGDEBUG = False
@@ -24,7 +21,10 @@ else:
     from os import mkdir
     if not PERF and not LONGDEBUG:
         # Clear data directory
-        rmtree('../data/')
+        try:
+            rmtree('../data/')
+        except FileNotFoundError:
+            pass
         # NOTE: We need to eventually implement our own rmtree,
         # because it's a waste of bandwidth installing a whole library
         # to do something relatively simple, recursively removing a directory
