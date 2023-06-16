@@ -3,7 +3,13 @@ import unittest
 from dataclasses import dataclass, field
 
 # ALERT: Set to true for performance test
-PERF = False
+import sys
+if sys.argv == 1:
+    PERF = False
+elif sys.argv == 2:
+    PERF = True
+else:
+    PERF = False
 LONGDEBUG = False
 # Make true, if you wanna run these tests then your own l8tr
 # All it does is not load our Kerplunk backend,
@@ -21,7 +27,10 @@ else:
     from os import mkdir
     if not PERF and not LONGDEBUG:
         # Clear data directory
-        rmtree('../data/')
+        try:
+            rmtree('../data/')
+        except FileNotFoundError:
+            pass
         # NOTE: We need to eventually implement our own rmtree,
         # because it's a waste of bandwidth installing a whole library
         # to do something relatively simple, recursively removing a directory
@@ -331,4 +340,4 @@ if __name__ == '__main__':
     # server.daemon = True
     # server.start()
     # sleep(1)  # To give server time to start
-    unittest.main()
+    unittest.main(argv=['first-arg-is-ignored'],)
