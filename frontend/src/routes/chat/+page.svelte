@@ -84,7 +84,7 @@
     {/each}
 </section>
 
-<div class="input-group input-group-divider flex rounded-container-token">
+<div class="input-group input-group-divider flex rounded-container-token mt-4">
     <textarea
         bind:this={chatInput}
         bind:value={inputText}
