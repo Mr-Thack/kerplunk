@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Stepper, Step, modalStore, SlideToggle, type ModalSettings, type AutocompleteOption, Autocomplete } from '@skeletonlabs/skeleton';
+	import { Stepper, Step, modalStore, SlideToggle, RadioGroup, RadioItem, type ModalSettings, type AutocompleteOption, Autocomplete } from '@skeletonlabs/skeleton';
 	import zxcvbn from 'zxcvbn';
 	import { goto } from '$app/navigation';
 	import { get, post } from '$lib/endpoint';
@@ -13,7 +13,7 @@
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
 	let password = '', uname = '', email = '',
-		  school = '', schid = -1, isStudent = false, signupcode = '';
+		  school = '', schid = -1, isStudent = false, signupcode = '', value = 0;
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
@@ -176,15 +176,20 @@
 		<h3 class="h3 text-center">Are you a student or a teacher?</h3>
 
 		<div class="flex flex-row place-content-between justify-center w-full">
-			<span class="material-symbols-outlined">
-				face_retouching_natural
-			</span>
-			<h5 class="h5">Teacher</h5>
-			<SlideToggle name="slide" class="mx-4" bind:checked={isStudent} />
-			<span class="material-symbols-outlined">
-				child_care
-			</span>
-			<h5 class="h5">Student</h5>
+			<RadioGroup>
+				<RadioItem bind:group={isStudent} name="justify" value={false}>	
+					<span class="material-symbols-outlined">
+						face_retouching_natural
+					</span>
+					<h5 class="h5">Teacher</h5>
+				</RadioItem>
+				<RadioItem bind:group={isStudent} name="justify" value={true}>
+					<span class="material-symbols-outlined">
+						child_care
+					</span>
+					<h5 class="h5">Student</h5>
+				</RadioItem>
+			</RadioGroup>
 	</Step>
 	<Step locked={schid === -1}>
 		<svelte:fragment slot="header">School Info</svelte:fragment>
