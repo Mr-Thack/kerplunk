@@ -83,10 +83,6 @@
     </AppRailAnchor>
   {/each}
 
-  <AppRailAnchor>
-    <LightSwitch class="mx-auto"/>
-  </AppRailAnchor>
-
   {#if isLoggedIn}
     <AppRailAnchor>
       <button type="button" class="btn-icon variant-filled material-symbols-outlined" on:click={logout}>
@@ -94,4 +90,7 @@
       </button>
     </AppRailAnchor>
   {/if}
+  <AppRailAnchor>
+    <LightSwitch class="mx-auto"/>
+  </AppRailAnchor>
 </AppRail>
