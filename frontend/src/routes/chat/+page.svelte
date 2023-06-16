@@ -63,7 +63,7 @@
     });
 </script>
 
-<div class="grid grid-rows-2 max-h-screen p-4">
+<div class="grid grid-rows-2 min-h-screen max-h-screen p-4 overflow-hidden">
 <section bind:this={chatbox}
     class="w-full row-span-full p-4 overflow-y-auto space-y-4"
     class:placeholder='{!messages.length}'
