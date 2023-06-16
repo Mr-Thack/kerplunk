@@ -1,0 +1,1 @@
+This folder should contain the build files for the frontend from running `npm build`
