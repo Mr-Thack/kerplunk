@@ -1,4 +1,5 @@
 fastapi
+fastapi_mail
 uvicorn[standard]
 python-multipart
 bcrypt
