@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { Stepper, Step, modalStore, RadioGroup, RadioItem, type ModalSettings, type AutocompleteOption, Autocomplete } from '@skeletonlabs/skeleton';
+	import { Stepper, Step, modalStore, type ModalSettings, RadioGroup, RadioItem, type AutocompleteOption, Autocomplete } from '@skeletonlabs/skeleton';
 	import zxcvbn from 'zxcvbn';
 	import { goto } from '$app/navigation';
 	import { get, post } from '$lib/endpoint';
 	import { checkCredentials } from '$lib/auth';
 	import { userDataStore } from '$lib/stores';
-	import { salert } from '$lib/simpleAlert';
+	import { salert } from '$lib/alerts';
 	import { onMount, onDestroy } from 'svelte';
 	import isValidEmail from "$lib/email";
 	import { dev, browser } from '$app/environment';
-	import { current_component } from 'svelte/internal';
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
@@ -17,15 +16,6 @@
 		  school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
-
-
-	// This is the modal shown for the result of the password and email,
-	// and in the future username
-	const passwordModal: ModalSettings = {
-		type: 'alert',
-		title: '',
-		body: ''
-	}
 
 
 	// This is shown on success
@@ -54,13 +44,17 @@
 		let isScoreGood = score >= MINREQ
 		// ZXCVBN normally returns on scale 0-4, add 1 to get scale 1-5
 
-		
-		// After parsing the results, open the modal to show results to the user
-		passwordModal.body = (isEmailGood)? "On a Scale from 1 to 5, your password got a " + score : "";
-		passwordModal.title = (!isEmailGood)? "Check Your Email!":
-														(score < MINREQ)? "Try a Stronger Password...." : "Great!";
-		 
-		modalStore.trigger(passwordModal);
+
+		if (!isEmailGood) {
+			salert("Check the Spelling of Your Email!");
+		} else {
+			let body = "On a scale from 1 to 5, your password got a " + score + "!"
+			if (score < MINREQ) {
+				salert("Try a Stronger Password...", body)
+			} else {
+				salert("Great!", body)
+			}
+		}
 		
 		return isEmailGood && isScoreGood;
 	}
@@ -114,7 +108,6 @@
 				//@ts-ignore
 				salert('Error: '  + tmp.error.detail);
 			} else {
-				console.log(tmp);
 				// @ts-ignore
 				for (var school of tmp.data.schools) {
 					schoolOptions.push({

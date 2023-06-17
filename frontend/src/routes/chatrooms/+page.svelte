@@ -4,7 +4,7 @@
   import { onDestroy, onMount } from 'svelte';
   import { goto } from '$app/navigation';
 
-  import { salert, falert, askbool, proompt } from '$library/simpleAlert';
+  import { salert, falert, askbool, proompt } from '$library/alerts';
 
   var chatName: string = "", chatPwd: string = "";
 
@@ -25,7 +25,6 @@
 
   async function join(room: string) {
     if (!$userDataStore.token) {
-      console.log($userDataStore);
       falert('Login First!!', () => {
         goto('/login')  
       });
@@ -70,9 +69,7 @@
       public: (chatPwd === ""),
       temp: false // [TODO] Rework API  
     }
-    console.log(data);
     const r = await post('chats', data, $userDataStore.token);
-    console.log(r)
     if (r.error) {
       salert(`ERROR MAKING: ${r.data}`);
     } else {

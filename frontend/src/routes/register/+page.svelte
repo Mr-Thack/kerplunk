@@ -2,7 +2,7 @@
   import { Stepper, Step, InputChip } from "@skeletonlabs/skeleton";
   import isValidEmail from "$lib/email";
   import { get, post } from '$lib/endpoint';
-  import { salert, falert } from "$lib/simpleAlert";
+  import { salert, falert } from "$lib/alerts";
 
   let schoolName = "", schoolEmail = "", signupcode="";
   let altNames = ["high", "middle", "mtn"]; 

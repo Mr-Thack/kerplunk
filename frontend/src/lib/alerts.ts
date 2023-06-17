@@ -2,10 +2,11 @@ import { modalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 
 
 // Simple Alert
-export function salert(title: string) {
+export function salert(title: string, body: string = "") {
   const SimpleAlert: ModalSettings = {
     type: 'alert',
     title: title,
+    body: body,
     buttonTextCancel: 'OK'
   };
   modalStore.trigger(SimpleAlert)

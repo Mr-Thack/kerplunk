@@ -1,6 +1,6 @@
 import { formdata_post } from '$lib/endpoint';
 import { userDataStore } from '$lib/stores';
-import { salert } from '$lib/simpleAlert';
+import { salert } from '$lib/alerts';
 import { dev } from '$app/environment';
 
 export async function checkCredentials(email: string, pwd: string) {
@@ -28,6 +28,5 @@ export function logout() {
     // As of now, the backend doesn't actually have a logout function
     // But all we really need to do is wipe the user data and reload
     userDataStore.wipe();
-    console.log(window.location.pathname)
     window.location.replace(dev? 'index':'/index.html');
 }

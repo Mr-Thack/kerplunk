@@ -3,7 +3,7 @@
     import { userDataStore } from '$library/stores';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
-    import { falert } from '$library/simpleAlert';
+    import { falert } from '$library/alerts';
 	
 
     let chatbox: HTMLElement, chatInput: HTMLElement;

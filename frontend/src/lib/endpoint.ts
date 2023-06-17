@@ -8,7 +8,6 @@ export function endpoint(endpoint: string) {
     if (dev) {
         return 'localhost:8000' + endpoint;
     } else {
-        console.log(window.location.host + endpoint);
         return window.location.host + endpoint;
     }
 }

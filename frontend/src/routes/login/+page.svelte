@@ -4,7 +4,7 @@
 	import { userDataStore } from '$lib/stores';
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
-	import { salert, proompt } from '$lib/simpleAlert';
+	import { salert, proompt } from '$lib/alerts';
 	
 	var email = "", pwd = "";
 	
