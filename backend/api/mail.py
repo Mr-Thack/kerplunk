@@ -72,7 +72,7 @@ async def send_reset_email(email: str, uname: str, pwd: str, code: str):
 
 
 # The characters o, l, 0, and 1 could be easily confused, so we don't use them 
-POSSIBLE_CHARACTERS = ascii_uppercase + ascii_lowercase.replace('l', '').replace('o', '') + digits.replace('01', '')
+POSSIBLE_CHARACTERS = ascii_uppercase.replace('L','').replace('I','') + ascii_lowercase.replace('l', '').replace('o', '') + digits.replace('01', '')
 
 def gen_code(length: int = 12):
     return ''.join(choices(POSSIBLE_CHARACTERS, k=length))

@@ -36,7 +36,8 @@
   }
 
   async function updateChats() {
-    chatrooms = (await get('chats')).data.chatrooms.split(' ').filter((name: string) => name.length != 0);
+    // @ts-ignore
+    chatrooms = (await get('chats')).data.chatrooms;
   };
 
 

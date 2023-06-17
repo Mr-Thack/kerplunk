@@ -36,7 +36,7 @@ def is_chat_name_taken(name: str):
 
 def list_chats() -> str:
     """List all chats by their display name"""
-    return ' '.join([chat.name for (cid, chat) in chats])
+    return [chat.name for (cid, chat) in chats]
 
 
 def open_chat(cid: str):

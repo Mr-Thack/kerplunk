@@ -214,7 +214,7 @@ class Test030_Chat_Rooms(unittest.TestCase):
         # No SID required because this doesn't really need authentication
         # And no parameters required
         r = client.get('/api/chats').json()
-        self.assertEqual(r['chatrooms'], chat_rooms[0].name)
+        self.assertEqual(r['chatrooms'], [chat_rooms[0].name])
 
     def test030_first_user_join_chat(self):
         """Check what data is being given back from the
