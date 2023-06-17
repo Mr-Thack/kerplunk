@@ -32,14 +32,23 @@
 
 
   const ALLNAVS = [
-    new Page('chatrooms', 'Chat!', 'chat'),
+    new Page('/chatrooms', 'Chat!', 'chat'),
 
-    // [WARNING] Keep login and signup at the end
-    // We use navs.pop() to get rid of login and signup when you're already logged in
-    new Page('login', 'Login!', 'login'),
+    new Page('/login', 'Login!', 'login'),
     // the logic of swapping between login and signup is handled in the markup
-    new Page('signup', 'Sign Up!', 'person_add')
+    new Page('/signup', 'Sign Up!', 'person_add')
   ];
+
+  function removePage(arr: Page[], pages: string[]) {
+    // the name page is reserved for the current page
+    for (let p of pages) {
+      for (var i=0; i<arr.length; i++) {
+        if (arr[i].url == p) {
+          arr.splice(i, 1);  // = arr.remove(i) in Python
+        }
+      }
+    }
+  }
 
   var navs = ALLNAVS;
   // Checking token's status is like checking if they're logged in
@@ -47,16 +56,17 @@
     if (token !== undefined && token !== "") {
       isLoggedIn = true;
       navs = ALLNAVS.slice(); // clone instead of copy
-      navs.pop();
-      navs.pop();
+      removePage(navs,['/signup', '/login'])
       // Twice because signup and login at the end
     } else {
       isLoggedIn = false;
       navs = ALLNAVS.slice(); // clone instead of copy
-      if ($page.url.pathname === "login") {
-        navs.pop(); // Take off signup
-      }
+      removePage(navs, [
+        '/chatrooms',
+        $page.url.pathname === "/login"? '/signup':''
+      ])
     }
+    console.log(navs);
     navs = navs;
   }
   
