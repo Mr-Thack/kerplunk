@@ -182,10 +182,10 @@ STATICDIR = STATICDIR + "/build"
 
 # Check if this exists
 if not path.isdir(STATICDIR):
-    print("Run \"cd ../../frontend; npm build\" in the terminal!")
-    print("You are missing the built frontend code for serving.")
-    print("This doesn't affect testing and writing the code,")
-    quit(1)
-    
-app.mount('/', StaticFiles(directory=STATICDIR,
-                           html=True), 'ui')
+    print('WARNING!')
+    print("THIS IS ONLY HARMLESS IN DEVELOPMENT!")
+    print("Run \"cd ../../frontend; npm run build\" in the terminal!")
+    print("YOU ARE MISSING COMPILED FRONTEND CODE.")
+else:
+    app.mount('/', StaticFiles(directory=STATICDIR,
+                               html=True), 'ui')
