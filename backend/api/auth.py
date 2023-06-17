@@ -88,8 +88,8 @@ async def start_signup_user(data: SignUpData) -> bool:
         return True
 
 def finish_signup_user(code: str) -> bool:
-    if code in waiting_users:
-        data = waiting_users[code]
+    if code.upper() in waiting_users:
+        data = waiting_users[code.upper()]
 
         uuid = make_user(data.email, data.fname, data.lname, data.schid, data.student)
         set_pwd(data.email, data.pwd, uuid)
@@ -111,8 +111,8 @@ async def start_reset_pwd(data: ResetData):
         return True
 
 def finish_reset_pwd(code: str):
-    if code in waiting_users:
-        data = waiting_users[code]
+    if code.upper() in waiting_users:
+        data = waiting_users[code.upper()]
         uuid = uuid_from_email(data.email)
         set_pwd(data.email, data.pwd, uuid)
         return True

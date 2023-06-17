@@ -66,7 +66,6 @@
         $page.url.pathname === "/login"? '/signup':''
       ])
     }
-    console.log(navs);
     navs = navs;
   }
   

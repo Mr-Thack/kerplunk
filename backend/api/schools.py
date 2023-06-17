@@ -46,8 +46,8 @@ async def start_register_school(data: RegisterData) -> bool:
         return True
 
 def finish_register_school(code: str) -> bool:
-    if code in waiting_users:
-        data = waiting_users[code]
+    if code.upper() in waiting_users:
+        data = waiting_users[code.upper()]
         
         schid = len(school_data)  # school id
         school_data[schid] = SchoolSchema(data.name, data.email, data.altnames)
