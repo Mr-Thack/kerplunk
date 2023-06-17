@@ -4,36 +4,9 @@
   import { onDestroy, onMount } from 'svelte';
   import { goto } from '$app/navigation';
 
-  import { modalStore } from '@skeletonlabs/skeleton';
-  import type { ModalSettings } from '@skeletonlabs/skeleton';
-  import { salert, falert } from '$library/simpleAlert';
+  import { salert, falert, askbool, proompt } from '$library/simpleAlert';
 
-  var chatName: string;
-  var chatPwd: string;
-
-  const chatModalName: ModalSettings = {
-    type: 'prompt',
-    title: 'Chatroom Name:',
-    value: '',
-    valueAttr: {
-      type: 'text',
-      minlength: '1',
-      required: true
-    },
-    response: (name: string) => chatName = name 
-  }
-
-  const chatModalPwd: ModalSettings = {
-    type: 'prompt',
-    title: 'Chatroom Password (Leave empty for no password):',
-    value: '',
-    valueAttr: {
-      type: 'text',
-      minlength: '4',
-      required: false
-    },
-    response: (pwd: string) => { chatPwd = pwd; makeRoom(); }
-  }
+  var chatName: string = "", chatPwd: string = "";
 
   async function updateChats() {
     // @ts-ignore
@@ -61,6 +34,7 @@
       if (r.error) {
         salert(`JOIN ERROR: ${r.data}`);
       } else {
+        // @ts-ignore
         userDataStore.write('cid', r.data.cid);
         goto('/chat');
       }
@@ -70,9 +44,23 @@
  
 
   async function promptRoom() {
-    modalStore.trigger(chatModalName);
-    modalStore.trigger(chatModalPwd);
-
+    proompt("Name of the chatroom?", (r: string) => {
+      chatName = r;
+      if (chatName) {
+        askbool('Do You Want a Password?', (b: boolean) => {
+          if (b) {
+            proompt("Password Of The Chat Room?", (p: string) => {
+              chatPwd = p;
+              makeRoom();
+            });
+          } else {
+            makeRoom();
+          }
+        });
+      } else {
+        salert("You need a chat room name!")
+      }
+    });
   }
 
   async function makeRoom() {
@@ -103,39 +91,9 @@
 
 {#if chatrooms.length}
   {#each chatrooms as chatroom}
-    <button class="btn mt-3 w-25" on:click={() => join(chatroom)}>Join {chatroom}</button>
+    <button class="btn bg-gradient-to-br variant-gradient-primary-secondary mt-3 w-25" on:click={() => join(chatroom)}>Join {chatroom}</button>
+    <br />
   {/each}
 {:else}
   <h2 class="h2 text-center">There aren't any yet! Make one!</h2>
 {/if}
-
-<!--
-<div class='modal'>
-    <input id='openRoom' type='checkbox' />
-    <label for='openRoom' class='overlay' />
-    <article>
-        <header>
-            <center><h3>Create Chatroom</h3></center>
-            <label for='openRoom' class='close'>&times</label>
-        </header>
-        <section class='content'>
-            <input type='text' bind:value={data.name} placeholder='Chatroom name'>
-            <input type='password' bind:value={data.pwd} placeholder='Chatroom password'>
-            <label>
-                <input type='checkbox' bind:checked={data.public}>
-                <center><span class='toggle button'>
-                    {#if !data.public}
-                        Make Public
-                    {:else}
-                        Make Private
-                    {/if}
-                </span></center>
-            </label>
-            <input type=checkbox bind:checked={data.temp}>
-        </section>
-        <footer>
-        <label for='openRoom' style='float: right' class='button' on:click|preventDefault={makeRoom}>
-            Create!
-        </label>
-</div>
--->

@@ -1,17 +1,12 @@
 import { modalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 
 
-
-
-
-
-
-
 // Simple Alert
 export function salert(title: string) {
   const SimpleAlert: ModalSettings = {
     type: 'alert',
-    title: title
+    title: title,
+    buttonTextCancel: 'OK'
   };
   modalStore.trigger(SimpleAlert)
 }
@@ -21,7 +16,8 @@ export function falert(title: string, fn: () => void) {
   const FunctionAlert: ModalSettings = {
     type: 'alert',
     title: title,
-    response: fn
+    response: fn,
+    buttonTextCancel: 'OK'
   }
   modalStore.trigger(FunctionAlert)
 }
@@ -38,4 +34,16 @@ export function proompt(title: string, fn: (r: string) => void) {
     response: fn
   };
   modalStore.trigger(Proompt);
+}
+
+// Yes No Question
+export function askbool(title: string, fn: (r: boolean) => void) {
+  const AskBool: ModalSettings = {
+    type: 'confirm',
+    title: title,
+    response: fn,
+    buttonTextConfirm: 'Yes!',
+    buttonTextCancel: 'No!'
+  }
+  modalStore.trigger(AskBool);
 } 
