@@ -318,14 +318,13 @@ class Test030_Chat_Rooms(unittest.TestCase):
             self.assertListEqual(user1.chat_log, user2.chat_log)
 
 
-if __name__ == '__main__':
-    # Clear data directory
-    rmtree('../data/')
-    mkdir('../data/')
+# Clear data directory
+rmtree('../data/')
+mkdir('../data/')
     
-    mail.isTesting = True
-    mail.fm.config.SUPPRESS_SEND = 1
+mail.isTesting = True
+mail.fm.config.SUPPRESS_SEND = 1
 
-    client = TestClient(app)
+client = TestClient(app)
 
-    unittest.main()
+unittest.main()
