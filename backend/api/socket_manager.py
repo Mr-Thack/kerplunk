@@ -6,12 +6,9 @@ class SocketManager():
     async def connect(self, ws, uuid):
         await ws.accept()
         self.clients[uuid] = ws
-        print(self.clients)
 
     def disconnect(self, uuid):
         """Disconnect by UUID"""
-        print('Disconnecting')
-        print(self.clients, uuid)
         del self.clients[uuid]
 
     async def dm(self, uuid, msg: str):

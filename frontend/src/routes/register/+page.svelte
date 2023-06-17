@@ -18,7 +18,7 @@
       });
     } else {
       // @ts-ignore
-      salert("An error has occured: " + rez.error.detail)
+      salert("An error has occured: " + rez.data.detail)
     }
   }
  

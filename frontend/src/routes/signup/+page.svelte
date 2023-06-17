@@ -209,6 +209,6 @@
 	</Step>
 	<Step locked={!signupcode}>
 		<svelte:fragment slot="header">Email Signup Code</svelte:fragment>
-		<input class="input m-2" type="text" name="Code" bind:value={signupcode} placeholder="Check your Email!" />
+		<input class="input m-2" type="text" name="Code" bind:value={signupcode} placeholder="Code from your Email!" />
 	</Step>
 </Stepper>

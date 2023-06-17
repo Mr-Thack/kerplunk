@@ -6,6 +6,7 @@ from dblib import db
 from dataclasses import dataclass
 from mail import send_signup_email, send_reset_email, gen_code
 from os import environ
+from schools import is_valid_schid
 
 @dataclass
 class CredsSchema():
@@ -47,7 +48,6 @@ class SignUpData(BaseModel):
 
 def get_user(ahash: str) -> list[str, str]:
     data = creds[ahash]
-    print(creds)
     if data:
         return data
 
@@ -75,26 +75,23 @@ def set_pwd(email: str, pwd: str, uuid: str):
     creds[ahash] = CredsSchema(uuid, email)
 
 
-def core_signup_user(data: SignUpData):
-    uuid = make_user(data.email, data.uname, data.schid)
-    set_pwd(data.email, data.pwd, uuid)    
-
 async def start_signup_user(data: SignUpData) -> bool:
-    if not is_email_used(data.email):
-        if environ.get('ISPRODUCTION'):
-            code = gen_code()
-            waiting_users[code] = data    
-            await send_signup_email(data.email, data.uname, code)
-            # This will be continued in finish_signup_user
-        else:
-            core_signup_user(data)
+    if is_valid_schid(data.schid) and not is_email_used(data.email):
+        code = gen_code()
+        waiting_users[code] = data    
+        
+        await send_signup_email(data.email, data.uname, code)
+        # This will be continued in finish_signup_user
+        
         return True
 
 def finish_signup_user(code: str) -> bool:
-    if not environ.get('ISPRODUCTION'):
-        return True
-    elif code in waiting_users:
-        core_signup_user(waiting_users[code])
+    if code in waiting_users:
+        data = waiting_users[code]
+
+        uuid = make_user(data.email, data.uname, data.schid)
+        set_pwd(data.email, data.pwd, uuid)
+        
         return True
 
 
@@ -106,25 +103,17 @@ class ResetData(BaseModel):
 
 async def start_reset_pwd(data: ResetData):
     uuid = uuid_from_email(data.email)
-    if not uuid:
-        return False
-    
-    if environ.get('ISPRODUCTION'):
+    if uuid:
         code = gen_code()
         waiting_users[code] = data
         await send_reset_email(data.email,
                                get_field(uuid, 'uname'),
                                data.pwd, code)
-    else:
-        set_pwd(data.email, data.pwd, uuid)
-
-    # Later on, we can introduce stuff like "you've tried resetting 5 times in past 2 minutes. Something isn't right"
-    return True
+        # Later on, we can introduce stuff like "you've tried resetting 5 times in past 2 minutes. Something isn't right"
+        return True
 
 def finish_reset_pwd(code: str):
-    if not environ.get('ISPRODUCTION'):
-        return True
-    elif code in waiting_users:
+    if code in waiting_users:
         data = waiting_users[code]
         uuid = uuid_from_email(data.email)
         set_pwd(data.email, data.pwd, uuid)

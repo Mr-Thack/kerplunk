@@ -14,7 +14,6 @@ from sid import SIDValidity
 from os import path
 
 
-# [NOTE] In the OS Env, set isProduction to True for production 
 api = FastAPI(title='api')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
@@ -183,7 +182,6 @@ if not path.isdir(STATICDIR):
     print("Run \"cd ../../frontend; npm build\" in the terminal!")
     print("You are missing the built frontend code for serving.")
     print("This doesn't affect testing and writing the code,")
-    print("but I've got more important stuff to do that add an \"isProduction?\" check.")    
     quit(1)
     
 app.mount('/', StaticFiles(directory=STATICDIR,
