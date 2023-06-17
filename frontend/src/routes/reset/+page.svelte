@@ -46,8 +46,8 @@
 		<h2 class="h2">Oh No!</h2>
 	</header>
 	
-	<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Currently Registered Email' />
-	<input class="input m-2" title="Password" type='password' bind:value={pwd} placeholder='What Password Do You Want?' />
+	<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Current Email' />
+	<input class="input m-2" title="Password" type='password' bind:value={pwd} placeholder='New Password' />
  
 	
 	<footer class='flex justify-between m-2'>

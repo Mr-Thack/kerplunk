@@ -179,40 +179,7 @@ class db:
             return [str(k, 'utf-8') for k in txn.cursor()
                     .iternext(values=False)]
 
-    """
     def close(self):
         # This is for any cleaning up that we would need to do
         # This should be done, but it doesn't seem to cause harm if it isn't
         self.db.close()
-    """
-
-
-"""
-# NOTE: As of now, BaseSchema doesn't work as intentded
-# seperator is not existant
-
-# Isn't this nice Test Code?
-@dataclass
-class TestDBSchema(BaseSchema):
-    uname: str
-    fname: str
-
-testdb = db('test4', None)  # TestDBSchema, tmp=True)
-testdb['u1'] = TestDBSchema('Name1', 'FName1')
-testdb['u2'] = TestDBSchema('Name2', 'FName2')
-testdb['u3'] = TestDBSchema('Name3', 'FName3')
-del testdb['u3']
-print(testdb['u1', 'uname'])
-testdb['u2', 'uname'] = 'NameNew'
-print(testdb['u2', 'uname'])
-for i in range(10):
-    testdb[i] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i]
-
-
-
-
-
-
-for i in range(11):
-    print(testdb[i])
-"""

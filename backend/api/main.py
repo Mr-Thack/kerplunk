@@ -95,14 +95,14 @@ async def login(req: Request, fd: OAuth2PasswordRequestForm = Depends()):
 @api.get('/userme')
 async def user_get_field(uuid: str = Depends(oauth_uuid),
                          fields: list[str] = Query()):
-    if not valid_keys(fields):
+    if not valid_keys(fields, True):
         raise HTTPException(status_code=400, detail='Invalid Fields')
     return multi_get(uuid, fields)
 
 
 @api.post('/userme')
 async def user_set_field(fields: dict, uuid: str = Depends(oauth_uuid)):
-    if valid_fields(fields):
+    if not valid_fields(fields):
         raise HTTPException(status_code=400, detail='Invalid Fields')
     return {'changed': multi_set(uuid, fields)}
 
@@ -125,7 +125,7 @@ async def open_chatroom(room_data: InitChatRoomData,
 @api.patch('/chats')
 async def user_join_chatroom(name: str, pwd: str | None = None,
                              uuid: str = Depends(oauth_uuid)):
-    room_data = add_user_to_chatroom(uuid, name, pwd)
+    room_data = await add_user_to_chatroom(uuid, name, pwd)
     if room_data:
         return room_data
     else:
@@ -150,10 +150,13 @@ async def tmpchatroom(ws: WebSocket, cid_uuid=Depends(ws_uuid)):
     (cid, uuid) = cid_uuid  # Tried putting (cid, uuid) in params; won't work?
     await on_user_join_chatroom(cid, uuid, ws)
     try:
-        while True:
-            await join_chatroom_user_event_loop(uuid, cid)
-    except WebSocketDisconnect:
-        await on_user_leave_chatroom(uuid, cid)
+        try:
+            while True:
+                await join_chatroom_user_event_loop(uuid, cid)
+        except WebSocketDisconnect:
+            await on_user_leave_chatroom(uuid, cid)
+    except e:
+        print(e)
 
 
 app = FastAPI(title='main')

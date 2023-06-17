@@ -19,10 +19,10 @@ creds = db('Credentials', CredsSchema)
 creds only holds enough information for authentication.
 Actual user data is stored elsewhere
 Data is stored as:
-ahash: uuid1 + ' ' + uname
+ahash: uuid1 + ' ' + email
 The ahash is used after the pwd is hashed.
 uuid1 is used internally as the user's id
-the uname is used so that on login we can check if the uname provided is right
+is used so that on login we can check if the email provided is right
 It should be noted that UUID1 has one problem. It uses our MAC address.
 This could become a privacy concern if we get hacked. However,
 I'm using UUID1 because UUID1 also provides a timestamp, which we can later use
@@ -41,10 +41,12 @@ def uuid_from_email(email: str) -> str:
 
 # We want a username and a hash of their pwd and email on signup
 class SignUpData(BaseModel):
-    uname: str
     pwd: str
     email: str
     schid: int
+    student: bool
+    fname: str
+    lname: str
 
 def get_user(ahash: str) -> list[str, str]:
     data = creds[ahash]
@@ -80,7 +82,7 @@ async def start_signup_user(data: SignUpData) -> bool:
         code = gen_code()
         waiting_users[code] = data    
         
-        await send_signup_email(data.email, data.uname, code)
+        await send_signup_email(data.email, data.fname + ' ' + data.lname, code)
         # This will be continued in finish_signup_user
         
         return True
@@ -89,7 +91,7 @@ def finish_signup_user(code: str) -> bool:
     if code in waiting_users:
         data = waiting_users[code]
 
-        uuid = make_user(data.email, data.uname, data.schid)
+        uuid = make_user(data.email, data.fname, data.lname, data.schid, data.student)
         set_pwd(data.email, data.pwd, uuid)
         
         return True
@@ -98,7 +100,6 @@ def finish_signup_user(code: str) -> bool:
 class ResetData(BaseModel):
     email: str
     pwd: str
-
     
 
 async def start_reset_pwd(data: ResetData):
@@ -106,10 +107,7 @@ async def start_reset_pwd(data: ResetData):
     if uuid:
         code = gen_code()
         waiting_users[code] = data
-        await send_reset_email(data.email,
-                               get_field(uuid, 'uname'),
-                               data.pwd, code)
-        # Later on, we can introduce stuff like "you've tried resetting 5 times in past 2 minutes. Something isn't right"
+        await send_reset_email(data.email, get_field(uuid, 'name'), code)
         return True
 
 def finish_reset_pwd(code: str):

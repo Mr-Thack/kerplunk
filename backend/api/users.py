@@ -6,10 +6,13 @@ from dataclasses import dataclass
 @dataclass
 class UserSchema():
     email: str
-    uname: str  # username
-    schid: int  # school ID
-    lname: str | None = None  # legal name
+    fname: str
+    lname: str
+    schid: int
+    student: bool
 
+# These are things that they shouldn't be able to change easily, or at all
+RESTRICTED = ('fname', 'lname', 'student')
 
 # Eventually hold uuid: email, username, fname+lname, phone#, school, classes
 user_data: db = db("UserData", UserSchema)
@@ -22,9 +25,9 @@ def is_email_used(email: str):
     return False
 
 
-def make_user(email: str, username: str, schid: int) -> str:
+def make_user(email: str, fname: str, lname: str, schid: int, student: bool) -> str:
     uuid: str = str(uuid1())
-    user_data[uuid] = UserSchema(email, username, schid)
+    user_data[uuid] = UserSchema(email, fname, lname, schid, student)
     return uuid
 
 
@@ -33,22 +36,32 @@ def print_users():
         print(f'UUID: {uuid} and USER: {user}')
 
 
-def valid_keys(fields: list[str]) -> bool:
-    return set(fields) <= set(UserSchema.__annotations__.keys())
+def valid_keys(fields: list[str], is_get: bool = False) -> bool:
+    # is_get is when we're doing a get operation
+    cmp_list = list(UserSchema.__annotations__.keys())
+    if is_get:
+        cmp_list.append('name')
+    
+    return set(fields) <= set(cmp_list)
 
 
-def valid_fields(vals: dict) -> str:
+def valid_fields(vals: dict, is_get: bool = False) -> bool:
     """Returns empty string on success, str if failure"""
-    if valid_keys(vals.keys()):
-        return ''
+    # is_get is for telling us whether we are judging for get or not
+    if valid_keys(vals, is_get):
+        return True
 
 
 def get_field(uuid: str, field: str):
+    if field == "name":
+        return user_data[uuid, 'fname'] + ' ' + user_data[uuid, 'lname']
     return user_data[uuid, field]
 
 
-def set_field(uuid: str, field: str, val):
-    user_data[uuid, field] = val
+def set_field(uuid: str, field: str, val) -> bool:
+    if field not in RESTRICTED:
+        user_data[uuid, field] = val
+        return True
 
 
 def multi_get(uuid: str, fs: list[str]) -> dict:  # Takes fields as "fs"

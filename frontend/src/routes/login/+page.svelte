@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { checkCredentials } from '$lib/auth';
-  import { userDataStore } from '$lib/stores';
+  import { get ,post } from '$lib/endpoint';
+	import { userDataStore } from '$lib/stores';
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
-
-
+	import { salert, proompt } from '$lib/simpleAlert';
+	
 	var email = "", pwd = "";
 	
- 	async function send() {
+ 	async function sendLogin() {
 	  const token = await checkCredentials(email, pwd);
     if (browser && token) {
       userDataStore.write('token', token);
@@ -15,6 +16,31 @@
     }
 	}
 
+	async function sendReset() {
+		let rz = await post('reset', {
+			'email': email,
+			'pwd': pwd
+		});
+
+		if (rz.error) {
+			// @ts-ignore
+			salert("Error: " + rz.data.detail);
+		} else {
+			salert('Check Your Email!');
+			proompt('What is the Code?', async (code: string) => {
+				let rez = await get('reset', {
+					'code': code
+				});
+				if (rez.error) {
+					// @ts-ignore
+					salert("Error: " + rz.data.detail)
+				} else {
+					salert("Congrats! The password has been reset!")
+					await sendLogin();
+				}
+			});
+		}
+	}
 </script>
 <div class='card p-7'>
 	<header class='mx-auto mb-5 text-center'>
@@ -27,9 +53,10 @@
 	
 	<footer class='flex justify-between m-2'>
 		<!-- We have to do it twice bcz Svelte can't handle one {} doing both, also we only check passwd.len in 2nd bc it has priority-->
-		<button type="button" class="btn variant-filled" disabled={!(email && pwd)} on:click={send}>Log In!</button>
+		<button type="button" class="btn variant-filled-primary" disabled={!(email && pwd)} on:click={sendLogin}>Log In!</button>
 		
-		<a type="button" class='btn variant-filled-success' href='/reset'>Forgot Your Password?</a>
+		<button type="button" class="btn variant-filled-secondary" disabled={!(email && pwd)} on:click={sendReset}>Change Password!</button>
+		
 	</footer>
 	
 </div>

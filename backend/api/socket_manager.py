@@ -9,7 +9,8 @@ class SocketManager():
 
     def disconnect(self, uuid):
         """Disconnect by UUID"""
-        del self.clients[uuid]
+        # Pop is a safe delete
+        self.clients.pop('uuid', None)
 
     async def dm(self, uuid, msg: str):
         await self.clients[uuid].send_text(msg)

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Stepper, Step, modalStore, SlideToggle, RadioGroup, RadioItem, type ModalSettings, type AutocompleteOption, Autocomplete } from '@skeletonlabs/skeleton';
+	import { Stepper, Step, modalStore, RadioGroup, RadioItem, type ModalSettings, type AutocompleteOption, Autocomplete } from '@skeletonlabs/skeleton';
 	import zxcvbn from 'zxcvbn';
 	import { goto } from '$app/navigation';
 	import { get, post } from '$lib/endpoint';
@@ -12,8 +12,8 @@
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
-	let password = '', uname = '', email = '',
-		  school = '', schid = -1, isStudent = false, signupcode = '', value = 0;
+	let password = '', fname = '', lname = '', email = '',
+		  school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
@@ -83,10 +83,12 @@
 	async function startSignup() {
 		// @ts-ignore
 		const rez = await post('signup', {
-			'uname': uname,
+			'fname': fname,
+			'lname': lname,
 			'pwd': password,
 			'email': email,
-			'schid': schid
+			'schid': schid,
+			'student': isStudent
 		})
 		if (rez.error) {
 			// @ts-ignore
@@ -94,7 +96,7 @@
 			modalStore.trigger(failureSignupModal);
 			return false;
 		} else {
-			salert("Check you Email!");
+			salert("Check your Email!");
 		}
 		return true;
 	}
@@ -165,12 +167,13 @@
 </header>
 <!-- It complains on the next line that on:step function handler has a type mismatch, but it doesn't impact us -->
 <Stepper on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4">
-	<Step locked={!(email && password && uname)}>
+	<Step locked={!(email && password && fname && lname)}>
 		<svelte:fragment slot="header">Basic Info</svelte:fragment>
 
 		<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Email' />
 		<input class="input m-2" title="Password" type='password' bind:value={password} placeholder='Your Password' />
-    <input class="input m-2" title="Username" type='text' bind:value={uname} placeholder='Your Username' />
+    <input class="input m-2" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
+		<input class="input m-2" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
   </Step>
 	<Step>
 		<h3 class="h3 text-center">Are you a student or a teacher?</h3>
@@ -195,7 +198,7 @@
 		<svelte:fragment slot="header">School Info</svelte:fragment>
 
 		{#if !isStudent}
-			<!-- We want to open a new tab so that they can return to the current one -->
+			<!-- We want to open a new tab (_blank) so that they can return to the current one -->
 			<a class="btn variant-filled-error h3 text-center" href="/register" target="_blank">
 				Don't see your School Here?
 			</a>

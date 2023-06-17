@@ -36,35 +36,35 @@ async def send_email(subject: str, recipient: str, data: dict, template: str):
     )
     await fm.send_message(msg, template_name=template)
 
-async def send_signup_email(email: str, uname: str, code: str):
+async def send_signup_email(email: str, name: str, code: str):
     await send_email(
         'Signup for Kerplunk',
         email,
         {
-            'uname': uname,
+            'name': name,
             'code': code
         },
         'signup.html'
     )
 
 # This is for schools
-async def send_register_email(email: str, school_name: str, code: str):
+async def send_register_email(email: str, name: str, code: str):
     await send_email(
         'Register for Kerplunk',
         email,
         {
-            'name': school_name,
+            'name': name,
             'code': code
         },
         'register.html'
     )
 
-async def send_reset_email(email: str, uname: str, pwd: str, code: str):
+async def send_reset_email(email: str, name: str, code: str):
     await send_email(
         'Reset Password for Kerplunk',
         email,
         {
-            'uname': uname,
+            'name': name,
             'code': code
         },
         'reset.html'
@@ -72,8 +72,8 @@ async def send_reset_email(email: str, uname: str, pwd: str, code: str):
 
 
 # The characters o, l, 0, and 1 could be easily confused, so we don't use them 
-POSSIBLE_CHARACTERS = ascii_uppercase.replace('L','').replace('I','') + ascii_lowercase.replace('l', '').replace('o', '') + digits.replace('01', '')
+POSSIBLE_CHARACTERS = ascii_uppercase.replace('L','').replace('I','').replace('O', '') + digits.replace('01', '')
 
-def gen_code(length: int = 12):
+def gen_code(length: int = 6):
     return ''.join(choices(POSSIBLE_CHARACTERS, k=length))
 

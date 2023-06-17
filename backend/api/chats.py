@@ -15,7 +15,7 @@ class InitChatRoomData(BaseModel):
 class ChatRoom(InitChatRoomData):
     owner: str  # This is a UUID str
     cid: str
-    joiners: list[str] = []
+    chatters: list[str] = []
 
 
 """
@@ -53,30 +53,47 @@ def create_chatroom(data: InitChatRoomData, owner: str):
                               owner=owner, **data.__dict__)
         chats[new_chatrm.cid] = new_chatrm  # Write info to the db
         chat_data = open_chat(cid)  # Open a fresh new one
-        chat_data[0] = (f"User {get_field(owner, 'uname')}" +
+        chat_data[0] = (f"User {get_field(owner, 'name')}" +
                         f" has created chatroom {new_chatrm.name}!")
         return new_chatrm.cid
 
 
-def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | None:
-    chatrm = None
-    for cid, chat in chats:
+async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | None:
+    cid = None
+    for curcid, chat in chats:
         if chat.name == name:
-            chatrm = chat
-    if chatrm and (not chatrm.pwd or (pwd and chatrm.pwd == pwd)):
-        chatrm.joiners.append(uuid)
-        chats[chatrm.cid] = chatrm
+            cid = curcid
+      
+    if not cid:
+        return
+
+    chat = chats[cid]  # Instead of accessing the dict over and over again, we're gonna do this
+    if not chat.pwd or (pwd and chat.pwd == pwd):
+        # If this UUID isn't recognized
+        
+        if uuid not in chat.chatters:
+            chat.chatters.append(uuid)
+            chats[cid] = chat  # In the previous line, we only updated our copy in memory
+            # This line puts it back into the dict and then the db
+            
+            name = get_field(uuid, 'name')
+            msg = f"{name} has joined the chat!"
+            write_msg(cid, msg)  # write to db
+            await sm.broadcast(msg)  # send to all clients
+
+        # We return it in the human friendly version, with name instead of their UUID
+        # Later, we might have to return more information
         return {
-            'cid': chatrm.cid,
-            'owner': get_field(chatrm.owner, 'uname'),
-            'joiners': [get_field(j, 'uname') for j in chatrm.joiners]
-            }
+            'cid': cid,
+            'owner': get_field(chats[cid].owner, 'name'),
+            'chatters': [get_field(chatter, 'name') for chatter in chats[cid].chatters]
+        }
 
 
 def usr_in_chatroom(uuid: str, cid: str):
     """Check if user is in given chatroom"""
     chat = chats[cid]
-    return True if uuid in chat.joiners else False
+    return uuid in chat.chatters
 
 
 # We'll take the user's uuid, the msg, and chatroom
@@ -88,7 +105,6 @@ def write_msg(cid: str, msg: str):
         chat[len(chat)] = msg
         # Since indices start at 0, len() will return 1 + the last index
         return True
-    return False
 
 
 def read_msgs(cid: str, msg_start: int, msg_end: int):
@@ -102,10 +118,15 @@ def read_msgs(cid: str, msg_start: int, msg_end: int):
 
 async def on_user_join_chatroom(cid: str, uuid: str, ws):
     await sm.connect(ws, uuid)
-    write_msg(cid, f"User {get_field(uuid, 'uname')} has joined the chat!")
     await sm.dm(uuid, '\x1e'.join(read_msgs(cid, 0, -1)))  # -1 means "end"
     # This weird character is ASCII 30 (Record Seperator)
     # [TODO] Maybe we should only load like 20 messages, and they can scroll up for more
+
+    name = get_field(uuid, 'name')
+    if uuid != chats[cid].owner and uuid not in chats[cid].chatters:
+        msg = f"{name} has joined the chat!"
+        write_msg(cid, msg)  # write to db
+        await sm.broadcast(msg)  # send to all clients
 
 
 async def join_chatroom_user_event_loop(uuid: str, cid: str):
@@ -119,7 +140,6 @@ async def join_chatroom_user_event_loop(uuid: str, cid: str):
 # [TODO] We need a permanent leave and a permanent join
 # Right now, these 2 are for actually for "disconnected" and "connected"
 async def on_user_leave_chatroom(uuid: str, cid: str):
-    msg = f"User {get_field(uuid, 'uname')} has left the chat!"
     sm.disconnect(uuid)  # Remove inactive user
-    write_msg(cid, msg)
-    await sm.broadcast(msg)  # Then send to all that're left
+    # write_msg(cid, msg)
+    # await sm.broadcast(msg)  # Then send to all that're left

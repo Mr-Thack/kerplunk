@@ -10,18 +10,23 @@ from main import app
 
 
 # Test User Fields supported by backend
-supported_fields = ('uname', 'lname')
+supported_fields = ('schid', 'fname', 'lname', 'email', 'student')
 
 @dataclass
 class User:
-    uname: str
-    pwd: str
-    email: str
-    sid: str
+    fname: str
     lname: str
+    schid: int
+    pwd: str
+    student: bool
+    email: str
+    sid: str = None
     ws: WebSocket = None
     chat_log: [str] = None
     # Current copy of chatlog, we test if is same in each joined user
+
+    def name(self) -> str:
+        return self.fname + ' ' + self.lname
 
 
 @dataclass
@@ -33,18 +38,26 @@ class Chat:
     participants: list = field(default_factory=lambda: [])
 
 
-user1: User = User('test', 'abcd', 'test@test.com', '', 'Newton,Newtonson')
+@dataclass
+class School:
+    name: str
+    email: str
+    altnames: [str]
+
+user1: User = User('FName1', 'LName1', 0, 'password1', False, 'test1@test.com')
 # alt vals is used in Test02-test110
 # Whenever supported_fields is updated,
 # this should also be updated (On New Features)
 altvals = {
-    'uname': 'tester',
-    'lname': 'Norm,Normski'
+    'schid': 1,
+    'pwd': "AltPassword"
 }
 
 # This is a second user
-user2: User = User('test2', 'seconduser', 'test2@test.com', '', 'Slepy,Sleper')
+user2: User = User('FName2', 'LName2', 0, 'password2', True, 'test2@test.com')
 users = (user1, user2)
+school1: School = School('Test School', 'contacts@test.org', ['tst', 'schl'])
+schools = (school1,)
 chat1: Chat = Chat('Testing')
 chat_rooms = (chat1, )
 
@@ -59,11 +72,16 @@ def signup_user(user: User):
     r = []
     with mail.fm.record_messages() as outbox:                        
         r.append(client.post('/api/signup', json={
-            'uname': user.uname,
+            'fname': user.fname,
+            'lname': user.lname,
+            'student': user.student,
             'pwd': user.pwd,
             'email': user.email,
-            'schid': 0
+            'schid': user.schid
         }))
+        # [BUG] [NOTE]
+        # It might complain about an incorrect email
+        # when you actually have an incorrect schid
         if not len(outbox):
             return r
         code = dict(outbox[-1]._headers)['code']
@@ -84,16 +102,17 @@ def get_user_sid(user: User):
         'client_id': '',
         'client_secret': ''
     }
-    return client.post('/api/login', data=con).json()['access_token']
+    r = client.post('/api/login', data=con).json()
+    return r['access_token']
 
 
 class Test005_schools(unittest.TestCase):
     def test010_make_school(self):
         with mail.fm.record_messages() as outbox:
             result = client.post('/api/register', json={
-                'name': 'Test School',
-                'altnames': ['tst', 'schl'],
-                'email': 'test@school.org'
+                'name': school1.name,
+                'altnames': school1.altnames,
+                'email': school1.email
             })
             self.assertEqual(result.status_code, 200)
             self.assertEqual(len(outbox), 1)
@@ -141,30 +160,47 @@ class Test010_auth(unittest.TestCase):
         self.assertIsNotNone(sid)
         user2.sid = sid
 
+    def test100_reset_password(self):
+        """Now, we'll try to reset the 1st users's password """
+        with mail.fm.record_messages() as outbox:                        
+            r1 = client.post('/api/reset', json={
+                'pwd': altvals['pwd'],
+                'email': user1.email,
+            })
+            self.assertEqual(r1.status_code, 200)
+            
+            if not len(outbox):
+                return r
+            
+            code = dict(outbox[-1]._headers)['code']
+            r2 = client.get('/api/reset', params={
+                'code': code
+            })
+
+            self.assertEqual(r2.status_code, 200)
+            user1.pwd = altvals['pwd']
 
 class Test020_User_Data(unittest.TestCase):
-    def test010_get_username(self):
-        """Check if test user's username is correctly registered"""
+    def test010_get_lastname(self):
+        """Check if test user's last name is correctly registered"""
         r = client.get('/api/userme', params={
-            'fields': ['uname']
+            'fields': ['lname']
             }, headers=genhed(user1)).json()
-        self.assertIn('uname', r)
-        self.assertEqual(r['uname'], user1.uname)
-
-    def test020_set_legalname(self):
-        """Set lname value in db"""
-        r = client.post('/api/userme', json={'lname': user1.lname},
-                        headers=genhed(user1)).json()
-        self.assertIn('changed', r)
-        self.assertEqual(r['changed'], 'lname')
-
-    def test030_get_legalname(self):
-        """Check if lname value in db is correct"""
-        r = client.get('/api/userme', params={
-            'fields': 'lname'
-            }, headers=genhed(user1)).json()
+        self.assertIn('lname', r)
         self.assertEqual(r['lname'], user1.lname)
 
+    def test020_get_fullname(self):
+        """See if the user's full name is properly returned"""
+        r = client.get('/api/userme', params={'fields': 'name'},
+                        headers=genhed(user1)).json()
+        self.assertIn('name', r)
+        self.assertEqual(r['name'], user1.name())
+
+    # Need another school first
+    #def test030_set_schid(self):
+    #    """See if the users's schid can be modified"""
+    #    r = client.post('/api/userme', json={'schid': altvals['schid']})
+        
     def test100_multiget(self, key=user1, auth_user=user1):
         """
         Check if getting all values at once works.
@@ -181,18 +217,19 @@ class Test020_User_Data(unittest.TestCase):
             # Class.__dict__ is a quick way to get it done, apparently
             self.assertEqual(r[f], key[f])
 
-    def test110_multipost(self):
-        """Change all values"""
-        r = client.post('/api/userme', json=altvals, headers=genhed(user1)).json()
-        self.assertIn('changed', r)
-        self.assertSetEqual(set(supported_fields),
-                            set(r['changed'].split(' ')))
+    #def test110_multipost(self):
+    #    """Change all values"""
+    #    r = client.post('/api/userme', json=altvals, headers=genhed(user1)).json()
+    #    self.assertIn('changed', r)
+    #    self.assertSetEqual(set(supported_fields),
+    #                        set(r['changed'].split(' ')))
 
-    def test120_check_multipost(self):
-        """Check if all new values are properly set, after 110_multipost"""
-        self.test100_multiget(key=altvals)
-        user1.uname = altvals['uname']
-        user1.lname = altvals['lname']
+    # There's nothing to change but schid
+    #def test120_check_multiget(self):
+    #    """Check if all new values are properly set, after 110_multipost"""
+    #    self.test100_multiget(key=altvals)
+    #    user1.fname = altvals['fname']
+    #    user1.lname = altvals['lname']
 
 
 class Test030_Chat_Rooms(unittest.TestCase):
@@ -225,24 +262,17 @@ class Test030_Chat_Rooms(unittest.TestCase):
             }, headers=genhed(user1))
         self.assertEqual(r.status_code, 200)
 
-        r = r .json()
-        self.assertEqual(r['owner'], user1.uname)
+        r = r.json()
+        self.assertEqual(r['owner'], user1.name())
         self.assertEqual(r['cid'], chat.cid)
-        self.assertListEqual(r['joiners'], [user1.uname])
+        self.assertListEqual(r['chatters'], [user1.name()])
         chat.owner = r['owner']
         chat.pwd = ''
         # Now we'll connect to the websocket port and get our messages so far
         # join_wschat(user1, chat)
         # self.assertTrue(user1.chat_log)
 
-    def test040_2nd_user_join_chat(self):
-        """Check if users other than the owner can join"""
-        chat: Chat = chat_rooms[0]
-        r = client.patch('/api/chats', params={
-            'name': chat.name}, headers=genhed(user2)).json()
-        self.assertEqual(r['joiners'], [user1.uname, user2.uname])
-
-    def test050_1st_user_send_msg(self):
+    def test040_1st_user_send_msg(self):
         """Check sending & recieving message"""
         chat = chat_rooms[0]
         baseuri = f'/api/chats/{chat.cid}?token='
@@ -255,6 +285,13 @@ class Test030_Chat_Rooms(unittest.TestCase):
             self.assertTrue(user1.chat_log)
             user1.chat_log.append(msg)
 
+    def test050_2nd_user_join_chat(self):
+        """Check if users other than the owner can join"""
+        chat: Chat = chat_rooms[0]
+        r = client.patch('/api/chats', params={
+            'name': chat.name}, headers=genhed(user2)).json()
+        self.assertEqual(r['chatters'], [user1.name(), user2.name()])
+
     def test060_2nd_user_send_and_recv_msg(self):
         """Check if 2nd user has received the 1st msg, and sending a 2nd"""
         chat = chat_rooms[0]
@@ -262,9 +299,8 @@ class Test030_Chat_Rooms(unittest.TestCase):
         msg = 'Hello Back!'
         with client.websocket_connect(baseuri + user2.sid) as ws:
             user2.chat_log = ws.receive_text().split('\x1e')
-            # User1's chat log should have everything but the last 2 messages
-            # the ones that say "User1 left" and "User2 joined"
-            self.assertListEqual(user1.chat_log, user2.chat_log[:-2])
+            # User1's chat log should have everything but the last message ("User2 Joined Chat")
+            self.assertListEqual(user1.chat_log, user2.chat_log[:-1])
             ws.send_text(msg)
             resp = ws.receive_text()
             self.assertIsNotNone(resp)
@@ -278,7 +314,8 @@ class Test030_Chat_Rooms(unittest.TestCase):
             # but this should be top prioerity;
             # It's probably the largest performance killer we've got
             user1.chat_log = txt
-            self.assertListEqual(user1.chat_log[:-2], user2.chat_log)
+            # Now, they should be precisely equal
+            self.assertListEqual(user1.chat_log, user2.chat_log)
 
 
 if __name__ == '__main__':

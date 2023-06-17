@@ -4,7 +4,7 @@ import { browser } from '$app/environment';
 
 type UserData = {
     token: string,
-    uname: string,
+    name: string,
     cid: string
 }
 
