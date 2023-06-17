@@ -8,7 +8,8 @@
 	import { salert } from '$lib/simpleAlert';
 	import { onMount, onDestroy } from 'svelte';
 	import isValidEmail from "$lib/email";
-	import { browser } from '$app/environment';
+	import { dev, browser } from '$app/environment';
+	import { current_component } from 'svelte/internal';
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
@@ -198,8 +199,8 @@
 		<svelte:fragment slot="header">School Info</svelte:fragment>
 
 		{#if !isStudent}
-			<!-- We want to open a new tab (_blank) so that they can return to the current one -->
-			<a class="btn variant-filled-error h3 text-center" href="/register" target="_blank">
+			<!-- We want to open a new tab (_blank) so that they can return to the one -->
+			<a class="btn variant-filled-error h3 text-center" href={dev? "/register":"/register.html"} target="_blank">
 				Don't see your School Here?
 			</a>
 		{/if}

@@ -1,6 +1,7 @@
 import { formdata_post } from '$lib/endpoint';
 import { userDataStore } from '$lib/stores';
 import { salert } from '$lib/simpleAlert';
+import { dev } from '$app/environment';
 
 export async function checkCredentials(email: string, pwd: string) {
     const data = {
@@ -28,9 +29,5 @@ export function logout() {
     // But all we really need to do is wipe the user data and reload
     userDataStore.wipe();
     console.log(window.location.pathname)
-    // [NOTE]
-    // "/index.html" won't work during dev, but it will during production
-    // [TODO]
-    // Find a way that works on both
-    window.location.replace('/index.html');
+    window.location.replace(dev? 'index':'/index.html');
 }
