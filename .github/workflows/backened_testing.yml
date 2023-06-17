@@ -7,12 +7,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: pip install -r requirements.txt
-    - run: python3 unittests.py 1
-      working-directory: backend/api
-  run-performance-unittests:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: pip install -r requirements.txt
-    - run: python3 unittests.py 2
+    - run: python3 unittests.py
       working-directory: backend/api

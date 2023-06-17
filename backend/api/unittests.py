@@ -2,75 +2,15 @@
 import unittest
 from dataclasses import dataclass, field
 import mail
-from time import sleep
-from base64 import b64decode
+from shutil import rmtree
+from os import mkdir
+from starlette.testclient import TestClient, WebSocketTestSession as WebSocket
+from main import app
 
-# ALERT: Set to true for performance test
-import sys
-if sys.argv == 1:
-    PERF = False
-elif sys.argv == 2:
-    PERF = True
-else:
-    PERF = False
-LONGDEBUG = False
-# Make true, if you wanna run these tests then your own l8tr
-# All it does is not load our Kerplunk backend,
-# and thus assumes that our backend is already running
 
-# ALERT: When writing new unittests, pay attention to the name's number
-# TestUser's data
+
+# Test User Fields supported by backend
 supported_fields = ('uname', 'lname')
-
-if PERF:
-    from httpx import get, post, put, delete
-    # uuuh, someone's gotta write the web socket test wrapper
-else:
-    from shutil import rmtree
-    from os import mkdir
-    if not PERF and not LONGDEBUG:
-        # Clear data directory
-        try:
-            rmtree('../data/')
-        except FileNotFoundError:
-            pass
-        # NOTE: We need to eventually implement our own rmtree,
-        # because it's a waste of bandwidth installing a whole library
-        # to do something relatively simple, recursively removing a directory
-        mkdir('../data/')
-    from starlette.testclient import (TestClient,
-                                      WebSocketTestSession as WebSocket)
-    from main import app
-    # NOTE: To reduce bloat, we need to get rid of this
-
-
-class PerformanceTestClient():
-    def __init__(self, url: str):
-        self.url = url
-
-    def get(self, url: str, params={}, headers={}):
-        return get(self.url + '/api' + url, params=params, headers=headers)
-
-    def post(self, url: str, data={}, json={}, headers={}):
-        return post(self.url + '/api' + url, data=data, json=json, headers=headers)
-
-    def patch(self, url: str, json={}, params={}, headers={}):
-        return patch(self.url + '/api' + url, json=json, params=params, headers=headers)
-
-    def delete(self, url: str, params: dict):
-        return delete(self.url + '/api' + url, params=params)
-
-def make_client():
-    if not PERF:
-        mail.isTesting = True
-        mail.fm.config.SUPPRESS_SEND = 1
-        return TestClient(app)
-    else:
-        return PerformanceTestClient('http://127.0.0.1:8000')
-
-
-client = make_client()
-
 
 @dataclass
 class User:
@@ -342,23 +282,13 @@ class Test030_Chat_Rooms(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    if not PERF and not LONGDEBUG:
-        # Clear data directory
-        rmtree('../data/')
-        # NOTE: We need to eventually implement our own rmtree,
-        # because it's a waste of bandwidth installing a whole library
-        # to do something relatively simple, recursively removing a directory
-        mkdir('../data/')
-    client = make_client()
-    # Start Server as daemon (dies when script ends) on seperate thread
-    # server = Thread(target=server_main)
-    # server.daemon = True
-    # server.start()
-    # sleep(1)  # To give server time to start
+    # Clear data directory
+    rmtree('../data/')
+    mkdir('../data/')
+    
+    mail.isTesting = True
+    mail.fm.config.SUPPRESS_SEND = 1
 
-    # unittest.main(argv=['first-arg-is-ignored'],)
-    # Akshually, look at the top of the file,
-    # If you set it to 'PERF' then it used to run a performance test
-    # it obviously doesn't anymore
-    # haha 
+    client = TestClient(app)
+
     unittest.main()
