@@ -52,7 +52,7 @@ def finish_register_school(code: str) -> bool:
         schid = len(school_data)  # school id
         school_data[schid] = SchoolSchema(data.name, data.email, data.altnames)
         
-        del waiting_users[code]
+        del waiting_users[code.upper()]
         return True
     
     
