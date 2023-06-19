@@ -68,8 +68,6 @@
     }
     navs = navs;
   }
-  
-
 </script>
 
 
@@ -100,6 +98,7 @@
     </AppRailAnchor>
   {/if}
   <AppRailAnchor>
-    <LightSwitch class="mx-auto"/>
+    <LightSwitch class="mx-auto mb-4 mt-2"/>
+    <button type="button" class="btn-icon variant-filled mb-2 material-symbols-outlined">palette</button>
   </AppRailAnchor>
 </AppRail>
