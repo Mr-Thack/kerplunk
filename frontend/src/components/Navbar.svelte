@@ -3,7 +3,7 @@
 	import { AppRail, AppRailAnchor, LightSwitch } from '@skeletonlabs/skeleton';
   import { userDataStore } from '$lib/stores'
   import { logout } from '$lib/auth';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   
   var token = "";
   const unsub = userDataStore.subscribe(v => {
@@ -68,6 +68,51 @@
     }
     navs = navs;
   }
+
+  var theme = 0;
+  onMount (() => {
+    document.documentElement.classList.add('red');
+  })
+
+  function changeTheme() {
+    switch (theme) {
+      case 0:
+        document.documentElement.classList.remove('purple');
+        document.documentElement.classList.add('red');
+        theme ++;
+        break;
+      case 1:
+        document.documentElement.classList.remove('red');
+        document.documentElement.classList.add('orange');
+        theme ++;
+        break;
+      case 2:
+        document.documentElement.classList.remove('orange');
+        document.documentElement.classList.add('yellow');
+        theme ++;
+        break;
+      case 3:
+        document.documentElement.classList.remove('yellow');
+        document.documentElement.classList.add('green');
+        theme ++;
+        break;
+      case 4:
+        document.documentElement.classList.remove('green');
+        document.documentElement.classList.add('blue');
+        theme ++;
+        break;
+      case 5:
+        document.documentElement.classList.remove('blue');
+        document.documentElement.classList.add('purple');
+        theme = 0;
+        break;
+      default:
+        document.documentElement.classList.add('red');
+        theme = 1;
+        break;
+    }
+  }
+
 </script>
 
 
@@ -99,6 +144,6 @@
   {/if}
   <AppRailAnchor>
     <LightSwitch class="mx-auto mb-4 mt-2"/>
-    <button type="button" class="btn-icon variant-filled mb-2 material-symbols-outlined">palette</button>
+    <button type="button" class="btn-icon variant-filled-primary mb-2 material-symbols-outlined" on:click={changeTheme}>palette</button>
   </AppRailAnchor>
 </AppRail>
