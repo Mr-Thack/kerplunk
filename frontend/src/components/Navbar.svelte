@@ -1,10 +1,14 @@
 <script lang='ts'>
   import { page } from '$app/stores';
-	import { AppRail, AppRailAnchor, LightSwitch } from '@skeletonlabs/skeleton';
+	import { AppRail, AppRailAnchor, LightSwitch, Drawer, drawerStore, Avatar } from '@skeletonlabs/skeleton';
+  import type { DrawerSettings } from '@skeletonlabs/skeleton';
   import { userDataStore } from '$lib/stores'
   import { logout } from '$lib/auth';
-  import { onDestroy, onMount } from 'svelte';
-  
+  import { onMount, onDestroy } from "svelte";
+  import { goto } from '$app/navigation';
+  import getSettings from '$lib/settings';
+  import { get } from '$lib/endpoint'
+
   var token = "";
   const unsub = userDataStore.subscribe(v => {
     token = v? v.token: ""
@@ -69,7 +73,7 @@
     navs = navs;
   }
 
-  var theme = 0;
+  var theme = 1;
   onMount (() => {
     document.documentElement.classList.add('red');
   })
@@ -113,8 +117,52 @@
     }
   }
 
+  var rez;
+
+  async function openDrawer() {
+    const drawerSettings: DrawerSettings = {
+      id: 'drawer_account',
+      meta: { foo: 'bar', fizz: 'buzz', age: 40 },
+	    width: 'w-[280px] md:w-[480px]',
+	    padding: 'p-4',
+	    rounded: 'rounded-xl'
+    };
+    drawerStore.open(drawerSettings);
+
+    rez = await getSettings(["name", "email", "schid"]);
+    if (!(rez === undefined)) {
+      document.getElementById("name").innerHTML = rez.data.name
+      var schools = await get('schools');
+      // This will break unless the school ids line up with the id saved with the user
+      // Make sure to make the school id the location in the array
+      document.getElementById("school").innerHTML =schools.data.schools[rez.data.schid].name
+    }
+  }
 </script>
 
+<Drawer>
+	{#if $drawerStore.id === 'drawer_account'}
+    <div class="justify-center">
+      <div class="rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 py-8 mb-8">
+        <Avatar src="https://source.unsplash.com/YOErFW8AfkI/128x128" width="w-32" rounded="rounded-full" class="mx-auto"/>
+      </div>
+      <h2 class="h2 text-center mb-4 max-w-md mx-auto font-medium h-10" id="name"></h2>
+      <h3 class="h3 text-center mb-4 max-w-md mx-auto h-8" id="school">School</h3>
+      <div class="flex justify-center m-12">
+        <button type="button" class="btn variant-filled-primary mx-auto">
+        <span class="material-symbols-outlined">settings</span>
+        <span>Settings</span>
+      </button>
+      <button type="button" class="btn variant-filled-primary mx-auto" on:click={logout}>
+        <span class="material-symbols-outlined">logout</span>
+        <span>Sign Out</span>
+      </button>
+    </div>
+    </div>
+	{:else}
+		<!-- (fallback contents) -->
+	{/if}
+</Drawer>
 
 <AppRail class="w-auto h-auto">
   <svelte:fragment slot="lead">
@@ -123,7 +171,16 @@
       <img src="/icon.jpg" alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
-  
+  {#if isLoggedIn}
+    <AppRailAnchor on:click={openDrawer}>
+      <svelte:fragment slot="lead">
+        <span class="material-symbols-outlined">
+          account_circle
+        </span>
+      </svelte:fragment>
+      <span>Account</span>
+    </AppRailAnchor>
+  {/if}
   {#each navs as nav}
     <AppRailAnchor href={nav.url} selected={$page.url.pathname === '/' + nav.url}>
       <svelte:fragment slot="lead">
@@ -135,13 +192,6 @@
     </AppRailAnchor>
   {/each}
 
-  {#if isLoggedIn}
-    <AppRailAnchor>
-      <button type="button" class="btn-icon variant-filled material-symbols-outlined" on:click={logout}>
-        logout
-      </button>
-    </AppRailAnchor>
-  {/if}
   <AppRailAnchor>
     <LightSwitch class="mx-auto mb-4 mt-2"/>
     <button type="button" class="btn-icon variant-filled-primary mb-2 material-symbols-outlined" on:click={changeTheme}>palette</button>

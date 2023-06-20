@@ -47,7 +47,12 @@ async function request(method: string, endPoint: string, hs: HeadersInit, body: 
 function encodeObj(obj: object) {
     var rez: string[] = []
     Object.entries(obj).forEach(([key, value]) => {
-        rez.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+        if (typeof value === 'string' || value instanceof String)
+            rez.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+        else
+            value.forEach(subvalue => {
+                rez.push(encodeURIComponent(key) + '=' + encodeURIComponent(subvalue));
+            })
     })
     return rez.join('&');
 }
