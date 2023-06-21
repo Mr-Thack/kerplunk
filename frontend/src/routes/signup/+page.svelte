@@ -78,13 +78,16 @@
 	async function startSignup() {
 		// @ts-ignore
 		const rez = await post('signup', {
-			'fname': fname,
-			'lname': lname,
-			'photo': photo,
-			'pwd': password,
-			'email': email,
-			'schid': schid,
-			'student': isStudent
+			'fields': {},
+			'data': {
+				'fname': fname,
+				'lname': lname,
+				'photo': photo,
+				'pwd': password,
+				'email': email,
+				'schid': schid,
+				'student': isStudent
+			}
 		})
 		if (rez.error) {
 			// @ts-ignore

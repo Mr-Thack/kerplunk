@@ -39,6 +39,12 @@ def uuid_from_email(email: str) -> str:
             return user.uuid
     return ''
 
+def email_from_uuid(uuid: str) -> str:
+    for (ahash, user) in creds:
+        if user.uuid == uuid:
+            return user.email
+    return ''
+
 # We want a username and a hash of their pwd and email on signup
 class SignUpData(BaseModel):
     pwd: str

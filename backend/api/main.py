@@ -3,7 +3,7 @@ from fastapi import (Depends, FastAPI, Request, Query, WebSocket,
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from auth import login_user, start_signup_user, finish_signup_user, start_reset_pwd, finish_reset_pwd
+from auth import login_user, start_signup_user, finish_signup_user, start_reset_pwd, finish_reset_pwd, email_from_uuid, gen_hash, get_user, set_pwd
 from schools import start_register_school, finish_register_school, list_all_schools
 from users import multi_get, multi_set, valid_keys, valid_fields
 from chats import (list_chats, create_chatroom, InitChatRoomData,
@@ -26,9 +26,18 @@ def oauth_uuid(req: Request, token: str = Depends(oauth2_scheme)):
     else:
         raise HTTPException(status_code=401, detail='Token Invalid/Expired')
 
+def update_password(pwd: str, new_pwd: str, uuid: str) -> bool:
+    email = email_from_uuid(uuid)
+    ahash: str = gen_hash(email + pwd)
+    user: CredsSchema = get_user(ahash)
+    if user and user.email == email:
+        set_pwd(email, new_pwd, uuid)
+        return True
+    else:
+        return False
 
 @api.post('/signup')
-async def start_signup(success: bool = Depends(start_signup_user)):
+async def start_signup(fields: dict, success: bool = Depends(start_signup_user)):
     if success:
         return success
     else:
@@ -77,6 +86,15 @@ async def finish_reset_password(success: bool = Depends(finish_reset_pwd)):
     else:
         raise HTTPException(status_code=401,
                             detail='Invalid Reset Code')
+
+@api.post('/update_pwd')
+async def change_password(fields: dict, uuid: str = Depends(oauth_uuid)):
+    success: bool = update_password(fields["pwd"], fields["new_pwd"], uuid)
+    if success:
+        return success
+    else:
+        raise HTTPException(status_code=401,
+                            detail='Incorrect Password')
 
 # Just get a list of all schools
 @api.get('/schools')

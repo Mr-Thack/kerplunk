@@ -144,7 +144,8 @@
                 document.getElementById('photo-nav').parentNode.classList.toggle("hidden")
             }
         } else {
-            salert("The server cannot be reached. Check your internet connection.")
+          document.getElementById('no-photo-nav').classList.toggle("hidden")
+          salert("The server cannot be reached. Check your internet connection.")
         }
   }
 
