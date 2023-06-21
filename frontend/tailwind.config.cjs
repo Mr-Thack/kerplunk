@@ -9,5 +9,17 @@ module.exports = {
 	theme: {
 		extend: {},
 	},
-	plugins: [forms,...skeleton()],
+	plugins: [forms,...skeleton(),
+		function ({ addUtilities }) {
+			const newUtilities = {
+			  '.w-fill-available': {
+				width: '-webkit-fill-available',
+			  },
+			  '.moz-available': {
+				width: '-moz-available',
+			  },
+			}
+			addUtilities(newUtilities)
+		  }
+		],
 }

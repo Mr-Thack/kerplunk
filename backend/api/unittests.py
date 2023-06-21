@@ -10,12 +10,13 @@ from main import app
 
 
 # Test User Fields supported by backend
-supported_fields = ('schid', 'fname', 'lname', 'email', 'student')
+supported_fields = ('schid', 'fname', 'lname', 'photo', 'email', 'student')
 
 @dataclass
 class User:
     fname: str
     lname: str
+    photo: str
     schid: int
     pwd: str
     student: bool
@@ -44,7 +45,7 @@ class School:
     email: str
     altnames: [str]
 
-user1: User = User('FName1', 'LName1', 0, 'password1', False, 'test1@test.com')
+user1: User = User('FName1', 'LName1','', 0, 'password1', False, 'test1@test.com')
 # alt vals is used in Test02-test110
 # Whenever supported_fields is updated,
 # this should also be updated (On New Features)
@@ -54,7 +55,7 @@ altvals = {
 }
 
 # This is a second user
-user2: User = User('FName2', 'LName2', 0, 'password2', True, 'test2@test.com')
+user2: User = User('FName2', 'LName2','', 0, 'password2', True, 'test2@test.com')
 users = (user1, user2)
 school1: School = School('Test School', 'contacts@test.org', ['tst', 'schl'])
 schools = (school1,)
@@ -74,6 +75,7 @@ def signup_user(user: User):
         r.append(client.post('/api/signup', json={
             'fname': user.fname,
             'lname': user.lname,
+            'photo': user.photo,
             'student': user.student,
             'pwd': user.pwd,
             'email': user.email,

@@ -12,7 +12,7 @@
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
-	let password = '', fname = '', lname = '', email = '',
+	let password = '', fname = '', lname = '', photo='', email = '',
 		  school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
@@ -80,6 +80,7 @@
 		const rez = await post('signup', {
 			'fname': fname,
 			'lname': lname,
+			'photo': photo,
 			'pwd': password,
 			'email': email,
 			'schid': schid,
@@ -202,7 +203,6 @@
 	
 		<!--<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">-->
 		<Autocomplete class="card w-auto p-4 max-h-48 overflow-y-auto" tabindex="-1" bind:input={school} options={schoolOptions} on:selection={onSchoolSelection} />
-
 	</Step>
 	<Step locked={!signupcode}>
 		<svelte:fragment slot="header">Email Signup Code</svelte:fragment>
