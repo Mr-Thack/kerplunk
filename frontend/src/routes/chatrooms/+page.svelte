@@ -50,10 +50,20 @@
           if (b) {
             proompt("Password Of The Chat Room?", (p: string) => {
               chatPwd = p;
-              makeRoom();
+              var r = makeRoom();
+              if (r.error) {
+                salert(`ERROR MAKING: ${r.data}`);
+              } else {
+                salert('All\'s well! Should show up soon!')
+              }
             });
           } else {
-            makeRoom();
+            var r = makeRoom();
+            if (r.error) {
+              salert(`ERROR MAKING: ${r.data}`);
+            } else {
+              salert('All\'s well! Should show up soon!')
+            }
           }
         });
       } else {
@@ -69,12 +79,7 @@
       public: (chatPwd === ""),
       temp: false // [TODO] Rework API  
     }
-    const r = await post('chats', data, $userDataStore.token);
-    if (r.error) {
-      salert(`ERROR MAKING: ${r.data}`);
-    } else {
-      salert('All\'s well! Should show up soon!')
-    }
+    return await post('chats', data, $userDataStore.token);
  }   
   
   onDestroy(() => {
