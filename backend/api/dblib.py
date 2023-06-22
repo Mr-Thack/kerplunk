@@ -86,6 +86,11 @@ class db:
             if isinstance(key, str):
                 key = bytes(key, 'utf-8')
             if self.schema:
+                if not isinstance(value, self.schema):
+                    print(f"{value} is a {type(value)}, not a {self.schema}.")
+                    print("CHECK YOUR CODE!")
+                    print("YOU ARE SETTING THE ITEM IN THE DB WITH AN INCORRECT TYPE!")
+                    quit(1)
                 value = self._serialize(value)
             elif isinstance(value, str):
                 value = bytes(value, 'utf-8')
@@ -103,7 +108,6 @@ class db:
 
     def __delitem__(self, key: str | int):
         """Delete value of a key from DB"""
-        print(key)
         key = self._fixintindex(key)
         txn = self.env.begin(db=self.db, write=True)
         txn.delete(bytes(key, 'utf-8'))

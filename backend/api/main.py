@@ -7,9 +7,9 @@ from auth import login_user, start_signup_user, finish_signup_user, start_reset_
 from schools import start_register_school, finish_register_school, list_all_schools
 from users import multi_get, multi_set, valid_keys, valid_fields
 from chats import (list_chats, create_chatroom, InitChatRoomData,
-                   usr_in_chatroom, add_user_to_chatroom,
-                   on_user_leave_chatroom, join_chatroom_user_event_loop,
-                   on_user_join_chatroom)
+                   usr_in_chatroom, add_user_to_chatroom, read_msgs, post_msg,
+                   IncMsg, read_msgs_as_stream)
+from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
 from os import path
 
@@ -26,6 +26,13 @@ def oauth_uuid(req: Request, token: str = Depends(oauth2_scheme)):
     else:
         raise HTTPException(status_code=401, detail='Token Invalid/Expired')
 
+def url_uuid(req: Request, token: str):
+    """Check if logged in for HTTP, but using query params over headers in OAuth"""
+    uuid = SIDValidity(token, req.client.host)
+    if uuid:
+        return uuid
+    else:
+        raise HTTPException(status_code=401, detail='Token Invalid/Expired')
 
 @api.post('/signup')
 async def start_signup(success: bool = Depends(start_signup_user)):
@@ -88,7 +95,7 @@ async def login(req: Request, fd: OAuth2PasswordRequestForm = Depends()):
     token = login_user(fd.username, fd.password, req.client.host)
     if not token:
         raise HTTPException(status_code=401,
-                            detail='Incorrect username or password')
+                            detail='Incorrect email or password')
     return {'access_token': token, 'token_type': 'bearer'}
 
 
@@ -134,29 +141,58 @@ async def user_join_chatroom(name: str, pwd: str | None = None,
 
 
 
-# We'll only be using this for chat room, God willing,
-# So, it's OK to integrate both token authentication
-# and authentication for if the given UUID is allowed in a certain chat_room
-# To get permission to be allowed, they'll have to PATCH /chats
-async def ws_uuid(ws: WebSocket, cid: str, token: str):
-    uuid = SIDValidity(token, ws.client.host)
+async def chatids(req: Request, cid: str, uuid = Depends(oauth_uuid)):
+    """Get Chat ID and UUID from Query and Path Params"""
     if not uuid or not usr_in_chatroom(uuid, cid):
-        raise WebSocketException(code=1008)
+        raise HTTPException(status_code=403,
+                            detail='Invalid token or CID')
     return (cid, uuid)
 
 
-@api.websocket('/chats/{cid}')
-async def tmpchatroom(ws: WebSocket, cid_uuid=Depends(ws_uuid)):
+
+async def chatids_url(req: Request, cid: str, uuid = Depends(url_uuid)):
+    """Get Chat ID and UUID from Query and Path Params"""
+    if not uuid or not usr_in_chatroom(uuid, cid):
+        raise HTTPException(status_code=403,
+                            detail='Invalid token or CID')
+    return (cid, uuid)
+
+
+@api.get('/chats/{cid}')
+def get_new_text_messages(start: int,
+                          end: int = None,
+                          cid_uuid=Depends(chatids)):
     (cid, uuid) = cid_uuid  # Tried putting (cid, uuid) in params; won't work?
-    await on_user_join_chatroom(cid, uuid, ws)
-    try:
-        try:
-            while True:
-                await join_chatroom_user_event_loop(uuid, cid)
-        except WebSocketDisconnect:
-            await on_user_leave_chatroom(uuid, cid)
-    except e:
-        print(e)
+    r = read_msgs(cid, start, end)
+    if not len(r):
+        raise HTTPException(status_code=403,
+                            detail='The end index is probably too high')
+    else:
+        return r
+    
+    #await on_user_join_chatroom(cid, uuid, ws)
+    #try:
+    #    try:
+    #        while True:
+    #            await join_chatroom_user_event_loop(uuid, cid)
+    #    except WebSocketDisconnect:
+    #        await on_user_leave_chatroom(uuid, cid)
+    #except e:
+    #    print(e)
+
+@api.post('/chats/{cid}')
+async def post_message(msg: IncMsg, cid_uuid=Depends(chatids)):
+    (cid, uuid) = cid_uuid
+    return await post_msg(cid, uuid, msg)
+
+
+@api.get('/streamchats/{cid}')
+async def get_messages_from_stream(req: Request,
+                             start: int,
+                             end: int = None,
+                             cid_uuid=Depends(chatids_url)):
+    (cid, uuid) = cid_uuid  # Tried putting (cid, uuid) in params; won't work?
+    return EventSourceResponse(read_msgs_as_stream(req, cid, start, end)) #, media_type="text/event-stream")
 
 
 app = FastAPI(title='main')

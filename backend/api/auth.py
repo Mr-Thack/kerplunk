@@ -39,7 +39,6 @@ def uuid_from_email(email: str) -> str:
             return user.uuid
     return ''
 
-# We want a username and a hash of their pwd and email on signup
 class SignUpData(BaseModel):
     pwd: str
     email: str
@@ -71,8 +70,7 @@ def login_user(email: str, pwd: str, ip: str):
 waiting_users = {}
 
 def set_pwd(email: str, pwd: str, uuid: str):
-    # We combine the email and password
-    # incase the email or username are the same
+    # We combine the email and password for security
     ahash: str = gen_hash(email + pwd)
     creds[ahash] = CredsSchema(uuid, email)
 

@@ -21,7 +21,6 @@ class User:
     student: bool
     email: str
     sid: str = None
-    ws: WebSocket = None
     chat_log: [str] = None
     # Current copy of chatlog, we test if is same in each joined user
 
@@ -105,6 +104,25 @@ def get_user_sid(user: User):
     r = client.post('/api/login', data=con).json()
     return r['access_token']
 
+def join_chat(user: User, chat: Chat):
+    return client.patch('/api/chats', params={
+        'name': chat.name
+    }, headers=genhed(user))
+
+def get_msgs(user: User, chat: Chat):
+    baseuri = f'/api/chats/{chat.cid}'
+    user.chat_log = client.get(baseuri, params={
+        'start': 0
+    }, headers=genhed(user)).json()
+
+def post_msg(user: User, chat: Chat, msg: str, reply_to: int = None):
+    baseuri = f'/api/chats/{chat.cid}'
+    resp = client.post(baseuri, json={
+        'text': msg,
+        'reply_to': reply_to
+    }, headers=genhed(user))
+    return resp
+
 
 class Test005_schools(unittest.TestCase):
     def test010_make_school(self):
@@ -138,7 +156,7 @@ class Test010_auth(unittest.TestCase):
         for r in rez:
             self.assertEqual(r.status_code, 200)
         
-    def test015_test_username(self):
+    def test015_test_used_email(self):
         """Test against used email being signed up for"""
         rez = signup_user(user1)
         self.assertEqual(len(rez), 1)  # We want the 2nd to fail since we're giving it bad data
@@ -239,8 +257,7 @@ class Test030_Chat_Rooms(unittest.TestCase):
         js = {
             'name': chat.name,
             'pwd': chat.pwd,
-            'public': True,
-            'temp': True
+            'public': True
         }
         r = client.post('/api/chats', json=js, headers=genhed(user1)).json()
         self.assertIn('cid', r)
@@ -257,9 +274,7 @@ class Test030_Chat_Rooms(unittest.TestCase):
         """Check what data is being given back from the
         first time a user joins the chat"""
         chat: Chat = chat_rooms[0]
-        r = client.patch('/api/chats', params={
-            'name': chat.name
-            }, headers=genhed(user1))
+        r = join_chat(user1, chat)
         self.assertEqual(r.status_code, 200)
 
         r = r.json()
@@ -275,50 +290,40 @@ class Test030_Chat_Rooms(unittest.TestCase):
     def test040_1st_user_send_msg(self):
         """Check sending & recieving message"""
         chat = chat_rooms[0]
-        baseuri = f'/api/chats/{chat.cid}?token='
+        baseuri = f'/api/chats/{chat.cid}'
         msg = 'Hello from owner!'
-        with client.websocket_connect(baseuri + user1.sid) as ws:
-            user1.chat_log = ws.receive_text().split('\x1e')
-            ws.send_text(msg)
-            resp = ws.receive_text()
-            self.assertTrue(resp)
-            self.assertTrue(user1.chat_log)
-            user1.chat_log.append(msg)
+        
+        get_msgs(user1, chat)
+        self.assertTrue(user1.chat_log)
+        self.assertIsInstance(user1.chat_log, list)
+        
+        resp = post_msg(user1, chat, msg)    
+        self.assertEqual(resp.status_code, 200)
 
+    
     def test050_2nd_user_join_chat(self):
         """Check if users other than the owner can join"""
         chat: Chat = chat_rooms[0]
-        r = client.patch('/api/chats', params={
-            'name': chat.name}, headers=genhed(user2)).json()
+        r = join_chat(user2, chat).json()
         self.assertEqual(r['chatters'], [user1.name(), user2.name()])
 
     def test060_2nd_user_send_and_recv_msg(self):
         """Check if 2nd user has received the 1st msg, and sending a 2nd"""
         chat = chat_rooms[0]
-        baseuri = f'/api/chats/{chat.cid}?token='
         msg = 'Hello Back!'
-        with client.websocket_connect(baseuri + user2.sid) as ws:
-            user2.chat_log = ws.receive_text().split('\x1e')
-            # User1's chat log should have everything but the last message ("User2 Joined Chat")
-            self.assertListEqual(user1.chat_log, user2.chat_log[:-1])
-            ws.send_text(msg)
-            resp = ws.receive_text()
-            self.assertIsNotNone(resp)
-            user2.chat_log.append(msg)
-        with client.websocket_connect(baseuri + user1.sid) as ws:
-            txt = ws.receive_text().split('\x1e')
-            # Now we're checking if that was received
-            # A potentially really helpful performance fix could be to
-            # only send what's been changed instead of sending all
-            # I don't think it will matter for now,
-            # but this should be top prioerity;
-            # It's probably the largest performance killer we've got
-            user1.chat_log = txt
-            # Now, they should be precisely equal
-            self.assertListEqual(user1.chat_log, user2.chat_log)
+        get_msgs(user2, chat)
+        # User1's chat log should have everything except the last 2  messages ("Hello from owner" and "User2 Joined Chat")
+        self.assertListEqual(user1.chat_log, user2.chat_log[:-2])
+        resp = post_msg(user2, chat, msg)
+        self.assertTrue(resp.json())
+
+        # Now, they should be the same, excluding the final message
+        get_msgs(user1, chat)
+        self.assertListEqual(user1.chat_log[:-1], user2.chat_log)
 
 
 # Clear data directory
+print("Clearing Data")
 rmtree('../data/')
 mkdir('../data/')
     

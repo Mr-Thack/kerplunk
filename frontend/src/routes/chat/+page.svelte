@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { endpoint } from '$library/endpoint';
+    import { get, post, endpoint } from '$library/endpoint';
     import { userDataStore } from '$library/stores';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
@@ -16,43 +16,62 @@
 
     class Message {
         text: string;
-        from: string;
+        author: string;
+        replyTo: number;
+        time: string;
     
-        public constructor(text: string, from: string) {
-            this.text = text;
-            this.from = from;
+        public constructor(data: {text: string, author: string, replyTo: number, time: string}) {
+            this.text = data.text;
+            this.author = data.author;
+            this.replyTo = data.replyTo;
+            this.time = data.time;
+        }
+
+        public humanTime(): string {
+            let d = new Date(this.time);
+            // [TODO]: Check if the user uses 12 hour or 24 hour time
+            let h = d.getHours();
+            let m = d.getMinutes();
+            if (true) {  // User uses 12 hour time
+                return (h > 12? h - 12:h) + ':' + m + ' ' + (h>12?'P.M.':'A.M.');
+            } else {
+                return h + ':' + m;
+            }
         }
     }
 
     var messages: Message[] = [];
     
-    let socket: WebSocket, 
-        sendMessage: () => void;
+    async function sendMessage() {
+        await post(`chats/${$userDataStore.cid}`, {
+            'text': inputText
+            //, 'reply_to': 
+        })
+        inputText = '';
+    }
 
 
-    onMount(() => {
+    onMount(async () => {
         if (!$userDataStore.token) {
             falert('Sign in to a chatroom first!', () => {
                 goto('/chatrooms')
             });
         } else {
-            socket = new WebSocket(`ws://${endpoint('chats')}/${$userDataStore.cid}?token=${$userDataStore.token}`);
-            socket.onmessage = function(event) {
-                if (!messages.length) {
-                    const given_log = event.data.split('\x1e');
-                    for (const i in given_log) {
-                        messages.push(new Message(given_log[i], ''));
-                    }
-                    messages = messages;
-                } else {
-                    messages = [...messages, new Message(event.data, '')]
-                }
-                setTimeout(scrollChatBottom, 75);
+            // @ts-ignore
+            messages = (await get(`chats/${$userDataStore.cid}`, {
+                'start': 0
+                // @ts-ignore
+                }, $userDataStore.token)).data.map((data) => {
+                    return new Message(data)
+                });
+            setTimeout(scrollChatBottom, 75);
+            
+            var es = new EventSource(`http://${endpoint('streamchats')}/${$userDataStore.cid}?token=${$userDataStore.token}&start=${messages.length}`)
+            es.onmessage = function (event) {
+                messages = [...messages, new Message(JSON.parse(event.data))]
+                setTimeout(scrollChatBottom, 75)
             }
-            sendMessage = () => {
-                socket.send(inputText);
-                inputText = '';
-            };
+            
             chatInput.addEventListener('keypress', function(event) {
                 if (event.key == "Enter") {
                     event.preventDefault();
@@ -69,14 +88,13 @@
     class:placeholder='{!messages.length}'
     class:animate-pulse='{!messages.length}'
     >
-    
     {#each messages as msg}
         <div class="grid grid-cols-[auto_1fr] gap-2">
             <!-- We can add avatars later.... -->
             <div class="card p-4 variant-soft rounded-tl-none space-y-2">
                 <header class="flex justify-between items-center">
-                    <p class="font-bold">{msg.from}</p>
-                    <!-- add timestamp here -->
+                    <p class="font-bold mr-4">{msg.author}</p>
+                    <p>{msg.humanTime()}</p>
                 </header>
                 <p>{msg.text}</p>
             </div>

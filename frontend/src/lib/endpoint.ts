@@ -45,14 +45,22 @@ async function request(method: string, endPoint: string, hs: HeadersInit, body: 
 }
 
 function encodeObj(obj: object) {
-    var rez: string[] = []
+    var rez: string[] = [];
     Object.entries(obj).forEach(([key, value]) => {
-        if (typeof value === 'string' || value instanceof String)
+        if (
+            typeof value === "string" ||
+            typeof value === "number" ||
+            typeof value === "boolean" ||
+            value instanceof String ||
+            value instanceof Number ||
+            value instanceof Boolean
+        ) {
             rez.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
-        else
+        } else {
             value.forEach(subvalue => {
                 rez.push(encodeURIComponent(key) + '=' + encodeURIComponent(subvalue));
             })
+        }
     })
     return rez.join('&');
 }

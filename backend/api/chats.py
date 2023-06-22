@@ -1,15 +1,19 @@
 from users import get_field
 from pydantic import BaseModel
+from dataclasses import dataclass, field
 from secrets import token_urlsafe
 from dblib import db
 from socket_manager import SocketManager
-
+from fastapi import Request
+from asyncio import sleep, CancelledError
+from events import events
+from datetime import datetime
+from json import dumps
 
 class InitChatRoomData(BaseModel):
     name: str
-    pwd: str | None = None
     public: bool
-    temp: bool
+    pwd: str | None = None
 
 
 class ChatRoom(InitChatRoomData):
@@ -18,6 +22,32 @@ class ChatRoom(InitChatRoomData):
     chatters: list[str] = []
 
 
+# This is specifically for an incoming message
+@dataclass
+class IncMsg():
+    text: str
+    reply_to: int | None = None
+
+
+# This is specifically for a message in the db, or something we're sending to the user
+@dataclass
+class Message():
+    text: str
+    author: str
+    reply_to: int | None = None
+    time: str | None = None
+
+    def __post_init__(self):
+        if not self.time:
+            self.time = datetime.now().isoformat()
+
+    def sanitize(self):
+        return {
+            'text': self.text,
+            'author': self.author if self.author == 'SYSTEM' else get_field(self.author, 'name'),
+            'reply_to': self.reply_to,
+            'time': self.time
+        }
 """
 In the chatroom environement, we'll have a subdatabase for each chat.
 This one will hold the info on all the chatrooms, but not the actualy texts,
@@ -41,7 +71,7 @@ def list_chats() -> str:
 
 def open_chat(cid: str):
     if cid not in opened_chats.keys():
-        opened_chats[cid] = db(cid, None, chat=True)
+        opened_chats[cid] = db(cid, Message, chat=True)
     return opened_chats[cid]
 
 
@@ -53,8 +83,7 @@ def create_chatroom(data: InitChatRoomData, owner: str):
                               owner=owner, **data.__dict__)
         chats[new_chatrm.cid] = new_chatrm  # Write info to the db
         chat_data = open_chat(cid)  # Open a fresh new one
-        chat_data[0] = (f"User {get_field(owner, 'name')}" +
-                        f" has created chatroom {new_chatrm.name}!")
+        chat_data[0] = Message(text=f"User {get_field(owner, 'name')} has created chatroom {new_chatrm.name}!", author='SYSTEM')
         return new_chatrm.cid
 
 
@@ -70,17 +99,17 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
     chat = chats[cid]  # Instead of accessing the dict over and over again, we're gonna do this
     if not chat.pwd or (pwd and chat.pwd == pwd):
         # If this UUID isn't recognized
-        
         if uuid not in chat.chatters:
             chat.chatters.append(uuid)
             chats[cid] = chat  # In the previous line, we only updated our copy in memory
             # This line puts it back into the dict and then the db
             
             name = get_field(uuid, 'name')
-            msg = f"{name} has joined the chat!"
+            msg = Message(text=f"{name} has joined the chat!",
+                          author='SYSTEM')
+                          # [NOTE]: 'SYSTEM' messages
             write_msg(cid, msg)  # write to db
-            await sm.broadcast(msg)  # send to all clients
-
+            # await sm.broadcast(msg)  # send to all clients
         # We return it in the human friendly version, with name instead of their UUID
         # Later, we might have to return more information
         return {
@@ -93,53 +122,80 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
 def usr_in_chatroom(uuid: str, cid: str):
     """Check if user is in given chatroom"""
     chat = chats[cid]
-    return uuid in chat.chatters
+    return chat and uuid in chat.chatters
 
 
 # We'll take the user's uuid, the msg, and chatroom
-def write_msg(cid: str, msg: str):
+def write_msg(cid: str, msg: Message):
     # TODO: Check for problems in txt msg or smth
     chat = open_chat(cid)
 
-    if msg not in ("", None):
+    if msg:
         chat[len(chat)] = msg
         # Since indices start at 0, len() will return 1 + the last index
         return True
 
 
-def read_msgs(cid: str, msg_start: int, msg_end: int):
-    if not (isinstance(msg_start, int) and isinstance(msg_end, int)):
-        raise IndexError
+def read_msgs(cid: str, start: int, end: int | None) -> [str]:
+    """Read all messages from start index to end index, inclusive."""
     chat = open_chat(cid)
-    if msg_end == -1:
-        msg_end = len(chat)
-    return [chat[i] for i in range(msg_start, msg_end)]
+    if end and len(chat) <= end:
+        return []  # Since having nothing is nonsensical, this is an error
+    return [chat[i].sanitize() for i in range(start, len(chat) if not end else 1 + end)]
+
+opencids = {}
+
+async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | None):
+    """Read all the messages from start to end, in a stream"""
+    """end=None signifies read forever"""
+    # This function could probably be cleaned up a bit
+
+    
+    # Keep track of the number of people reading this
+    if not cid in opencids:
+        opencids[cid] = 0
+    opencids[cid] = opencids[cid] + 1
+
+    chat = open_chat(cid)
+    
+    if end and end >= len(chat):
+        opencids[cid] = opencids[cid] - 1
+        return
 
 
-async def on_user_join_chatroom(cid: str, uuid: str, ws):
-    await sm.connect(ws, uuid)
-    await sm.dm(uuid, '\x1e'.join(read_msgs(cid, 0, -1)))  # -1 means "end"
-    # This weird character is ASCII 30 (Record Seperator)
-    # [TODO] Maybe we should only load like 20 messages, and they can scroll up for more
+    event = events.get_event(cid)
+    eid = await event.sub()  # Event ID
 
-    name = get_field(uuid, 'name')
-    if uuid != chats[cid].owner and uuid not in chats[cid].chatters:
-        msg = f"{name} has joined the chat!"
-        write_msg(cid, msg)  # write to db
-        await sm.broadcast(msg)  # send to all clients
+    # yield all messages from start to end
+    for i in range(start, len(chat) if not end else end + 1):
+        yield {
+            "event": "message",
+            "id": i,
+            "data": dumps(chat[i].sanitize())
+        }
 
+    # If there was a definite end, quit
+    if end:
+        print("END")
+        event.unsub(eid)
+        opencids[cid] = opencids[cid] - 1
+        return
+    
+    while True:
+        msg = await event.get(eid)
+        yield {
+            "event": "message",
+            "data": dumps(msg.sanitize())
+        }
+            
+    event.unsub(eid)
+    opencids[cid] = opencids[cid] - 1
 
-async def join_chatroom_user_event_loop(uuid: str, cid: str):
-    msg = await sm.recv(uuid)
-    # We can send something like "Recieved" later on
-    # await sm.dm(uuid, f'Recieved "{msg}"')
-    write_msg(cid, msg)
-    await sm.broadcast(msg)
-
-
-# [TODO] We need a permanent leave and a permanent join
-# Right now, these 2 are for actually for "disconnected" and "connected"
-async def on_user_leave_chatroom(uuid: str, cid: str):
-    sm.disconnect(uuid)  # Remove inactive user
-    # write_msg(cid, msg)
-    # await sm.broadcast(msg)  # Then send to all that're left
+async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
+    if not events.does_exist(cid):
+        events.add_event(cid)
+    msg = Message(text=msg.text,
+                  reply_to=msg.reply_to,
+                  author=uuid)
+    await events.send_msg(cid, msg)
+    return write_msg(cid, msg)

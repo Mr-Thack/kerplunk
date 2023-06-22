@@ -30,6 +30,7 @@
       });
     } else {
       const r = await patch('chats', {}, {'name': room}, userDataStore.readonce('token'));
+      console.log(r)
       if (r.error) {
         salert(`JOIN ERROR: ${r.data}`);
       } else {
@@ -88,7 +89,7 @@
 
 {#if chatrooms.length}
   {#each chatrooms as chatroom}
-    <button class="btn bg-gradient-to-br variant-gradient-primary-secondary mt-3 w-25" on:click={() => join(chatroom)}>Join {chatroom}</button>
+    <button class="btn bg-gradient-to-br variant-filled-secondary mt-3 w-25" on:click={() => join(chatroom)}>Join {chatroom}</button>
     <br />
   {/each}
 {:else}
