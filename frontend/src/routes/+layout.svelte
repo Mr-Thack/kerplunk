@@ -36,7 +36,7 @@
 
 <Modal />
 
-<AppShell slotSidebarLeft="p-4">
+<AppShell slotSidebarLeft="p-4 z-10">
 	<svelte:fragment slot="sidebarLeft">
 		<Navbar/>
 	</svelte:fragment>

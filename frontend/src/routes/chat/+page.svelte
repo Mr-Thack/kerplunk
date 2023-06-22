@@ -60,18 +60,31 @@
                 }
             });
         }
-    });
-</script>
+        var textarea = document.querySelector('textarea');
 
-<div class="grid grid-rows-2 min-h-screen max-h-screen p-4 overflow-hidden">
+        // Add an event listener for the input event
+        textarea.addEventListener('input', function() {
+        // Reset the textarea's height
+        this.style.height = 'auto';
+
+        // Set the textarea's height to match its scrollHeight
+        this.style.height = this.scrollHeight + 'px';
+        });
+    })
+    
+</script>
+<div class="flex flex-col min-h-screen max-h-screen overflow-hidden pr-4">
+    <div class="h-auto variant-filled-primary mt-4">
+            <h2 class="h3 p-2">Put Chatroom Name Here</h2>
+    </div>
 <section bind:this={chatbox}
-    class="w-full row-span-full p-4 overflow-y-auto space-y-4"
+    class="flex-grow p-4 overflow-y-auto space-y-4"
     class:placeholder='{!messages.length}'
     class:animate-pulse='{!messages.length}'
     >
     
     {#each messages as msg}
-        <div class="grid grid-cols-[auto_1fr] gap-2">
+        <div class="grid grid-cols-[auto_1fr] gap-2 text-left">
             <!-- We can add avatars later.... -->
             <div class="card p-4 variant-soft rounded-tl-none space-y-2">
                 <header class="flex justify-between items-center">
@@ -84,16 +97,16 @@
     {/each}
 </section>
 
-<div class="input-group input-group-divider flex rounded-container-token mt-4">
+<div class="input-group input-group-divider flex flex-shrink-0 h-full rounded-container-token mb-4">
     <textarea
         bind:this={chatInput}
         bind:value={inputText}
-        class="bg-transparent border-0 ring-0 flex-grow"
+        class="bg-transparent border-0 ring-0 flex-grow h-fit overflow-hidden resize-none"
         name="prompt"
         placeholder="Message Here..."
         rows="1"
     />
-    <button class="variant-filled-primary material-symbols-outlined" on:click={sendMessage}>send</button>
+    <button class="variant-filled-primary material-symbols-outlined h-100" on:click={sendMessage}>send</button>
 </div>
 <!--
 <div style='margin-top: 1%; margin-left: 15%'>

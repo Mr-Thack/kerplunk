@@ -114,6 +114,15 @@
             document.getElementById("first-name").value = rez.data.fname
             document.getElementById("last-name").value = rez.data.lname
             document.getElementById("email").value = rez.data.email
+            document.getElementById('load-photo-settings').classList.toggle("hidden")
+            if (rez.data.photo === '') {
+                document.getElementById('file-button').parentElement.parentElement.querySelector("button").innerHTML = "Add Image"
+                document.getElementById('no-photo-settings').classList.toggle("hidden")
+            } else {
+                document.getElementById('photo-settings').src = rez.data.photo
+                document.getElementById('file-button').parentElement.parentElement.querySelector("button").innerHTML = "Edit Image"
+                document.getElementById('photo-settings').parentNode.classList.toggle("hidden")
+            }
         } else {
             salert("The server cannot be reached. Check your internet connection.")
         }
@@ -182,89 +191,82 @@
 <header class="mx-auto mb-5 text-center">
 	<h2 class="h2">Settings</h2>
 </header>
-<div class="grid grid-cols-3 grid-rows-1">
-    <div class="col-start-1">
-        <svg id="load-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto " enable-background="new 0 0 20 20" height="196px" viewBox="0 0 20 20" width="196px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
-        <svg id="no-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto hidden" enable-background="new 0 0 20 20" height="196px" viewBox="0 0 20 20" width="196px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
-        <Avatar id="photo-settings" src="https://source.unsplash.com/YOErFW8AfkI/128x128" width="w-40" rounded="rounded-full" class="mx-auto hidden"/>
-            <FileButton id="file-button" class="flex justify-center m-4 mx-auto w-fit" button="variant-filled" bind:files={image} on:change={onChangeHandler}></FileButton>
-    </div>
-    <div class="col-start-2 col-span-2 mx-8">
-        <TabGroup>
-            <Tab bind:group={tabSet} name="General" value={0} on:click={loadInfo}>General</Tab>
-            <Tab bind:group={tabSet} name="Appearance" value={1}>Appearance</Tab>
-            <Tab bind:group={tabSet} name="Password" value={2}>Password</Tab>
-            <Tab bind:group={tabSet} name="Delete" value={3}>Delete</Tab>
-            <svelte:fragment slot="panel">
-                {#if tabSet === 0}
-                    <div class="grid grid-cols-2">
-                        <input id="first-name" class="input m-2 w-fill-available moz-available col-start-1" title="First Name" type='text' placeholder='Your First Name'/>
-                        <input id="last-name" class="input m-2 w-fill-available moz-available col-start-2" title="Last Name" type='text' placeholder='Your Last Name'/>
-                    </div>
-                    <input id="email" class="input m-2 w-fill-available moz-available" title="Email" type='email' placeholder='Your Email'/>
-                    <div class="flex justify-center m-12">
-                        <button type="button" class="btn variant-filled mx-8 my-4" on:click={loadInfo}>
-                            <span>Reset</span>
-                        </button>
-                        <button type="button" class="btn variant-filled-primary mx-8 my-4" on:click={updateGeneral}>
-                            <span>Update Information</span>
-                        </button>
-                    </div>
-                {:else if tabSet === 1}
-                    {#await currentTheme}
-                    <p class="p">loading</p>
-                    {:then}
-                        <h3 class="h3">Theme</h3>
-                        <RadioGroup>
-                            <RadioItem bind:group={currentTheme} name="theme" value={0}>	
-                                <span class="material-symbols-outlined">
-                                    dark_mode
-                                </span>
-                                <h5 class="h5">Dark</h5>
-                            </RadioItem>
-                            <RadioItem bind:group={currentTheme} name="theme" value={1}>
-                                <span class="material-symbols-outlined">
-                                    light_mode
-                                </span>
-                                <h5 class="h5">Light</h5>
-                            </RadioItem>
-                        </RadioGroup>
-                        <h3 class="h3">Accent Color</h3>
-                        <RadioGroup active="variant-filled-primary">
-                            <RadioItem bind:group={currentAccent} name="accent" value={"red"}>	
-                                <span class="material-icons color-red">lens</span>
-                            </RadioItem>
-                            <RadioItem bind:group={currentAccent} name="accent" value={"orange"}>	
-                                <span class="material-icons color-orange">lens</span>
-                            </RadioItem>
-                            <RadioItem bind:group={currentAccent} name="accent" value={"yellow"}>	
-                                <span class="material-icons color-yellow">lens</span>
-                            </RadioItem>
-                            <RadioItem bind:group={currentAccent} name="accent" value={"green"}>	
-                                <span class="material-icons color-green">lens</span>
-                            </RadioItem>
-                            <RadioItem bind:group={currentAccent} name="accent" value={"blue"}>	
-                                <span class="material-icons color-blue">lens</span>
-                            </RadioItem>
-                            <RadioItem bind:group={currentAccent} name="accent" value={"purple"}>	
-                                <span class="material-icons color-purple">lens</span>
-                            </RadioItem>
-                        </RadioGroup>
-                    {/await}
-                {:else if tabSet === 2}
-                <input id="current-password" class="input m-2 w-fill-available moz-available" title="Current Password" type='password' placeholder='Current Password' />
-                <input id="new-password" class="input m-2 w-fill-available moz-available" title="New Password" type='password' placeholder='New Password' />
-                <input id="repeat-password" class="input m-2 w-fill-available moz-available" title="Repeat Password" type='password' placeholder='Repeat New Password' />
-                <button type="button" class="btn variant-filled-primary mx-8 my-4" on:click={updatePassword}>
-                    <span>Change Password</span>
-                  </button>
-                {:else if tabSet === 3}
-                    <p class="p">This will be the future delete account page</p>
-                {/if}
-            </svelte:fragment>
-        </TabGroup>
-
-    </div>
-    
-
+    <div>
+    <TabGroup>
+        <Tab bind:group={tabSet} name="General" value={0} on:click={loadInfo}>General</Tab>
+        <Tab bind:group={tabSet} name="Appearance" value={1}>Appearance</Tab>
+        <Tab bind:group={tabSet} name="Password" value={2}>Password</Tab>
+        <Tab bind:group={tabSet} name="Delete" value={3}>Delete</Tab>
+        <svelte:fragment slot="panel">
+            {#if tabSet === 0}
+                <svg id="load-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto " enable-background="new 0 0 20 20" height="196px" viewBox="0 0 20 20" width="196px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
+                <svg id="no-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto hidden" enable-background="new 0 0 20 20" height="196px" viewBox="0 0 20 20" width="196px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
+                <Avatar id="photo-settings" src="https://source.unsplash.com/YOErFW8AfkI/128x128" width="w-40" rounded="rounded-full" class="mx-auto hidden"/>
+                <FileButton id="file-button" class="flex justify-center m-4 mx-auto w-fit" button="variant-filled" bind:files={image} on:change={onChangeHandler}></FileButton>
+                <div class="grid grid-cols-2">
+                    <input id="first-name" class="input m-2 w-fill-available moz-available col-start-1" title="First Name" type='text' placeholder='Your First Name'/>
+                    <input id="last-name" class="input m-2 w-fill-available moz-available col-start-2" title="Last Name" type='text' placeholder='Your Last Name'/>
+                </div>
+                <input id="email" class="input m-2 w-fill-available moz-available" title="Email" type='email' placeholder='Your Email'/>
+                <div class="flex justify-center m-12">
+                    <button type="button" class="btn variant-filled mx-8 my-4" on:click={loadInfo}>
+                        <span>Reset</span>
+                    </button>
+                    <button type="button" class="btn variant-filled-primary mx-8 my-4" on:click={updateGeneral}>
+                        <span>Update Information</span>
+                    </button>
+                </div>
+            {:else if tabSet === 1}
+                {#await currentTheme}
+                <p class="p">loading</p>
+                {:then}
+                    <h3 class="h3">Theme</h3>
+                    <RadioGroup class="m-4">
+                        <RadioItem bind:group={currentTheme} name="theme" value={0}>	
+                            <span class="material-symbols-outlined">
+                                dark_mode
+                            </span>
+                            <h5 class="h5">Dark</h5>
+                        </RadioItem>
+                        <RadioItem bind:group={currentTheme} name="theme" value={1}>
+                            <span class="material-symbols-outlined">
+                                light_mode
+                            </span>
+                            <h5 class="h5">Light</h5>
+                        </RadioItem>
+                    </RadioGroup>
+                    <h3 class="h3">Accent Color</h3>
+                    <RadioGroup active="variant-filled-primary" class="m-4">
+                        <RadioItem bind:group={currentAccent} name="accent" value={"red"}>	
+                            <span class="material-icons color-red">lens</span>
+                        </RadioItem>
+                        <RadioItem bind:group={currentAccent} name="accent" value={"orange"}>	
+                            <span class="material-icons color-orange">lens</span>
+                        </RadioItem>
+                        <RadioItem bind:group={currentAccent} name="accent" value={"yellow"}>	
+                            <span class="material-icons color-yellow">lens</span>
+                        </RadioItem>
+                        <RadioItem bind:group={currentAccent} name="accent" value={"green"}>	
+                            <span class="material-icons color-green">lens</span>
+                        </RadioItem>
+                        <RadioItem bind:group={currentAccent} name="accent" value={"blue"}>	
+                            <span class="material-icons color-blue">lens</span>
+                        </RadioItem>
+                        <RadioItem bind:group={currentAccent} name="accent" value={"purple"}>	
+                            <span class="material-icons color-purple">lens</span>
+                        </RadioItem>
+                    </RadioGroup>
+                {/await}
+            {:else if tabSet === 2}
+            <input id="current-password" class="input m-2 w-fill-available moz-available" title="Current Password" type='password' placeholder='Current Password' />
+            <input id="new-password" class="input m-2 w-fill-available moz-available" title="New Password" type='password' placeholder='New Password' />
+            <input id="repeat-password" class="input m-2 w-fill-available moz-available" title="Repeat Password" type='password' placeholder='Repeat New Password' />
+            <button type="button" class="btn variant-filled-primary mx-8 my-4" on:click={updatePassword}>
+                <span>Change Password</span>
+                </button>
+            {:else if tabSet === 3}
+                <p class="p">This will be the future delete account page</p>
+            {/if}
+        </svelte:fragment>
+    </TabGroup>
 </div>
