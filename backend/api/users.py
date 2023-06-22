@@ -11,6 +11,8 @@ class UserSchema():
     photo: str
     schid: int
     student: bool
+    accent: str
+    theme: int
 
 # These are things that they shouldn't be able to change easily, or at all
 RESTRICTED = ('schid', 'student')
@@ -26,9 +28,9 @@ def is_email_used(email: str):
     return False
 
 
-def make_user(email: str, fname: str, lname: str, photo: str, schid: int, student: bool) -> str:
+def make_user(email: str, fname: str, lname: str, photo: str, schid: int, student: bool, accent: str, theme: int) -> str:
     uuid: str = str(uuid1())
-    user_data[uuid] = UserSchema(email, fname, lname, photo, schid, student)
+    user_data[uuid] = UserSchema(email, fname, lname, photo, schid, student, accent, theme)
     return uuid
 
 

@@ -1,13 +1,13 @@
 <script lang='ts'>
   import { page } from '$app/stores';
-	import { AppRail, AppRailAnchor, LightSwitch, Drawer, drawerStore, Avatar } from '@skeletonlabs/skeleton';
+	import { AppRail, AppRailAnchor, Drawer, drawerStore, Avatar, LightSwitch } from '@skeletonlabs/skeleton';
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
   import { userDataStore } from '$lib/stores'
   import { logout } from '$lib/auth';
   import { onMount, onDestroy } from "svelte";
   import { goto } from '$app/navigation';
   import getSettings from '$lib/settings';
-  import { get } from '$lib/endpoint'
+  import { get, post } from '$lib/endpoint'
 	import { salert } from '$library/alerts';
 
   var token = "";
@@ -72,50 +72,6 @@
       ])
     }
     navs = navs;
-  }
-
-  var theme = 1;
-  onMount (() => {
-    document.documentElement.classList.add('red');
-  })
-
-  function changeTheme() {
-    switch (theme) {
-      case 0:
-        document.documentElement.classList.remove('purple');
-        document.documentElement.classList.add('red');
-        theme ++;
-        break;
-      case 1:
-        document.documentElement.classList.remove('red');
-        document.documentElement.classList.add('orange');
-        theme ++;
-        break;
-      case 2:
-        document.documentElement.classList.remove('orange');
-        document.documentElement.classList.add('yellow');
-        theme ++;
-        break;
-      case 3:
-        document.documentElement.classList.remove('yellow');
-        document.documentElement.classList.add('green');
-        theme ++;
-        break;
-      case 4:
-        document.documentElement.classList.remove('green');
-        document.documentElement.classList.add('blue');
-        theme ++;
-        break;
-      case 5:
-        document.documentElement.classList.remove('blue');
-        document.documentElement.classList.add('purple');
-        theme = 0;
-        break;
-      default:
-        document.documentElement.classList.add('red');
-        theme = 1;
-        break;
-    }
   }
 
   var rez;
@@ -183,12 +139,12 @@
 <AppRail class="w-auto h-auto">
   <svelte:fragment slot="lead">
     <!-- If you're logged in, we want you to go to home instead of the front page -->
-    <AppRailAnchor href={isLoggedIn? "/home":"/"}>
+    <AppRailAnchor href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
       <img src="/icon.jpg" alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
   {#if isLoggedIn}
-    <AppRailAnchor on:click={openDrawer}>
+    <AppRailAnchor on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
       <svelte:fragment slot="lead">
         <span class="material-symbols-outlined">
           account_circle
@@ -198,7 +154,7 @@
     </AppRailAnchor>
   {/if}
   {#each navs as nav}
-    <AppRailAnchor href={nav.url} selected={$page.url.pathname === '/' + nav.url}>
+    <AppRailAnchor href={nav.url} selected={$page.url.pathname === nav.url + "/"}>
       <svelte:fragment slot="lead">
         <span class="material-symbols-outlined">
           {nav.icon}
@@ -207,9 +163,4 @@
       <span>{nav.name}</span>
     </AppRailAnchor>
   {/each}
-
-  <AppRailAnchor>
-    <LightSwitch class="mx-auto mb-4 mt-2"/>
-    <button type="button" class="btn-icon variant-filled-primary mb-2 material-symbols-outlined" on:click={changeTheme}>palette</button>
-  </AppRailAnchor>
 </AppRail>

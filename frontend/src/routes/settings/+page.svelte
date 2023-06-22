@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Avatar, TabGroup, Tab, FileButton } from '@skeletonlabs/skeleton';
+    import { Avatar, TabGroup, Tab, FileButton, RadioItem, RadioGroup, setModeUserPrefers, setModeCurrent } from '@skeletonlabs/skeleton';
     import getSettings from '$lib/settings';
 	import { get, post } from '$library/endpoint';
 	import { onMount } from 'svelte';
@@ -8,6 +8,85 @@
 
     let tabSet: number = 0;
     let image: FileList;
+    
+    var currentTheme: number = -1;
+    var currentAccent: string = '';
+
+    onMount(async () => {
+        var rez = await getSettings(["theme", 'accent']);
+        if (!(rez === undefined || rez.error === true)) {
+            currentTheme = rez.data.theme
+            currentAccent = rez.data.accent
+        } else {
+            salert("The server cannot be reached. Check your internet connection.")
+            currentAccent = 'red'
+            if (document.documentElement.classList.contains("dark")) {
+                currentTheme = 0
+            } else {
+                currentTheme = 1
+            }
+        }
+    })
+    $: {
+        try {
+            document.documentElement
+            changeAccent(currentAccent)
+            changeTheme(currentTheme)
+        } catch(err) {
+            // I don't know how to pass in typescript so here you go
+        }
+    }
+
+    async function changeTheme(currentTheme:number) {
+        if (currentTheme === 1) {
+            //document.documentElement.classList.remove('dark');
+            setModeUserPrefers(true)
+            setModeCurrent(true)
+        } else if (currentTheme === 0) {
+            //document.documentElement.classList.add('dark');
+            setModeUserPrefers(false)
+            setModeCurrent(false)
+        }
+        if (!(currentTheme === -1)) {
+            var result = await post('userme', {
+            "theme": currentTheme
+            }, userDataStore.readonce('token'));
+        }
+    }
+
+    async function changeAccent(currentAccent:string) {
+        document.documentElement.classList.remove('red');
+        document.documentElement.classList.remove('orange');
+        document.documentElement.classList.remove('yellow');
+        document.documentElement.classList.remove('green');
+        document.documentElement.classList.remove('blue');
+        document.documentElement.classList.remove('purple');
+        switch (currentAccent) {
+            case 'red':
+                document.documentElement.classList.add('red');
+                break;
+            case 'orange':
+                document.documentElement.classList.add('orange');
+                break;
+            case 'yellow':
+                document.documentElement.classList.add('yellow');
+                break;
+            case 'green':
+                document.documentElement.classList.add('green');
+                break;
+            case 'blue':
+                document.documentElement.classList.add('blue');
+                break;
+            case 'purple':
+                document.documentElement.classList.add('purple');
+                break;
+        }
+        if (!(currentAccent === '')) {
+            var result = await post('userme', {
+            "accent": currentAccent
+            }, userDataStore.readonce('token'));
+        }
+    }
 
     onMount(async () => {
         var rez = await getSettings(["fname", "lname", "email", "photo"]);
@@ -89,7 +168,7 @@
         };
     }
 
-    async function uploadImage(fileContents) {
+    async function uploadImage(fileContents: string) {
         var upload = await post('userme', {
                 "photo": fileContents
             }, userDataStore.readonce('token'));
@@ -132,7 +211,46 @@
                         </button>
                     </div>
                 {:else if tabSet === 1}
-                    <p class="p">This will be the future theming page</p>
+                    {#await currentTheme}
+                    <p class="p">loading</p>
+                    {:then}
+                        <h3 class="h3">Theme</h3>
+                        <RadioGroup>
+                            <RadioItem bind:group={currentTheme} name="theme" value={0}>	
+                                <span class="material-symbols-outlined">
+                                    dark_mode
+                                </span>
+                                <h5 class="h5">Dark</h5>
+                            </RadioItem>
+                            <RadioItem bind:group={currentTheme} name="theme" value={1}>
+                                <span class="material-symbols-outlined">
+                                    light_mode
+                                </span>
+                                <h5 class="h5">Light</h5>
+                            </RadioItem>
+                        </RadioGroup>
+                        <h3 class="h3">Accent Color</h3>
+                        <RadioGroup active="variant-filled-primary">
+                            <RadioItem bind:group={currentAccent} name="accent" value={"red"}>	
+                                <span class="material-icons color-red">lens</span>
+                            </RadioItem>
+                            <RadioItem bind:group={currentAccent} name="accent" value={"orange"}>	
+                                <span class="material-icons color-orange">lens</span>
+                            </RadioItem>
+                            <RadioItem bind:group={currentAccent} name="accent" value={"yellow"}>	
+                                <span class="material-icons color-yellow">lens</span>
+                            </RadioItem>
+                            <RadioItem bind:group={currentAccent} name="accent" value={"green"}>	
+                                <span class="material-icons color-green">lens</span>
+                            </RadioItem>
+                            <RadioItem bind:group={currentAccent} name="accent" value={"blue"}>	
+                                <span class="material-icons color-blue">lens</span>
+                            </RadioItem>
+                            <RadioItem bind:group={currentAccent} name="accent" value={"purple"}>	
+                                <span class="material-icons color-purple">lens</span>
+                            </RadioItem>
+                        </RadioGroup>
+                    {/await}
                 {:else if tabSet === 2}
                 <input id="current-password" class="input m-2 w-fill-available moz-available" title="Current Password" type='password' placeholder='Current Password' />
                 <input id="new-password" class="input m-2 w-fill-available moz-available" title="New Password" type='password' placeholder='New Password' />

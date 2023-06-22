@@ -10,7 +10,7 @@ from main import app
 
 
 # Test User Fields supported by backend
-supported_fields = ('schid', 'fname', 'lname', 'photo', 'email', 'student')
+supported_fields = ('schid', 'fname', 'lname', 'photo', 'email', 'student', 'accent', 'theme')
 
 @dataclass
 class User:
@@ -21,6 +21,8 @@ class User:
     pwd: str
     student: bool
     email: str
+    accent: str
+    theme: int
     sid: str = None
     ws: WebSocket = None
     chat_log: [str] = None
@@ -45,7 +47,7 @@ class School:
     email: str
     altnames: [str]
 
-user1: User = User('FName1', 'LName1','', 0, 'password1', False, 'test1@test.com')
+user1: User = User('FName1', 'LName1','', 0, 'password1', False, 'test1@test.com', "red", 0)
 # alt vals is used in Test02-test110
 # Whenever supported_fields is updated,
 # this should also be updated (On New Features)
@@ -55,7 +57,7 @@ altvals = {
 }
 
 # This is a second user
-user2: User = User('FName2', 'LName2','', 0, 'password2', True, 'test2@test.com')
+user2: User = User('FName2', 'LName2','', 0, 'password2', True, 'test2@test.com', "green", 1)
 users = (user1, user2)
 school1: School = School('Test School', 'contacts@test.org', ['tst', 'schl'])
 schools = (school1,)
@@ -79,7 +81,10 @@ def signup_user(user: User):
             'student': user.student,
             'pwd': user.pwd,
             'email': user.email,
-            'schid': user.schid
+            'schid': user.schid,
+            'accent': user.accent,
+            'theme': user.theme
+
         }))
         # [BUG] [NOTE]
         # It might complain about an incorrect email

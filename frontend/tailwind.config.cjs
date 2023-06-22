@@ -18,6 +18,24 @@ module.exports = {
 			  '.moz-available': {
 				width: '-moz-available',
 			  },
+			  '.color-red': {
+				color: 'var(--color-red)',
+			  },
+			  '.color-orange': {
+				color: 'var(--color-orange)',
+			  },
+			  '.color-yellow': {
+				color: 'var(--color-yellow)',
+			  },
+			  '.color-green': {
+				color: 'var(--color-green)',
+			  },
+			  '.color-blue': {
+				color: 'var(--color-blue)',
+			  },
+			  '.color-purple': {
+				color: 'var(--color-purple)',
+			  },
 			}
 			addUtilities(newUtilities)
 		  }

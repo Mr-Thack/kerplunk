@@ -54,6 +54,8 @@ class SignUpData(BaseModel):
     fname: str
     lname: str
     photo: str
+    accent: str
+    theme: int
 
 def get_user(ahash: str) -> list[str, str]:
     data = creds[ahash]
@@ -98,7 +100,7 @@ def finish_signup_user(code: str) -> bool:
     if code.upper() in waiting_users:
         data = waiting_users[code.upper()]
 
-        uuid = make_user(data.email, data.fname, data.lname, data.photo, data.schid, data.student)
+        uuid = make_user(data.email, data.fname, data.lname, data.photo, data.schid, data.student, data.accent, data.theme)
         set_pwd(data.email, data.pwd, uuid)
         
         return True
