@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from dataclasses import dataclass, field
 from secrets import token_urlsafe
 from dblib import db
-from socket_manager import SocketManager
 from fastapi import Request
 from asyncio import sleep, CancelledError
 from events import events
@@ -57,7 +56,6 @@ For simplicity, we'll just call the subdb for each chat by it's chat id (cid)
 """
 chats = db('ChatRoomsInfo', ChatRoom, chat=True)
 opened_chats: dict = {}
-sm = SocketManager()
 
 
 def is_chat_name_taken(name: str):
@@ -109,7 +107,6 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
                           author='SYSTEM')
                           # [NOTE]: 'SYSTEM' messages
             write_msg(cid, msg)  # write to db
-            # await sm.broadcast(msg)  # send to all clients
         # We return it in the human friendly version, with name instead of their UUID
         # Later, we might have to return more information
         return {
