@@ -1,6 +1,6 @@
 from dblib import db
 from uuid import uuid1
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from schools import add_person
 
 @dataclass
@@ -13,6 +13,7 @@ class UserSchema():
     photo: str = ""
     accent: str = "red"
     theme: int = 0
+    convos: [str] = field(default_factory=list)
 
 # These are things that they shouldn't be able to change easily, or at all
 RESTRICTED = ('schid', 'student')

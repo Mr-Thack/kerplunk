@@ -9,6 +9,8 @@
     let chatbox: HTMLElement, chatInput: HTMLElement;
     var inputText = '';
 
+    let chatName: string;
+
     function scrollChatBottom(): void {
         chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
     }
@@ -33,7 +35,7 @@
             let h = d.getHours();
             let m = d.getMinutes();
             if (true) {  // User uses 12 hour time
-                return (h > 12? h - 12:h) + ':' + m + ' ' + (h>12?'P.M.':'A.M.');
+                return (h > 12? h - 12:h) + ':' + (m < 10? '0' + m: m) + ' ' + (h>12?'P.M.':'A.M.');
             } else {
                 return h + ':' + m;
             }
@@ -58,14 +60,21 @@
             });
         } else {
             // @ts-ignore
+            chatName = (await get(`convos/${$userDataStore.cid}/info`, {}, $userDataStore.token)).data.name
+        
+            // Get all the messages
+            // @ts-ignore
             messages = (await get(`convos/${$userDataStore.cid}`, {
                 'start': 0
                 // @ts-ignore
                 }, $userDataStore.token)).data.map((data) => {
                     return new Message(data)
                 });
+
+            // Now scroll to the bottom
             setTimeout(scrollChatBottom, 75);
-            
+
+            // Setup the Event Stream
             var es = new EventSource(`http://${endpoint('stream_convos')}/${$userDataStore.cid}?token=${$userDataStore.token}&start=${messages.length}`)
             es.onmessage = function (event) {
                 messages = [...messages, new Message(JSON.parse(event.data))]
@@ -99,7 +108,7 @@
 </script>
 <div class="flex flex-col min-h-screen max-h-screen overflow-hidden pr-4">
     <div class="h-auto variant-filled-primary mt-4">
-        <h3 class="h3 p-2">Put Chatroom Name Here</h3>
+        <h3 class="h3 p-2">{chatName? chatName: 'Loading...'}</h3>
     </div>
 
     <section bind:this={chatbox}

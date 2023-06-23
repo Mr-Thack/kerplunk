@@ -11,7 +11,7 @@ from schools import start_register_school, finish_register_school, list_all_scho
 from users import multi_get, multi_set, valid_keys, valid_fields
 from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            usr_in_convo, add_user_to_convo, read_msgs, post_msg,
-                           IncMsg, read_msgs_as_stream)
+                           IncMsg, read_msgs_as_stream, get_convo)
 from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
 from os import path
@@ -141,6 +141,14 @@ async def user_set_field(fields: dict, uuid: str = Depends(oauth_uuid)):
 async def return_a_list_of_chatrooms():
     return {'chatrooms': list_chat_rooms()}
 
+@api.get('/convos/{cid}/info')
+def get_conversation(cid: str, uuid: str = Depends(oauth_uuid)):
+    """Get Information about a conversation"""
+    convo = get_convo(uuid, cid)
+    if convo:
+        return convo
+    else:
+        raise HTTPException(status_code=400, detail="Either the CID doesn't exist, or you're not in the conversation.")
 
 @api.post('/convos')
 async def open_conversation(data: InitConvoData,

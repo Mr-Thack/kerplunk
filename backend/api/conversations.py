@@ -1,4 +1,4 @@
-from users import get_field
+from users import get_field, set_field
 from pydantic import BaseModel
 from dataclasses import dataclass, field
 from secrets import token_urlsafe
@@ -19,6 +19,15 @@ class Convo(InitConvoData):
     owner: str  # This is a UUID str
     cid: str
     users: list[str] = []
+
+    def sanitize(self):
+        return {
+            'name': self.name,
+            'public': self.public,
+            'chatroom': self.chatroom,
+            'owner': get_field(self.owner, 'name'),
+            'users': [get_field(user, 'name') for user in self.users]
+        }
 
 
 # This is specifically for an incoming message
@@ -63,7 +72,6 @@ def is_name_taken(name: str) -> bool:
         if name == convo.name:
             return True
 
-
 def list_chat_rooms() -> str:
     """List all chat rooms by their display name"""
     return [convo.name for (cid, convo) in convos if convo.chatroom]
@@ -107,6 +115,13 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
     if not convo.pwd or (pwd and convo.pwd == pwd):
         # If this UUID isn't recognized
         if uuid not in convo.users:
+            
+            # Add this convo to the user's list
+            user_convos = get_field(uuid, 'convos')
+            user_convos.append(cid)
+            set_field(uuid, 'convos', user_convos)
+
+            # Add this user to the convo's list
             convo.users.append(uuid)
             convos[cid] = convo  # In the previous line, we only updated our copy in memory
             # This line puts it back into the dict and then the db
@@ -129,6 +144,10 @@ def usr_in_convo(uuid: str, cid: str):
     convo = convos[cid]
     return convo and uuid in convo.users
 
+def get_convo(uuid: str, cid: str):
+    if usr_in_convo(uuid, cid):
+        return convos[cid].sanitize()
+        
 
 def write_msg(cid: str, msg: Message):
     # TODO: Check for problems in txt msg or smth
