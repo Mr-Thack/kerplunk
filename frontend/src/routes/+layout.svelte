@@ -19,8 +19,9 @@
 		var rez = await getSettings(["theme", 'accent']);
 		if (!(rez === undefined || rez.error === true)) {
 			document.documentElement.classList.add(rez.data.accent);
-			setModeUserPrefers(rez.data.theme);
-        	setModeCurrent(rez.data.theme);
+			let preferredMode = rez.data.theme === 1;
+			setModeUserPrefers(preferredMode);
+			setModeCurrent(preferredMode);
 		} else {
 			document.documentElement.classList.add('red');
 			document.documentElement.classList.add('dark');

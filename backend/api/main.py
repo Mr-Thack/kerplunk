@@ -38,9 +38,11 @@ def url_uuid(req: Request, token: str):
         raise HTTPException(status_code=401, detail='Token Invalid/Expired')
 
 @api.post('/signup')
-async def start_signup(success: bool = Depends(start_signup_user)):
-    if success:
-        return success
+async def start_signup(success: list = Depends(start_signup_user)):
+    if success[0]:
+        # Make sure to remove this in production
+        print("The code is", success[1])
+        return success[0]
     else:
         raise HTTPException(status_code=401,
                             detail='Email already in use!')

@@ -29,7 +29,7 @@ print('OPENING ENVIRONMENTS')
 # Sooo we're only enabling that for the tmp environments,
 # unless we're sure that the server won't crash.
 # But the fact of the matter is that it probably will
-mainenv = lmdb.open(PATH + 'main', max_dbs=4, writemap=False, subdir=True)
+mainenv = lmdb.open(PATH + 'main', map_size=(10 << 20)*25, max_dbs=16, writemap=False, subdir=True)
 chatenv = lmdb.open(PATH + 'chats', map_size=(10 << 20)*10, max_dbs=100,
                     writemap=True, subdir=True)
 # I don't think the users care too much about their old text messages

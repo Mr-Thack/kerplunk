@@ -90,7 +90,7 @@ async def start_signup_user(data: SignUpData) -> bool:
         await send_signup_email(data.email, data.fname + ' ' + data.lname, code)
         # This will be continued in finish_signup_user
         
-        return True
+        return True, code
 
 def finish_signup_user(code: str) -> bool:
     if code.upper() in waiting_users:
@@ -111,6 +111,7 @@ async def start_reset_pwd(data: ResetData):
     uuid = uuid_from_email(data.email)
     if uuid:
         code = gen_code()
+        print("ok")
         waiting_users[code] = data
         await send_reset_email(data.email, get_field(uuid, 'name'), code)
         return True

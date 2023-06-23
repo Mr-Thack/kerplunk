@@ -102,6 +102,14 @@
     class:animate-pulse='{!messages.length}'
     >
     {#each messages as msg}
+        {#if msg.author === "SYSTEM"}
+            <div class="grid gap-4 text-center w-full">
+                <!-- We can add avatars later.... -->
+                <div class="rounded-tl-none border-0 space-y-2 w-9/12 my-4 mx-auto pb-4 border-b-2 border-slate-800">
+                    <p>{msg.text+" - "+msg.humanTime()}</p>
+                </div>
+            </div>
+        {:else if msg.author}
         <div class="grid grid-cols-[auto_1fr] gap-2 text-left">
             <!-- We can add avatars later.... -->
             <div class="card p-4 variant-soft rounded-tl-none space-y-2">
@@ -112,6 +120,7 @@
                 <p>{msg.text}</p>
             </div>
         </div>
+        {/if}
     {/each}
 </section>
 
