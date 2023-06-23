@@ -12,9 +12,8 @@
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
-	let password = '', fname = '', lname = '', photo='', email = '',
-		  school = '', schid = -1, isStudent = false, signupcode = '',
-		  accent = 'red', theme = 0;
+	let password = '', fname = '', lname = '', email = '',
+		  school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
@@ -81,13 +80,10 @@
 		const rez = await post('signup', {
 			'fname': fname,
 			'lname': lname,
-			'photo': photo,
 			'pwd': password,
 			'email': email,
 			'schid': schid,
-			'student': isStudent,
-			'accent': accent,
-			'theme': theme
+			'student': isStudent
 		})
 		if (rez.error) {
 			// @ts-ignore

@@ -1,3 +1,8 @@
+
+
+
+
+
 name: backend-testing
 run-name: Backend Stability Test
 on: [push]
@@ -6,6 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - run: pip install -r requirements.txt
+    - run: pip install -r backend/requirements.txt
     - run: python3 unittests.py
       working-directory: backend/api

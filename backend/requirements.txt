@@ -1,7 +1,5 @@
-gunicorn
 fastapi
 fastapi-mail
-sse-starlette
 uvicorn[standard]
 python-multipart
 bcrypt
@@ -9,3 +7,4 @@ httpx
 websockets
 orjson
 lmdb
+sse_starlette

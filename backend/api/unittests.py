@@ -76,14 +76,10 @@ def signup_user(user: User):
         r.append(client.post('/api/signup', json={
             'fname': user.fname,
             'lname': user.lname,
-            'photo': user.photo,
             'student': user.student,
             'pwd': user.pwd,
             'email': user.email,
-            'schid': user.schid,
-            'accent': user.accent,
-            'theme': user.theme
-
+            'schid': user.schid
         }))
         # [BUG] [NOTE]
         # It might complain about an incorrect email

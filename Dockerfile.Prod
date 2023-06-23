@@ -7,7 +7,7 @@ WORKDIR /kerplunk/frontend
 RUN npm install && npm run build
 FROM python:3.10 as backend-executor
 COPY --from=frontend-compiler . .
-WORKDIR /kerplunk
+WORKDIR /kerplunk/backend
 RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 WORKDIR /kerplunk/backend/api
