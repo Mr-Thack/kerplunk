@@ -14,7 +14,7 @@ from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            IncMsg, read_msgs_as_stream, get_convo)
 from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
-from os import path
+from os import path, environ
 
 
 api = FastAPI(title='api')
@@ -38,11 +38,11 @@ def url_uuid(req: Request, token: str):
         raise HTTPException(status_code=401, detail='Token Invalid/Expired')
 
 @api.post('/signup')
-async def start_signup(success: list = Depends(start_signup_user)):
-    if success[0]:
-        # Make sure to remove this in production
-        print("The code is", success[1])
-        return success[0]
+async def start_signup(code: str = Depends(start_signup_user)):
+    if code:
+        if not is_production:
+            print("Signup code is:", code)
+        return True
     else:
         raise HTTPException(status_code=401,
                             detail='Email already in use!')
@@ -55,6 +55,16 @@ def finish_signup(success: bool = Depends(finish_signup_user)):
         raise HTTPException(status_code=401,
                             detail='Code Not Found')
 
+# This is registration for schools
+@api.post('/register')
+async def register(code: str = Depends(start_register_school)):
+    if code:
+        if not is_production:
+            print('Register code is:', code)
+        return True
+    else:
+        raise HTTPException(status_code=401,
+                            detail='Email already in use!')
 
 @api.get('/register')
 def finish_register(success: bool = Depends(finish_register_school)):
@@ -64,20 +74,12 @@ def finish_register(success: bool = Depends(finish_register_school)):
         raise HTTPException(status_code=401,
                             detail='Code Not Found')
 
-
-# This is registration for schools
-@api.post('/register')
-async def register(success: bool = Depends(start_register_school)):
-    if success:
-        return success
-    else:
-        raise HTTPException(status_code=401,
-                            detail='Email already in use!')
-
 @api.post('/reset')
-async def start_reset_password(success: bool = Depends(start_reset_pwd)):
-    if success:
-        return success
+async def start_reset_password(code: str = Depends(start_reset_pwd)):
+    if code:
+        if not is_production:
+            print("Reset code is:", code)
+        return True
     else:
         raise HTTPException(status_code=401,
                             detail='Email Not Found')
@@ -217,6 +219,10 @@ async def get_messages_from_stream(req: Request,
                              cid_uuid=Depends(convoids_url)):
     (cid, uuid) = cid_uuid  # Tried putting (cid, uuid) in params; won't work?
     return EventSourceResponse(read_msgs_as_stream(req, cid, start, end)) #, media_type="text/event-stream")
+
+
+# Tell us that we're on production
+is_production = bool(environ.get('ISPRODUCTION'))
 
 
 app = FastAPI(title='main')

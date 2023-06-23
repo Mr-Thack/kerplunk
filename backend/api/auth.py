@@ -82,7 +82,7 @@ def set_pwd(email: str, pwd: str, uuid: str):
     creds[ahash] = CredsSchema(uuid, email)
 
 
-async def start_signup_user(data: SignUpData) -> list:
+async def start_signup_user(data: SignUpData) -> str:
     if is_valid_schid(data.schid) and not is_email_used(data.email):
         code = gen_code()
         waiting_users[code] = data    
@@ -90,7 +90,7 @@ async def start_signup_user(data: SignUpData) -> list:
         await send_signup_email(data.email, data.fname + ' ' + data.lname, code)
         # This will be continued in finish_signup_user
         
-        return True, code
+        return code
 
 def finish_signup_user(code: str) -> bool:
     if code.upper() in waiting_users:
@@ -107,14 +107,13 @@ class ResetData(BaseModel):
     pwd: str
     
 
-async def start_reset_pwd(data: ResetData):
+async def start_reset_pwd(data: ResetData) -> str:
     uuid = uuid_from_email(data.email)
     if uuid:
         code = gen_code()
-        print("ok")
         waiting_users[code] = data
         await send_reset_email(data.email, get_field(uuid, 'name'), code)
-        return True
+        return code
 
 def finish_reset_pwd(code: str):
     if code.upper() in waiting_users:

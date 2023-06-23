@@ -51,13 +51,13 @@ class RegisterData(BaseModel):
 waiting_users = {}
 
 
-async def start_register_school(data: RegisterData) -> bool:
+async def start_register_school(data: RegisterData) -> str:
     if not is_email_used(data.email):
         code = gen_code()
         waiting_users[code] = data
         await send_register_email(data.email, data.name, code)
 
-        return True
+        return code
 
 def finish_register_school(code: str) -> bool:
     if code.upper() in waiting_users:
