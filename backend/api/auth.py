@@ -39,6 +39,13 @@ def uuid_from_email(email: str) -> str:
             return user.uuid
     return ''
 
+def email_from_uuid(uuid: str) -> str:
+    for (ahash, user) in creds:
+        if user.uuid == uuid:
+            return user.email
+    return ''
+
+# We want a username and a hash of their pwd and email on signup
 class SignUpData(BaseModel):
     pwd: str
     email: str
@@ -46,6 +53,9 @@ class SignUpData(BaseModel):
     student: bool
     fname: str
     lname: str
+    photo: str
+    accent: str
+    theme: int
 
 def get_user(ahash: str) -> list[str, str]:
     data = creds[ahash]
@@ -89,7 +99,7 @@ def finish_signup_user(code: str) -> bool:
     if code.upper() in waiting_users:
         data = waiting_users[code.upper()]
 
-        uuid = make_user(data.email, data.fname, data.lname, data.schid, data.student)
+        uuid = make_user(data.email, data.fname, data.lname, data.photo, data.schid, data.student, data.accent, data.theme)
         set_pwd(data.email, data.pwd, uuid)
         
         return True
@@ -113,4 +123,20 @@ def finish_reset_pwd(code: str):
         data = waiting_users[code.upper()]
         uuid = uuid_from_email(data.email)
         set_pwd(data.email, data.pwd, uuid)
+        return True
+
+
+class UpdatePwdData(BaseModel):
+    pwd: str
+    new_pwd: str
+
+def update_pwd(data: UpdatePwdData, uuid: str) -> bool:
+    email: str = email_from_uuid(uuid)
+
+    # We use get_user with this ahash to see if the current pasword is correct
+    ahash: str = gen_hash(email + data.pwd)
+    user: CredsSchema = get_user(ahash)
+    
+    if email and user and user.email == email:
+        set_pwd(email, data.new_pwd, uuid)
         return True

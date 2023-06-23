@@ -3,13 +3,26 @@
 	import { userDataStore } from '$lib/stores';
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
+	import getSettings from '$library/settings';
 	
 	var email = "", pwd = "";
 	
  	async function sendLogin() {
 	  const token = await checkCredentials(email, pwd);
     if (browser && token) {
-      userDataStore.write('token', token);
+      	userDataStore.write('token', token);
+	  	var rez = await getSettings(["theme", 'accent']);
+		if (!(rez === undefined || rez.error === true)) {
+						if (rez.data.theme === 0) {
+			document.documentElement.classList.add('dark');
+			} else {
+			document.documentElement.classList.remove('dark');
+			}
+			document.documentElement.classList.remove('red');
+			document.documentElement.classList.add(rez.data.accent);
+		} else {
+			document.documentElement.classList.add('red');
+		}
       goto('/home');
     }
 	}

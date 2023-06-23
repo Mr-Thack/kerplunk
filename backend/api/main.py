@@ -3,7 +3,10 @@ from fastapi import (Depends, FastAPI, Request, Query, WebSocket,
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from auth import login_user, start_signup_user, finish_signup_user, start_reset_pwd, finish_reset_pwd
+
+
+from auth import (login_user, start_signup_user, finish_signup_user,
+                  start_reset_pwd, finish_reset_pwd, UpdatePwdData, update_pwd)
 from schools import start_register_school, finish_register_school, list_all_schools
 from users import multi_get, multi_set, valid_keys, valid_fields
 from chats import (list_chats, create_chatroom, InitChatRoomData,
@@ -84,6 +87,15 @@ async def finish_reset_password(success: bool = Depends(finish_reset_pwd)):
     else:
         raise HTTPException(status_code=401,
                             detail='Invalid Reset Code')
+
+@api.post('/update_pwd')
+def update_password(data: UpdatePwdData, uuid: str = Depends(oauth_uuid)):
+    success: bool = update_pwd(data, uuid)
+    if success:
+        return success
+    else:
+        raise HTTPException(status_code=401,
+                            detail='Incorrect Password')
 
 # Just get a list of all schools
 @api.get('/schools')
@@ -169,17 +181,8 @@ def get_new_text_messages(start: int,
                             detail='The end index is probably too high')
     else:
         return r
-    
-    #await on_user_join_chatroom(cid, uuid, ws)
-    #try:
-    #    try:
-    #        while True:
-    #            await join_chatroom_user_event_loop(uuid, cid)
-    #    except WebSocketDisconnect:
-    #        await on_user_leave_chatroom(uuid, cid)
-    #except e:
-    #    print(e)
 
+    
 @api.post('/chats/{cid}')
 async def post_message(msg: IncMsg, cid_uuid=Depends(chatids)):
     (cid, uuid) = cid_uuid
