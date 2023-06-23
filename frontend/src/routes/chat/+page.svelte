@@ -110,12 +110,19 @@
     <div class="h-auto variant-filled-primary mt-4">
         <h3 class="h3 p-2">{chatName? chatName: 'Loading...'}</h3>
     </div>
-
-    <section bind:this={chatbox}
-             class="flex-grow p-4 overflow-y-auto space-y-4"
-             class:placeholder='{!messages.length}'
-             class:animate-pulse='{!messages.length}'>
-        {#each messages as msg}
+<section bind:this={chatbox}
+    class="flex-grow p-4 overflow-y-auto space-y-4"
+    class:placeholder='{!messages.length}'
+    class:animate-pulse='{!messages.length}'>
+    {#each messages as msg}
+        {#if msg.author === "SYSTEM"}
+            <div class="grid gap-4 text-center w-full">
+                <!-- We can add avatars later.... -->
+                <div class="rounded-tl-none border-0 space-y-2 w-full mb-8">
+                    <p>{msg.text+" - "+msg.humanTime()}</p>
+                </div>
+            </div>
+        {:else if msg.author}
             <div class="grid grid-cols-[auto_1fr] gap-2 text-left">
                 <!-- We can add avatars later.... -->
                 <div class="card p-4 variant-soft rounded-tl-none space-y-2">
@@ -126,8 +133,9 @@
                     <p>{msg.text}</p>
                 </div>
             </div>
-        {/each}
-    </section>
+        {/if}
+    {/each}
+</section>
 
     <div class="input-group input-group-divider flex flex-shrink-0 h-full rounded-container-token mb-4">
         <textarea
