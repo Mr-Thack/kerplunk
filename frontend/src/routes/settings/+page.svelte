@@ -1,11 +1,12 @@
 <script lang="ts">
     import { Avatar, TabGroup, Tab, FileButton, RadioItem, RadioGroup, setModeUserPrefers, setModeCurrent } from '@skeletonlabs/skeleton';
-    import getSettings from '$lib/settings';
+    import { getSettings } from '$lib/settings';
     import {  post } from '$library/endpoint';
     import { onMount } from 'svelte';
     import { userDataStore } from '$library/stores';
     import { salert } from '$library/alerts';
     import { browser } from '$app/environment';
+    import { removeClass, addClass, isClass } from '$lib/generalHelpers';
     
     let firstName = "", lastName = "";
     let curPwd = "", newPwd = "", repPwd = "";
@@ -19,22 +20,7 @@
     const accents = ["red", "orange", "yellow", "green", "blue", "purple"];
     const themes = ["dark", "light"];
     const tabs = ["General", "Appearance", "Password", "Delete"];
-
-    function removeClass(styleClass: string) {
-        // Remove a Style Class from the Document
-        document.documentElement.classList.remove(styleClass);
-    }
-
-    function addClass(styleClass: string) {
-        // Add a Style Class to the Document
-        document.documentElement.classList.add(styleClass);
-    }
-
-    function isClass(styleClass: string) {
-        // Check if a style class is currently in use
-        return document.documentElement.classList.contains(styleClass);
-    }
-
+    
     onMount(async () => {
         var rez = await getSettings(["theme", 'accent']);
         if (rez !== undefined && !rez.error) {
