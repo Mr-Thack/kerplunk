@@ -43,7 +43,7 @@
     var messages: Message[] = [];
     
     async function sendMessage() {
-        await post(`chats/${$userDataStore.cid}`, {
+        await post(`convos/${$userDataStore.cid}`, {
             'text': inputText
             //, 'reply_to': 
         })
@@ -58,7 +58,7 @@
             });
         } else {
             // @ts-ignore
-            messages = (await get(`chats/${$userDataStore.cid}`, {
+            messages = (await get(`convos/${$userDataStore.cid}`, {
                 'start': 0
                 // @ts-ignore
                 }, $userDataStore.token)).data.map((data) => {
@@ -66,7 +66,7 @@
                 });
             setTimeout(scrollChatBottom, 75);
             
-            var es = new EventSource(`http://${endpoint('streamchats')}/${$userDataStore.cid}?token=${$userDataStore.token}&start=${messages.length}`)
+            var es = new EventSource(`http://${endpoint('stream_convos')}/${$userDataStore.cid}?token=${$userDataStore.token}&start=${messages.length}`)
             es.onmessage = function (event) {
                 messages = [...messages, new Message(JSON.parse(event.data))]
                 setTimeout(scrollChatBottom, 75)
@@ -79,66 +79,63 @@
                 }
             });
         }
+
         var textarea = document.querySelector('textarea');
+        if (textarea) {
+            // Add an event listener for the input event
+            textarea.addEventListener('input', function() {
+        
+                // Reset the textarea's height
+                this.style.height = 'auto';
 
-        // Add an event listener for the input event
-        textarea.addEventListener('input', function() {
-        // Reset the textarea's height
-        this.style.height = 'auto';
-
-        // Set the textarea's height to match its scrollHeight
-        this.style.height = this.scrollHeight + 'px';
-        });
+                // Set the textarea's height to match its scrollHeight
+                this.style.height = this.scrollHeight + 'px';
+            });
+        } else {
+            console.warn("SOMETHING WENT WRONG WITH THE TEXTAREA!")
+        }
     })
     
 </script>
 <div class="flex flex-col min-h-screen max-h-screen overflow-hidden pr-4">
     <div class="h-auto variant-filled-primary mt-4">
-            <h2 class="h3 p-2">Put Chatroom Name Here</h2>
+        <h3 class="h3 p-2">Put Chatroom Name Here</h3>
     </div>
 <section bind:this={chatbox}
     class="flex-grow p-4 overflow-y-auto space-y-4"
     class:placeholder='{!messages.length}'
-    class:animate-pulse='{!messages.length}'
-    >
+    class:animate-pulse='{!messages.length}'>
     {#each messages as msg}
         {#if msg.author === "SYSTEM"}
             <div class="grid gap-4 text-center w-full">
                 <!-- We can add avatars later.... -->
-                <div class="rounded-tl-none border-0 space-y-2 w-9/12 my-4 mx-auto pb-4 border-b-2 border-slate-800">
+                <div class="rounded-tl-none border-0 space-y-2 w-full mb-8">
                     <p>{msg.text+" - "+msg.humanTime()}</p>
                 </div>
             </div>
         {:else if msg.author}
-        <div class="grid grid-cols-[auto_1fr] gap-2 text-left">
-            <!-- We can add avatars later.... -->
-            <div class="card p-4 variant-soft rounded-tl-none space-y-2">
-                <header class="flex justify-between items-center">
-                    <p class="font-bold mr-4">{msg.author}</p>
-                    <p>{msg.humanTime()}</p>
-                </header>
-                <p>{msg.text}</p>
+            <div class="grid grid-cols-[auto_1fr] gap-2 text-left">
+                <!-- We can add avatars later.... -->
+                <div class="card p-4 variant-soft rounded-tl-none space-y-2">
+                    <header class="flex justify-between items-center">
+                        <p class="font-bold mr-4">{msg.author}</p>
+                        <p>{msg.humanTime()}</p>
+                    </header>
+                    <p>{msg.text}</p>
+                </div>
             </div>
-        </div>
         {/if}
     {/each}
 </section>
 
-<div class="input-group input-group-divider flex flex-shrink-0 h-full rounded-container-token mb-4">
-    <textarea
-        bind:this={chatInput}
-        bind:value={inputText}
-        class="bg-transparent border-0 ring-0 flex-grow h-fit overflow-hidden resize-none"
-        name="prompt"
-        placeholder="Message Here..."
-        rows="1"
-    />
-    <button class="variant-filled-primary material-symbols-outlined h-100" on:click={sendMessage}>send</button>
-</div>
-<!--
-<div style='margin-top: 1%; margin-left: 15%'>
-    <input type='text' id='chat_input' bind:value={input_text} style='width: 75%; margin-right: 1%;'>
-    <button on:click={sendMessage}>Send!</button>
-</div>
--->
+    <div class="input-group input-group-divider flex flex-shrink-0 h-full rounded-container-token mb-4">
+        <textarea
+            bind:this={chatInput}
+            bind:value={inputText}
+            class="bg-transparent border-0 ring-0 flex-grow h-fit overflow-hidden resize-none"
+            name="prompt"
+            placeholder="Message Here..."
+            rows="1" />
+        <button class="variant-filled-primary material-symbols-outlined h-100" on:click={sendMessage}>send</button>
+    </div>
 </div>

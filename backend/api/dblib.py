@@ -30,7 +30,7 @@ print('OPENING ENVIRONMENTS')
 # unless we're sure that the server won't crash.
 # But the fact of the matter is that it probably will
 mainenv = lmdb.open(PATH + 'main', map_size=(10 << 20)*25, max_dbs=16, writemap=False, subdir=True)
-chatenv = lmdb.open(PATH + 'chats', map_size=(10 << 20)*10, max_dbs=100,
+convenv = lmdb.open(PATH + 'conversations', map_size=(10 << 20)*10, max_dbs=100,
                     writemap=True, subdir=True)
 # I don't think the users care too much about their old text messages
 # I think...
@@ -41,14 +41,14 @@ tmpenv = lmdb.open(PATH + 'userdata', max_dbs=1, writemap=True,
 # Not sure what the safety concerns of writemap=True are, but they exist!
 # This is a nice big wrapper for LMDB
 class db:
-    def __init__(self, name: str, schema, chat=False, tmp=False):
+    def __init__(self, name: str, schema, conversation=False, tmp=False):
         self.name = name
         self.schema = schema
         self.fields = tuple(schema.__annotations__.keys()) if schema else None
         if tmp:
             self.env = tmpenv
-        elif chat:
-            self.env = chatenv
+        elif conversation:
+            self.env = convenv
         else:
             self.env = mainenv
         print('OPENING DB ' + self.name)

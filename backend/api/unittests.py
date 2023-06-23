@@ -32,8 +32,9 @@ class User:
 
 
 @dataclass
-class Chat:
+class Convo:
     name: str
+    chatroom: bool = True
     pwd: str = ''
     cid: str = ''
     owner: str = ''
@@ -60,8 +61,8 @@ user2: User = User('FName2', 'LName2','', 0, 'password2', True, 'test2@test.com'
 users = (user1, user2)
 school1: School = School('Test School', 'contacts@test.org', ['tst', 'schl'])
 schools = (school1,)
-chat1: Chat = Chat('Testing')
-chat_rooms = (chat1, )
+convo1: Convo = Convo('Testing')
+convos = (convo1, )
 
 
 def genhed(user: User):
@@ -107,19 +108,19 @@ def get_user_sid(user: User):
     r = client.post('/api/login', data=con).json()
     return r['access_token']
 
-def join_chat(user: User, chat: Chat):
-    return client.patch('/api/chats', params={
-        'name': chat.name
+def join_convo(user: User, convo: Convo):
+    return client.patch('/api/convos', params={
+        'name': convo.name
     }, headers=genhed(user))
 
-def get_msgs(user: User, chat: Chat):
-    baseuri = f'/api/chats/{chat.cid}'
+def get_msgs(user: User, convo: Convo):
+    baseuri = f'/api/convos/{convo.cid}'
     user.chat_log = client.get(baseuri, params={
         'start': 0
     }, headers=genhed(user)).json()
 
-def post_msg(user: User, chat: Chat, msg: str, reply_to: int = None):
-    baseuri = f'/api/chats/{chat.cid}'
+def post_msg(user: User, convo: Convo, msg: str, reply_to: int = None):
+    baseuri = f'/api/convos/{convo.cid}'
     resp = client.post(baseuri, json={
         'text': msg,
         'reply_to': reply_to
@@ -253,16 +254,17 @@ class Test020_User_Data(unittest.TestCase):
     #    user1.lname = altvals['lname']
 
 
-class Test030_Chat_Rooms(unittest.TestCase):
-    def test010_open_chat_room(self):
+class Test030_Convos(unittest.TestCase):
+    def test010_open__chat_room(self):
         """Check if API can create chat rooms"""
-        chat: Chat = chat_rooms[0]
+        chat: Convo = convos[0]
         js = {
             'name': chat.name,
             'pwd': chat.pwd,
+            'chatroom': chat.chatroom,
             'public': True
         }
-        r = client.post('/api/chats', json=js, headers=genhed(user1)).json()
+        r = client.post('/api/convos', json=js, headers=genhed(user1)).json()
         self.assertIn('cid', r)
         chat.cid = r['cid']
 
@@ -271,19 +273,19 @@ class Test030_Chat_Rooms(unittest.TestCase):
         # No SID required because this doesn't really need authentication
         # And no parameters required
         r = client.get('/api/chats').json()
-        self.assertEqual(r['chatrooms'], [chat_rooms[0].name])
+        self.assertEqual(r['chatrooms'], [convos[0].name])
 
     def test030_first_user_join_chat(self):
         """Check what data is being given back from the
         first time a user joins the chat"""
-        chat: Chat = chat_rooms[0]
-        r = join_chat(user1, chat)
+        chat: Convo = convos[0]
+        r = join_convo(user1, chat)
         self.assertEqual(r.status_code, 200)
 
         r = r.json()
         self.assertEqual(r['owner'], user1.name())
         self.assertEqual(r['cid'], chat.cid)
-        self.assertListEqual(r['chatters'], [user1.name()])
+        self.assertListEqual(r['users'], [user1.name()])
         chat.owner = r['owner']
         chat.pwd = ''
         # Now we'll connect to the websocket port and get our messages so far
@@ -292,8 +294,8 @@ class Test030_Chat_Rooms(unittest.TestCase):
 
     def test040_1st_user_send_msg(self):
         """Check sending & recieving message"""
-        chat = chat_rooms[0]
-        baseuri = f'/api/chats/{chat.cid}'
+        chat = convos[0]
+        baseuri = f'/api/convos/{chat.cid}'
         msg = 'Hello from owner!'
         
         get_msgs(user1, chat)
@@ -306,13 +308,13 @@ class Test030_Chat_Rooms(unittest.TestCase):
     
     def test050_2nd_user_join_chat(self):
         """Check if users other than the owner can join"""
-        chat: Chat = chat_rooms[0]
-        r = join_chat(user2, chat).json()
-        self.assertEqual(r['chatters'], [user1.name(), user2.name()])
+        chat: Chat = convos[0]
+        r = join_convo(user2, chat).json()
+        self.assertEqual(r['users'], [user1.name(), user2.name()])
 
     def test060_2nd_user_send_and_recv_msg(self):
         """Check if 2nd user has received the 1st msg, and sending a 2nd"""
-        chat = chat_rooms[0]
+        chat = convos[0]
         msg = 'Hello Back!'
         get_msgs(user2, chat)
         # User1's chat log should have everything except the last 2  messages ("Hello from owner" and "User2 Joined Chat")

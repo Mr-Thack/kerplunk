@@ -98,7 +98,7 @@ def finish_signup_user(code: str) -> bool:
 
         uuid = make_user(data.email, data.fname, data.lname, data.schid, data.student)
         set_pwd(data.email, data.pwd, uuid)
-        
+                
         return True
 
 
