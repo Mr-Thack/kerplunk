@@ -163,55 +163,58 @@
 	}
 
 </script>
-<header class="mx-auto mb-5 text-center">
+<header class="mx-auto text-center pr-4">
 	<h2 class="h2">Signup!</h2>
 </header>
+<div class="w-full h-full flex items-center h-screen absolute inset-x-0 inset-y-0 pl-28 pr-4">
 <!-- It complains on the next line that on:step function handler has a type mismatch, but it doesn't impact us -->
-<Stepper on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4">
-	<Step locked={!(email && password && fname && lname)}>
-		<svelte:fragment slot="header">Basic Info</svelte:fragment>
-
-		<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Email' />
-		<input class="input m-2" title="Password" type='password' bind:value={password} placeholder='Your Password' />
-    <input class="input m-2" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
-		<input class="input m-2" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
-  </Step>
-	<Step>
-		<h3 class="h3 text-center">Are you a student or a teacher?</h3>
-
-		<div class="flex flex-row place-content-between justify-center w-full">
-			<RadioGroup>
-				<RadioItem bind:group={isStudent} name="justify" value={false}>	
-					<span class="material-symbols-outlined">
-						face_retouching_natural
-					</span>
-					<h5 class="h5">Teacher</h5>
-				</RadioItem>
-				<RadioItem bind:group={isStudent} name="justify" value={true}>
-					<span class="material-symbols-outlined">
-						child_care
-					</span>
-					<h5 class="h5">Student</h5>
-				</RadioItem>
-			</RadioGroup>
+	<Stepper on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4 w-full">
+		<Step locked={!(email && password && fname && lname)} class="m-8">
+			<svelte:fragment slot="header">Basic Info</svelte:fragment>
+			<div class="grid grid-cols-2">
+				<input class="input w-fill-available moz-available m-2" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
+				<input class="input w-fill-available moz-available m-2" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
+			</div>
+			<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Email' />
+			<input class="input m-2" title="Password" type='password' bind:value={password} placeholder='Your Password' />
 	</Step>
-	<Step locked={schid === -1}>
-		<svelte:fragment slot="header">School Info</svelte:fragment>
+		<Step class="m-8">
+			<h3 class="h3 text-center">Are you a student or a teacher?</h3>
 
-		{#if !isStudent}
-			<!-- We want to open a new tab (_blank) so that they can return to the one -->
-			<a class="btn variant-filled-error h3 text-center" href={dev? "/register":"/register.html"} target="_blank">
-				Don't see your School Here?
-			</a>
-		{/if}
-	
-		<input class="input m-2" type="search" name="School Name" bind:value={school} placeholder="Search...." />
-	
-		<!--<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">-->
-		<Autocomplete class="card w-auto p-4 max-h-48 overflow-y-auto" tabindex="-1" bind:input={school} options={schoolOptions} on:selection={onSchoolSelection} />
-	</Step>
-	<Step locked={!signupcode}>
-		<svelte:fragment slot="header">Email Signup Code</svelte:fragment>
-		<input class="input m-2" type="text" name="Code" bind:value={signupcode} placeholder="Code from your Email!" />
-	</Step>
-</Stepper>
+			<div class="flex flex-row place-content-between justify-center w-full">
+				<RadioGroup>
+					<RadioItem bind:group={isStudent} name="student-teacher" value={false}>	
+						<span class="material-symbols-outlined">
+							face_retouching_natural
+						</span>
+						<h5 class="h5">Teacher</h5>
+					</RadioItem>
+					<RadioItem bind:group={isStudent} name="student-teacher" value={true}>
+						<span class="material-symbols-outlined">
+							child_care
+						</span>
+						<h5 class="h5">Student</h5>
+					</RadioItem>
+				</RadioGroup>
+		</Step>
+		<Step locked={schid === -1} class="m-8">
+			<svelte:fragment slot="header">School Info</svelte:fragment>
+
+			{#if !isStudent}
+				<!-- We want to open a new tab (_blank) so that they can return to the one -->
+				<a class="btn variant-filled-error h3 text-center" href={dev? "/register":"/register.html"} target="_blank">
+					Don't see your School Here?
+				</a>
+			{/if}
+		
+			<input class="input m-2" type="search" name="School Name" bind:value={school} placeholder="Search...." />
+		
+			<!--<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">-->
+			<Autocomplete class="card w-auto p-4 max-h-48 overflow-y-auto" tabindex="-1" bind:input={school} options={schoolOptions} on:selection={onSchoolSelection} />
+		</Step>
+		<Step locked={!signupcode} class="m-8">
+			<svelte:fragment slot="header">Email Signup Code</svelte:fragment>
+			<input class="input m-2" type="text" name="Code" bind:value={signupcode} placeholder="Code from your Email!" />
+		</Step>
+	</Stepper>
+</div>

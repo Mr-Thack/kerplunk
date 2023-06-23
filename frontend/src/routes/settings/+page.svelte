@@ -86,17 +86,6 @@
     }
 
 
-    async function loadInfo() {
-        var rez = await getSettings(["fname", "lname", "email", "photo"]);
-        if (!(rez === undefined || rez.error === true)) {
-            firstName = rez.data.fname;
-            lastName = rez.data.lname;
-            email = rez.data.email;
-        } else {
-            salert("The server cannot be reached. Check your internet connection.")
-        }
-    }
-
     onMount(async () => {
         var rez = await getSettings(["fname", "lname", "email", "photo"]);
         if (rez && !rez.error) {
@@ -118,6 +107,20 @@
             salert("The server cannot be reached. Check your internet connection.")
         }
     })
+
+
+    async function loadInfo() {
+        var rez = await getSettings(["fname", "lname", "email", "photo"]);
+        if (rez && !rez.error) {
+            firstName = rez.data.fname;
+            lastName = rez.data.lname;
+            email = rez.data.email;
+            // [NOTE]
+            // photoHidden = false; 
+        } else {
+            salert("The server cannot be reached. Check your internet connection.")
+        }
+    }
 
     async function updateGeneral() {
         var upload = await post('userme', {
@@ -180,6 +183,7 @@
 <header class="mx-auto mb-5 text-center">
 	<h2 class="h2">Settings</h2>
 </header>
+
 <div class="grid grid-cols-3 grid-rows-1">
     <div class="col-start-1">
         {#if !photoHidden}
@@ -256,6 +260,4 @@
         </TabGroup>
 
     </div>
-    
-
 </div>

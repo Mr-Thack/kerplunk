@@ -24,12 +24,14 @@
 
   class Page {
     url: string;
+    alturl: string;
     name: string;
     icon: string;
 
     // This seems verbose...
-    constructor(u: string, n: string, i: string) {
+    constructor(u: string, au:string, n: string, i: string) {
       this.url = u;
+      this.alturl = au;
       this.name = n;
       this.icon = i;
     }
@@ -37,11 +39,11 @@
 
 
   const ALLNAVS = [
-    new Page('/chatrooms', 'Chat!', 'chat'),
+    new Page('/chatrooms', '/chat', 'Chat!', 'chat'),
 
-    new Page('/login', 'Login!', 'login'),
+    new Page('/login', '/login', 'Login!', 'login'),
     // the logic of swapping between login and signup is handled in the markup
-    new Page('/signup', 'Sign Up!', 'person_add')
+    new Page('/signup', '/signup', 'Sign Up!', 'person_add')
   ];
 
   function removePage(arr: Page[], pages: string[]) {
@@ -143,18 +145,8 @@
       <img src="/icon.jpg" alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
-  {#if isLoggedIn}
-    <AppRailAnchor on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
-      <svelte:fragment slot="lead">
-        <span class="material-symbols-outlined">
-          account_circle
-        </span>
-      </svelte:fragment>
-      <span>Account</span>
-    </AppRailAnchor>
-  {/if}
   {#each navs as nav}
-    <AppRailAnchor href={nav.url} selected={$page.url.pathname === nav.url + "/"}>
+    <AppRailAnchor id={nav.icon} href={nav.url} selected={$page.url.pathname === nav.url + "/" || $page.url.pathname === nav.alturl + "/"}>
       <svelte:fragment slot="lead">
         <span class="material-symbols-outlined">
           {nav.icon}
@@ -163,4 +155,14 @@
       <span>{nav.name}</span>
     </AppRailAnchor>
   {/each}
+  {#if isLoggedIn}
+  <AppRailAnchor on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
+    <svelte:fragment slot="lead">
+      <span class="material-symbols-outlined">
+        account_circle
+      </span>
+    </svelte:fragment>
+    <span>Account</span>
+  </AppRailAnchor>
+  {/if}
 </AppRail>
