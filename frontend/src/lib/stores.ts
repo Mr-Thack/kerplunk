@@ -5,7 +5,9 @@ import { browser } from '$app/environment';
 type UserData = {
     token: string,
     name: string,
-    cid: string
+    cid: string,
+    photo: string,
+    email: string
 }
 
 
