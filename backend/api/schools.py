@@ -1,14 +1,17 @@
 from dblib import db
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pydantic import BaseModel
 from os import environ
 from mail import gen_code, send_register_email
+
 
 @dataclass
 class SchoolSchema():
     name: str
     altnames: list[str]
     email: str
+    teachers: [str] = field(default_factory=list)  # Hold their UUIDs
+    students: [str] = field(default_factory=list)  # Hold their UUIDs
     # Later, we can add support for things like the prinicipals name
     # phone number, country, state, district, and more
 
@@ -17,6 +20,17 @@ class SchoolSchema():
 # later on, we might use a UUID instead of just a plain integer
 # but we should be fine for the first few thousand schools  
 school_data: db = db("SchoolData", SchoolSchema)
+
+def get_school(schid: int):
+    """This is only for functions in external modules"""
+    return school_data[schid]
+
+def retrieve_school(schid: int, uuid: str) -> None | SchoolSchema:
+    """This is only to be used for the API, not for other modules."""
+    if schid in school_data:
+        school = school_data[schid]  # This requires 1 less read than using school_data[schid] twice
+        if uuid in school.students or uuid in school.teachers:
+            return school_data[schid]
 
 def is_email_used(email: str):
     # This is for schools
@@ -55,7 +69,18 @@ def finish_register_school(code: str) -> bool:
         del waiting_users[code.upper()]
         return True
     
+def add_person(uuid: str, schid: int, is_student: bool):
+    """Add a person to a school. Deals with both students and teachers."""
+    school = school_data[schid]
     
+    if is_student:
+        school.students.append(uuid)
+    else:
+        school.teachers.append(uuid)
+    
+    school_data[schid] = school
+    return True
+         
 
 # The stuff below is specificially for searching for a school when registering
 
@@ -68,5 +93,4 @@ class SchoolSearchInfo():
 
 def list_all_schools() -> [SchoolSearchInfo]:
     return [SchoolSearchInfo(school.name, schid, school.altnames) for schid, school in school_data]
-
     

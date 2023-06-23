@@ -97,10 +97,21 @@ def update_password(data: UpdatePwdData, uuid: str = Depends(oauth_uuid)):
         raise HTTPException(status_code=401,
                             detail='Incorrect Password')
 
-# Just get a list of all schools
+
+# Get a list of all schools
 @api.get('/schools')
 async def ret_list_schools():
     return {'schools': list_all_schools()}
+
+# Get a specific school
+@api.get('/schools/{schid}')
+def retrive_a_school(schid: int, uuid = Depends(oauth_uuid)):
+    school = retrieve_school(schid, uuid)
+    if school:
+        return school
+    else:
+        raise HTTPException(status_code=401,
+                            detail='You are not from this school or are not logged in.')
 
 @api.post('/login')
 async def login(req: Request, fd: OAuth2PasswordRequestForm = Depends()):

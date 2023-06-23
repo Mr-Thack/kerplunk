@@ -1,7 +1,7 @@
 from dblib import db
 from uuid import uuid1
 from dataclasses import dataclass
-
+from schools import add_person
 
 @dataclass
 class UserSchema():
@@ -26,10 +26,16 @@ def is_email_used(email: str) -> bool:
         if user.email == email:
             return True
 
+def user_exists(uuuid: str) -> bool:
+    for uuid in user_data:
+        if uuid == uuuid:
+            return True
+
 
 def make_user(email: str, fname: str, lname: str, schid: int, student: bool) -> str:
     uuid: str = str(uuid1())
     user_data[uuid] = UserSchema(email, fname, lname, schid, student)
+    add_person(uuid, schid, student)
     return uuid
 
 
