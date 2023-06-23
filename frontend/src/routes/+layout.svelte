@@ -9,7 +9,7 @@
 	import '@skeletonlabs/skeleton/styles/skeleton.css';
 	import '../app.postcss';
 
-	import { AppShell } from '@skeletonlabs/skeleton';
+	import { AppShell, setModeCurrent, setModeUserPrefers } from '@skeletonlabs/skeleton';
 	import { Modal, modalStore } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton'
 	import getSettings from '$library/settings';
@@ -19,11 +19,8 @@
 		var rez = await getSettings(["theme", 'accent']);
 		if (!(rez === undefined || rez.error === true)) {
 			document.documentElement.classList.add(rez.data.accent);
-			if (rez.data.theme === 0) {
-			document.documentElement.classList.add('dark');
-			} else {
-			document.documentElement.classList.remove('dark');
-			}
+			setModeUserPrefers(rez.data.theme);
+        	setModeCurrent(rez.data.theme);
 		} else {
 			document.documentElement.classList.add('red');
 			document.documentElement.classList.add('dark');
