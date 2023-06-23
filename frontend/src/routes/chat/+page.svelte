@@ -1,13 +1,26 @@
 <script lang="ts">
+    import { Avatar } from '@skeletonlabs/skeleton';
     import { get, post, endpoint } from '$library/endpoint';
     import { userDataStore } from '$library/stores';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
+	import getSettings from '$library/settings';
 	
 
     let chatbox: HTMLElement, chatInput: HTMLElement;
     var inputText = '';
+
+    // Why isn't it already possible to get the user's name without pinging the server again?
+    // also $userDataStore.photo doesn't work
+    async function getInfo() {
+        var rez = await getSettings(["name", "photo"]);
+        if (rez && !rez.error) {
+            return rez
+        }
+    }
+
+    var info = getInfo();
 
     let chatName: string;
 
@@ -51,7 +64,6 @@
         })
         inputText = '';
     }
-
 
     onMount(async () => {
         if (!$userDataStore.token) {
@@ -114,27 +126,43 @@
     class="flex-grow p-4 overflow-y-auto space-y-4"
     class:placeholder='{!messages.length}'
     class:animate-pulse='{!messages.length}'>
-    {#each messages as msg}
-        {#if msg.author === "SYSTEM"}
-            <div class="grid gap-4 text-center w-full">
-                <!-- We can add avatars later.... -->
-                <div class="rounded-tl-none border-0 space-y-2 w-full mb-8">
-                    <p>{msg.text+" - "+msg.humanTime()}</p>
+    {#await info}
+        <p class="p">Please Wait...</p>
+    {:then variable}
+        {#each messages as msg}
+            {#if msg.author === "SYSTEM"}
+                <div class="grid gap-4 text-center w-full">
+                    <!-- We can add avatars later.... -->
+                    <div class="rounded-tl-none border-0 space-y-2 w-full mb-8">
+                        <p>{msg.text+" - "+msg.humanTime()}</p>
+                    </div>
                 </div>
-            </div>
-        {:else if msg.author}
-            <div class="grid grid-cols-[auto_1fr] gap-2 text-left">
-                <!-- We can add avatars later.... -->
-                <div class="card p-4 variant-soft rounded-tl-none space-y-2">
-                    <header class="flex justify-between items-center">
-                        <p class="font-bold mr-4">{msg.author}</p>
-                        <p>{msg.humanTime()}</p>
-                    </header>
-                    <p>{msg.text}</p>
+            {:else if msg.author === variable.data.name}
+                <div class="grid grid-cols-[1fr_auto_auto] justify-items-end gap-2 text-right">
+                    <div class="card p-4 rounded-tr-none space-y-2 variant-filled-primary">
+                        <header class="flex justify-between items-center">
+                            <p class="font-bold mr-4">{msg.author}</p>
+                            <p>{msg.humanTime()}</p>
+                        </header>
+                        <p>{msg.text}</p>
+                    </div>
+                    <Avatar src={variable.data.photo} width="w-12" />
                 </div>
-            </div>
-        {/if}
-    {/each}
+                {:else}
+                <div class="grid grid-cols-[auto_auto_1fr] gap-2 text-left">
+                    <Avatar src="https://source.unsplash.com/YOErFW8AfkI/128x128" width="w-12" />
+                    <div class="card p-4 rounded-tl-none space-y-2 variant-soft">
+                        <header class="flex justify-between items-center">
+                            <p class="font-bold mr-4">{msg.author}</p>
+                            <p>{msg.humanTime()}</p>
+                        </header>
+                        <p>{msg.text}</p>
+                    </div>
+                </div>
+            {/if}
+        {/each}
+    {/await}
+
 </section>
 
     <div class="input-group input-group-divider flex flex-shrink-0 h-full rounded-container-token mb-4">
