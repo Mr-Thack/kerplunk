@@ -21,6 +21,20 @@
   var isLoggedIn = false;
   // I wanted to have this isLoggedIn function in $lib/auth, but it's not playing nice with Svelte Stores
 
+  var accent = 'red';
+
+  $: {
+    if ($userDataStore) {
+      change($userDataStore.accent)
+    }
+  }
+
+  async function change(store:string) {
+    const rez = await getSettings(['accent']);
+      if (!rez.error) {
+          accent = rez.data.accent;
+      }
+  }
 
   class Page {
     url: string;
@@ -142,7 +156,7 @@
   <svelte:fragment slot="lead">
     <!-- If you're logged in, we want you to go to home instead of the front page -->
     <AppRailAnchor href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
-      <img src="/icon.png" alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
+      <img src={"/icon_"+accent+".png"} alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
   {#each navs as nav}

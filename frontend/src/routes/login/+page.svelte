@@ -9,11 +9,11 @@
 	
  	async function sendLogin() {
 	  const token = await checkCredentials(email, pwd);
-    if (browser && token) {
-      $userDataStore.token = token;
+		if (browser && token) {
+			userDataStore.write('token', token);
 			getThemeAndAccent();
-      goto('/home');
-    }
+			goto('/home');
+		}
 	}
 
 </script>

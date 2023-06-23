@@ -7,7 +7,8 @@ type UserData = {
     name: string,
     cid: string,
     photo: string,
-    email: string
+    email: string,
+    accent: string
 }
 
 

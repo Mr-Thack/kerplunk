@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Avatar, TabGroup, Tab, FileButton, RadioItem, RadioGroup, setModeUserPrefers, setModeCurrent } from '@skeletonlabs/skeleton';
-    import { getSettings } from '$lib/settings';
+    import getSettings from '$lib/settings';
     import {  post } from '$library/endpoint';
     import { onMount } from 'svelte';
     import { userDataStore } from '$library/stores';
@@ -54,6 +54,7 @@
 
     
     async function changeAccent(currentAccent:string) {
+        userDataStore.write('accent', currentAccent);
         for (const accent of accents) {
             removeClass(accent);
         }
@@ -75,9 +76,9 @@
             firstName = rez.data.fname;
             // @ts-ignore
             lastName = rez.data.lname;
-            $userDataStore.name = firstName + ' ' + lastName;
+            userDataStore.write('name', firstName + ' ' + lastName);
             // @ts-ignore
-            $userDataStore.email = rez.data.email;
+            userDataStore.write('email', rez.data.email);
             // @ts-ignore
             photoData = rez.data.photo;
         } else {
@@ -93,9 +94,9 @@
             firstName = rez.data.fname;
             // @ts-ignore
             lastName = rez.data.lname;
-            $userDataStore.name = firstName + ' ' + lastName;
+            userDataStore.write('name', firstName + ' ' + lastName);
             // @ts-ignore
-            $userDataStore.email = rez.data.email;
+            userDataStore.write('email', rez.data.email);
             // [NOTE]
             // photoHidden = false; 
         } else {
@@ -104,7 +105,7 @@
     }
 
     async function updateGeneral() {
-        $userDataStore.name = firstName + ' ' + lastName;
+        userDataStore.write('name', firstName + ' ' + lastName);
         var upload = await post('userme', {
             "fname": firstName,
             "lname": lastName,
@@ -175,13 +176,13 @@
         {/each}
         <svelte:fragment slot="panel">
             {#if tabSet === 0}
-                {#if !photoData}
+                {#if photoData}
                     <Avatar id="photo-settings" src={photoData} width="w-40" rounded="rounded-full" class="mx-auto"/>
                 {:else}
                     <svg id="no-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto" enable-background="new 0 0 20 20" height="196px" viewBox="0 0 20 20" width="196px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
                 {/if}
                 <FileButton id="file-button" name="profilePicture" class="flex justify-center m-4 mx-auto w-fit" button="variant-filled" bind:files={image} on:change={onChangeHandler}>
-                    {#if photoData}
+                    {#if !photoData}
                         Add Image
                     {:else}
                         Edit Image
@@ -191,8 +192,12 @@
                     <input id="first-name" class="input m-2 w-fill-available moz-available col-start-1" title="First Name" type='text' placeholder='Your First Name' bind:value={firstName} />
                     <input id="last-name" class="input m-2 w-fill-available moz-available col-start-2" title="Last Name" type='text' placeholder='Your Last Name' bind:value={lastName}/>
                 </div>
-                <input id="email" class="input m-2 w-fill-available moz-available" title="Email" type='email' placeholder='Your Email' bind:value={$userDataStore.email}/>
-                <div class="flex justify-center m-12">
+                    {#if $userDataStore}
+                        <input id="email" class="input m-2 w-fill-available moz-available" title="Email" type='email' placeholder='Your Email' bind:value={$userDataStore.email}/>
+                    {:else}
+                        <input id="email" class="input m-2 w-fill-available moz-available" title="Email" type='email' placeholder='Your Email'/>
+                    {/if}
+                    <div class="flex justify-center m-12">
                     <button type="button" class="btn variant-filled mx-8 my-4" on:click={loadGeneralInfo}>
                         <span>Reset</span>
                     </button>
@@ -201,7 +206,8 @@
                     </button>
                 </div>
             {:else if tabSet === 1}
-                {#if !currentTheme}
+            <!-- I know, this isn't clean but what am I supposed to do? -->
+                {#if !(currentTheme === 0 || currentTheme === 1)}
                     <p class="p">Loading....</p>
                 {:else}
                     
