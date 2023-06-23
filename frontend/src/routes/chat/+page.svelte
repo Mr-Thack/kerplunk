@@ -146,11 +146,15 @@
                         </header>
                         <p>{msg.text}</p>
                     </div>
-                    <Avatar src={variable.data.photo} width="w-12" />
-                </div>
+                    {#if variable.data.photo}
+                        <Avatar src={variable.data.photo} width="w-12 m-2" />
+                    {:else}
+                        <svg id="no-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto" enable-background="new 0 0 20 20" height="64px" viewBox="0 0 20 20" width="64px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
+                    {/if}
+                    </div>
                 {:else}
                 <div class="grid grid-cols-[auto_auto_1fr] gap-2 text-left">
-                    <Avatar src="https://source.unsplash.com/YOErFW8AfkI/128x128" width="w-12" />
+                    <svg id="no-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto" enable-background="new 0 0 20 20" height="64px" viewBox="0 0 20 20" width="64px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
                     <div class="card p-4 rounded-tl-none space-y-2 variant-soft">
                         <header class="flex justify-between items-center">
                             <p class="font-bold mr-4">{msg.author}</p>

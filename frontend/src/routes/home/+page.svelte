@@ -26,6 +26,7 @@
   onDestroy(unsubscribe);
 </script>
 
+<img src="/icon_cropped.png" alt="Kerplunk Logo" class="w-64 mx-auto mt-4 mb-8" />
 <h1 class="h1 text-center">
   {#if !name}
     Sign In!
