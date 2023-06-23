@@ -82,7 +82,7 @@ def set_pwd(email: str, pwd: str, uuid: str):
     creds[ahash] = CredsSchema(uuid, email)
 
 
-async def start_signup_user(data: SignUpData) -> bool:
+async def start_signup_user(data: SignUpData) -> list:
     if is_valid_schid(data.schid) and not is_email_used(data.email):
         code = gen_code()
         waiting_users[code] = data    
