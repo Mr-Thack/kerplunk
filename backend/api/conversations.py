@@ -9,16 +9,16 @@ from events import events
 from datetime import datetime
 from json import dumps
 
-class InitChatRoomData(BaseModel):
+class InitConvoData(BaseModel):
     name: str
     public: bool
+    chatroom: bool  # Is this a chatroom or a feed?
     pwd: str | None = None
 
-
-class ChatRoom(InitChatRoomData):
+class Convo(InitConvoData):
     owner: str  # This is a UUID str
     cid: str
-    chatters: list[str] = []
+    users: list[str] = []
 
 
 # This is specifically for an incoming message
@@ -48,104 +48,112 @@ class Message():
             'time': self.time
         }
 """
-In the chatroom environement, we'll have a subdatabase for each chat.
-This one will hold the info on all the chatrooms, but not the actualy texts,
+In the conversation environement, we'll have a subdatabase for each conversation.
+This one will hold the info on all the conversations, but not the actualy messages,
 because the info will be accessed constantly, whereas the texts aren't.
 So, only when required we'll open up the subdb holding the texts.
-For simplicity, we'll just call the subdb for each chat by it's chat id (cid)
+For simplicity, we'll just call the subdb for each convo by it's convo id (cid)
 """
-chats = db('ChatRoomsInfo', ChatRoom, chat=True)
-opened_chats: dict = {}
+convos = db('ConvosInfo', Convo, conversation=True)
+opened_convos: dict = {}
 
 
-def is_chat_name_taken(name: str):
-    return True if name in [chat.name for (cid, chat) in chats] else False
+def is_name_taken(name: str) -> bool:
+    for convo in convos:
+        if name == convo.name:
+            return True
 
 
-def list_chats() -> str:
-    """List all chats by their display name"""
-    return [chat.name for (cid, chat) in chats]
+def list_chat_rooms() -> str:
+    """List all chat rooms by their display name"""
+    return [convo.name for (cid, convo) in convos if convo.chatroom]
 
 
-def open_chat(cid: str):
-    if cid not in opened_chats.keys():
-        opened_chats[cid] = db(cid, Message, chat=True)
-    return opened_chats[cid]
+def open_convo(cid: str):
+    if cid not in opened_convos.keys():
+        opened_convos[cid] = db(cid, Message, conversation=True)
+    return opened_convos[cid]
 
 
-def create_chatroom(data: InitChatRoomData, owner: str):
+def create_convo(data: InitConvoData, owner: str):
     # We take owner as a UUID str
-    if not is_chat_name_taken(data.name):
+    if not is_name_taken(data.name):
         cid = token_urlsafe(32)
-        new_chatrm = ChatRoom(cid=cid,
-                              owner=owner, **data.__dict__)
-        chats[new_chatrm.cid] = new_chatrm  # Write info to the db
-        chat_data = open_chat(cid)  # Open a fresh new one
-        chat_data[0] = Message(text=f"User {get_field(owner, 'name')} has created chatroom {new_chatrm.name}!", author='SYSTEM')
-        return new_chatrm.cid
+        new_convo = Convo(cid=cid,
+                          owner=owner, **data.__dict__)
+        convos[new_convo.cid] = new_convo  # Write info to the db
+        convo_data = open_convo(cid)  # Open a fresh new one
+        
+        text: str
+        if data.chatroom:
+            text = f"User {get_field(owner, 'name')} has created chatroom {new_convo.name}!"
+        else:
+            text = f"Welcome to the class of {get_field(owner, 'lname')}!"
+            
+        convo_data[0] = Message(text=text, author='SYSTEM')
+        return new_convo.cid
 
 
-async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | None:
+async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | None:
     cid = None
-    for curcid, chat in chats:
-        if chat.name == name:
+    for curcid, convo in convos:
+        if convo.name == name:
             cid = curcid
       
     if not cid:
         return
 
-    chat = chats[cid]  # Instead of accessing the dict over and over again, we're gonna do this
-    if not chat.pwd or (pwd and chat.pwd == pwd):
+    convo = convos[cid]  # Instead of accessing the dict over and over again, we're gonna do this
+    if not convo.pwd or (pwd and convo.pwd == pwd):
         # If this UUID isn't recognized
-        if uuid not in chat.chatters:
-            chat.chatters.append(uuid)
-            chats[cid] = chat  # In the previous line, we only updated our copy in memory
+        if uuid not in convo.users:
+            convo.users.append(uuid)
+            convos[cid] = convo  # In the previous line, we only updated our copy in memory
             # This line puts it back into the dict and then the db
             
             name = get_field(uuid, 'name')
-            msg = Message(text=f"{name} has joined the chat!",
-                          author='SYSTEM')
-                          # [NOTE]: 'SYSTEM' messages
-            write_msg(cid, msg)  # write to db
-        # We return it in the human friendly version, with name instead of their UUID
-        # Later, we might have to return more information
+            if convo.chatroom:
+                msg = Message(text=f"{name} has joined the chat!",
+                              author='SYSTEM')
+                              # [NOTE]: 'SYSTEM' messages
+                write_msg(cid, msg)  # write to db
         return {
             'cid': cid,
-            'owner': get_field(chats[cid].owner, 'name'),
-            'chatters': [get_field(chatter, 'name') for chatter in chats[cid].chatters]
+            'owner': get_field(convo.owner, 'name'),
+            'users': [get_field(user, 'name') for user in convo.users]
         }
 
 
-def usr_in_chatroom(uuid: str, cid: str):
-    """Check if user is in given chatroom"""
-    chat = chats[cid]
-    return chat and uuid in chat.chatters
+def usr_in_convo(uuid: str, cid: str):
+    """Check if user is in given conversation"""
+    convo = convos[cid]
+    return convo and uuid in convo.users
 
 
-# We'll take the user's uuid, the msg, and chatroom
 def write_msg(cid: str, msg: Message):
     # TODO: Check for problems in txt msg or smth
-    chat = open_chat(cid)
+    convo = open_convo(cid)
 
     if msg:
-        chat[len(chat)] = msg
+        convo[len(convo)] = msg
         # Since indices start at 0, len() will return 1 + the last index
         return True
 
 
 def read_msgs(cid: str, start: int, end: int | None) -> [str]:
     """Read all messages from start index to end index, inclusive."""
-    chat = open_chat(cid)
-    if end and len(chat) <= end:
-        return []  # Since having nothing is nonsensical, this is an error
-    return [chat[i].sanitize() for i in range(start, len(chat) if not end else 1 + end)]
+    convo = open_convo(cid)
+    if end and len(convo) <= end:
+        return []  # Since having nothing is nonsensical, this should be interpreted as an error
+    return [convo[i].sanitize() for i in range(start, len(convo) if not end else 1 + end)]
 
 opencids = {}
 
 async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | None):
     """Read all the messages from start to end, in a stream"""
     """end=None signifies read forever"""
-    # This function could probably be cleaned up a bit
+    # This function should be used on chats.
+    # Threads should use long polling.
 
     
     # Keep track of the number of people reading this
@@ -153,9 +161,9 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
         opencids[cid] = 0
     opencids[cid] = opencids[cid] + 1
 
-    chat = open_chat(cid)
+    convo = open_convo(cid)
     
-    if end and end >= len(chat):
+    if end and end >= len(convo):
         opencids[cid] = opencids[cid] - 1
         return
 
@@ -164,11 +172,11 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
     eid = await event.sub()  # Event ID
 
     # yield all messages from start to end
-    for i in range(start, len(chat) if not end else end + 1):
+    for i in range(start, len(convo) if not end else end + 1):
         yield {
             "event": "message",
             "id": i,
-            "data": dumps(chat[i].sanitize())
+            "data": dumps(convo[i].sanitize())
         }
 
     # If there was a definite end, quit

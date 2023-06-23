@@ -29,7 +29,7 @@
         goto('/login')  
       });
     } else {
-      const r = await patch('chats', {}, {'name': room}, userDataStore.readonce('token'));
+      const r = await patch('convos', {}, {'name': room}, userDataStore.readonce('token'));
       console.log(r)
       if (r.error) {
         salert(`JOIN ERROR: ${r.data}`);
@@ -52,7 +52,9 @@
             proompt("Password Of The Chat Room?", (p: string) => {
               chatPwd = p;
               var r = makeRoom();
+              // @ts-ignore
               if (r.error) {
+                // @ts-ignore
                 salert(`ERROR MAKING: ${r.data}`);
               } else {
                 salert('All\'s well! Should show up soon!')
@@ -60,7 +62,9 @@
             });
           } else {
             var r = makeRoom();
+            // @ts-ignore
             if (r.error) {
+              // @ts-ignore
               salert(`ERROR MAKING: ${r.data}`);
             } else {
               salert('All\'s well! Should show up soon!')
@@ -78,9 +82,9 @@
       name: chatName,
       pwd: chatPwd,
       public: (chatPwd === ""),
-      temp: false // [TODO] Rework API  
+      chatroom: true
     }
-    return await post('chats', data, $userDataStore.token);
+    return await post('convos', data, $userDataStore.token);
  }   
   
   onDestroy(() => {
