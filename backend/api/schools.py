@@ -23,7 +23,7 @@ school_data: db = db("SchoolData", SchoolSchema)
 
 def get_school(schid: int):
     """This is only for functions in external modules"""
-    return school_data[schid]
+    return school_data.get(schid)
 
 def retrieve_school(schid: int, uuid: str) -> None | SchoolSchema:
     """This is only to be used for the API, not for other modules."""
