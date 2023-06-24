@@ -45,7 +45,17 @@ class db:
     def __init__(self, name: str, schema, conversation=False, tmp=False, read_json=""):
         self.name = name
         self.schema = schema
+        
+        # Basically, we convert to a tuple for performance
+        # if there's no schema, we set None
+        # we find all the fields of the schema
         self.fields = tuple(schema.__annotations__.keys()) if schema else None
+        
+        # Again tuple for performance, but this time check for all functions with @property
+        self.properties = tuple([k for k, v in schema.__dict__.items() if isinstance(v, property)]) 
+        
+        self.allfields = self.fields + self.properties
+        
         if tmp:
             self.env = tmpenv
         elif conversation:
@@ -142,10 +152,15 @@ class db:
             else:
                 return data
         elif isinstance(key, tuple):
-            if key[1] not in self.fields:
+            if key[1] not in self.allfields:
                 raise KeyError
+
             data = self._coreget(key[0])
+            
             if data:
+                if key[1] in self.properties:
+                    return getattr(self._deserialize_schema(data), key[1])  # Serialized Data
+                       
                 return self._deserialize(data)[key[1]]
             else:
                 return data
