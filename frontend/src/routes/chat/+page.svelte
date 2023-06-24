@@ -99,7 +99,7 @@
                 {#if msg.author === "SYSTEM"}
                     <div class="grid gap-4 text-center w-full">
                         <!-- We can add avatars later.... -->
-                        <div class="rounded-tl-none border-0 space-y-2 w-full mb-8">
+                        <div class="border-0 space-y-2 w-full mb-4 variant-filled-surface p-2 w-9/12 mx-auto rounded-xl">
                             <p>{msg.text+" - "+msg.humanTime()}</p>
                         </div>
                     </div>
