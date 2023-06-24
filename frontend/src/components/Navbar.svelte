@@ -4,19 +4,12 @@
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
   import { userDataStore } from '$lib/stores'
   import { logout } from '$lib/auth';
-  import { onDestroy } from "svelte";
   import { goto } from '$app/navigation';
   import getSettings from '$lib/settings';
   import { get } from '$lib/endpoint'
 	import { salert } from '$library/alerts';
 
 
-  var token = "";
-  const unsub = userDataStore.subscribe(v => {
-    token = v? v.token: ""
-  })
-
-  onDestroy(unsub); // When this component is destroyed, unsubscribe from the store
   
   let schoolName = '', name= '';
   let photoData = "";
@@ -26,15 +19,10 @@
 
   var accent = 'red';
 
-  $: {
-    if ($userDataStore) {
-      change($userDataStore.accent)
-    }
-  }
-
-  async function change(store:string) {
+  async function change() {
     const rez = await getSettings(['accent']);
     if (!rez.error) {
+      // @ts-ignore
       accent = rez.data.accent;
     }
   }
@@ -78,10 +66,11 @@
   var navs = ALLNAVS;
   // Checking token's status is like checking if they're logged in
   $: {
-    if (token !== undefined && token !== "") {
+    if ($userDataStore.token !== undefined && $userDataStore.token !== "") {
       isLoggedIn = true;
       navs = ALLNAVS.slice(); // clone instead of copy
-      removePage(navs,['/signup', '/login'])
+      removePage(navs,['/signup', '/login']);
+      change();
       // Twice because signup and login at the end
     } else {
       isLoggedIn = false;
@@ -94,11 +83,9 @@
     navs = navs;
   }
 
-
   async function openDrawer() {
     const drawerSettings: DrawerSettings = {
       id: 'drawer_account',
-      meta: { foo: 'bar', fizz: 'buzz', age: 40 },
 	    width: 'w-[280px] md:w-[480px]',
 	    padding: 'p-4',
 	    rounded: 'rounded-xl'
@@ -126,7 +113,6 @@
     goto("/settings")
     drawerStore.close();
   }
-
   
   class DrawerBtn {
     text: string;
@@ -139,7 +125,6 @@
       this.func = f;
     }
   }
-
 
   const drawerBtns = [
     new DrawerBtn("Settings", "settings", openSettings),
@@ -192,13 +177,13 @@
     </AppRailAnchor>
   {/each}
   {#if isLoggedIn}
-  <AppRailAnchor on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
-    <svelte:fragment slot="lead">
-      <span class="material-symbols-outlined">
-        account_circle
-      </span>
-    </svelte:fragment>
-    <span>Account</span>
-  </AppRailAnchor>
+    <AppRailAnchor on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
+      <svelte:fragment slot="lead">
+        <span class="material-symbols-outlined">
+          account_circle
+        </span>
+      </svelte:fragment>
+      <span>Account</span>
+    </AppRailAnchor>
   {/if}
 </AppRail>
