@@ -1,4 +1,4 @@
-import { getSettings } from '$lib/settings';
+import getSettings from '$lib/settings';
 import { userDataStore } from '$lib/stores';
 
 
