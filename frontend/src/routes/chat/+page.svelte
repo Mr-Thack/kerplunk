@@ -6,29 +6,18 @@
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
     import getSettings from '$library/settings';
-	
 
     let chatbox: HTMLElement, chatInput: HTMLElement;
     var inputText = '';
 
     var users;
 
-    async function get_user_info() {
+    
+
+    async function getUserInfo() {
         users = await get("users");
     }
 
-    get_user_info();
-    
-    // Why isn't it already possible to get the user's name without pinging the server again?
-    // also $userDataStore.photo doesn't work
-    async function getInfo() {
-        var rez = await getSettings(["name", "photo"]);
-        if (rez && !rez.error) {
-            return rez
-        }
-    }
-
-    var info = getInfo();
 
     let chatName: string;
 
@@ -82,6 +71,7 @@
             // @ts-ignore
             chatName = (await get(`convos/${$userDataStore.cid}/info`, {}, $userDataStore.token)).data.name
         
+            users = getUserInfo();
             // Get all the messages
             // @ts-ignore
             messages = (await get(`convos/${$userDataStore.cid}`, {

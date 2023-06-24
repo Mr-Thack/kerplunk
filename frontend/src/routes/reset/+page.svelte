@@ -28,9 +28,8 @@
 					salert("Error: " + rz.data.detail)
 				} else {
 					salert("Congrats! The password has been reset!");
-					const token = await checkCredentials(email, pwd);
-    			if (browser && token) {
-      			userDataStore.write('token', token);
+					const success = await checkCredentials(email, pwd);
+    			if (browser && success) {
       			goto('/home');
     			}
 				}				

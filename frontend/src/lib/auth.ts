@@ -3,7 +3,17 @@ import { userDataStore } from '$lib/stores';
 import { salert } from '$lib/alerts';
 import { dev } from '$app/environment';
 
-export async function checkCredentials(email: string, pwd: string) {
+
+
+async function setInfo() {
+    const rez = await getSettings(["name", "photo"]);
+    if (rez && !rez.error) {
+        userDataStore.write("name", rez.data.name);
+        userDataStore.write("photo", rez.data.photo);
+    }
+}
+
+export async function checkCredentials(email: string, pwd: string): Promise<boolean> {
     const data = {
         'grant_type': '',
         // We login with email cuz that doesn't change often
@@ -15,12 +25,13 @@ export async function checkCredentials(email: string, pwd: string) {
     };
     const rez = await formdata_post('login', data);
     if (!rez.error) {
-        return rez.data.access_token;
+        userDataStore.write('token', rez.data.access_token);
+        setInfo();
     } else {
         console.log(rez);
         salert(`LOGIN ERROR: ${rez.data.detail}`);
-        return false;
     }
+    return !rez.error;
 }
 
 export function logout() {

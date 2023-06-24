@@ -75,9 +75,8 @@
 			failureSignupModal.body = rez.data.detail;
 			modalStore.trigger(failureSignupModal);
 		} else {
-			// Now, we'll sign the user up and redirect them to the home page
-			const token = await checkCredentials(email, password);
-			userDataStore.write('token', token);
+			// Now, we'll sign the user up, login, and then redirect them to home
+			await checkCredentials(email, password);
 			modalStore.trigger(successSignupModal);
 		}
 	}

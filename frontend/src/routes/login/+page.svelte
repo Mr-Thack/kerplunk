@@ -8,9 +8,8 @@
 	var email = "", pwd = "";
 	
  	async function sendLogin() {
-	  const token = await checkCredentials(email, pwd);
-		if (browser && token) {
-			userDataStore.write('token', token);
+	  const success = await checkCredentials(email, pwd);
+		if (browser && success) {
 			getThemeAndAccent();
 			goto('/home');
 		}
