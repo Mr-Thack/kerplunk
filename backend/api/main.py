@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from auth import (login_user, start_signup_user, finish_signup_user,
                   start_reset_pwd, finish_reset_pwd, UpdatePwdData, update_pwd)
 from schools import start_register_school, finish_register_school, list_all_schools
-from users import multi_get, multi_set, valid_keys, valid_fields
+from users import multi_get, multi_set, valid_keys, valid_fields, get_users
 from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            usr_in_convo, add_user_to_convo, read_msgs, post_msg,
                            IncMsg, read_msgs_as_stream, get_convo)
@@ -139,6 +139,15 @@ async def user_set_field(fields: dict, uuid: str = Depends(oauth_uuid)):
     if not valid_fields(fields):
         raise HTTPException(status_code=400, detail='Invalid Fields')
     return {'changed': multi_set(uuid, fields)}
+
+@api.get('/users')
+async def get_info_of_users():
+    users = get_users()
+    userdata = {}
+    for value in users.keys():
+        data = users[value]
+        userdata[data.fname+" "+data.lname] = data
+    return userdata
 
 
 @api.get('/chats')

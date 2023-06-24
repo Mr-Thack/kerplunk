@@ -21,6 +21,9 @@ RESTRICTED = ('schid', 'student')
 # Eventually hold uuid: email, username, fname+lname, phone#, school, classes, photo
 user_data: db = db("UserData", UserSchema)
 
+def get_users() -> db:
+    return user_data
+
 
 def is_email_used(email: str) -> bool:
     for uuid, user in user_data:
