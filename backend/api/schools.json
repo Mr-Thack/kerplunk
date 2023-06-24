@@ -1,84 +1,114 @@
 {
-    "schools": [
-      {
+    "0": {
         "name": "Allatoona High School",
-        "id": "0",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "1": {
         "name": "Campbell High School",
-        "id": "1",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "2": {
         "name": "Harrison High School",
-        "id": "2",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "3": {
         "name": "Hillgrove High School",
-        "id": "3",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "4": {
         "name": "Kell High School",
-        "id": "4",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "5": {
         "name": "Kennesaw Mountain High School",
-        "id": "5",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "6": {
         "name": "Lassiter High School",
-        "id": "6",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "7": {
         "name": "McEachern High School",
-        "id": "7",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "8": {
         "name": "North Cobb High School",
-        "id": "8",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "9": {
         "name": "Osborne High School",
-        "id": "9",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "10": {
         "name": "Pebblebrook High School",
-        "id": "10",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "11": {
         "name": "Pope High School",
-        "id": "11",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "12": {
         "name": "South Cobb High School",
-        "id": "12",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "13": {
         "name": "Sprayberry High School",
-        "id": "13",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "14": {
         "name": "Walton High School",
-        "id": "14",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       },
-      {
+    "15": {
         "name": "Wheeler High School",
-        "id": "15",
-        "altnames": ""
+        "altnames": "",
+        "email": "",
+        "teachers": [],
+        "students": []
       }
-    ]
   }

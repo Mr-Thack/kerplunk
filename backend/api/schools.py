@@ -14,12 +14,19 @@ class SchoolSchema():
     students: [str] = field(default_factory=list)  # Hold their UUIDs
     # Later, we can add support for things like the prinicipals name
     # phone number, country, state, district, and more
+    
+    def sanitize(self):
+        return {
+            "name": self.name,
+            "altnames": self.altnames,
+            "email": self.email
+        }
 
 
 # schoolID (int): SchoolSchema
 # later on, we might use a UUID instead of just a plain integer
 # but we should be fine for the first few thousand schools  
-school_data: db = db("SchoolData", SchoolSchema)
+school_data: db = db("SchoolData", SchoolSchema, read_json='schools.json')
 
 def get_school(schid: int):
     """This is only for functions in external modules"""
@@ -27,10 +34,12 @@ def get_school(schid: int):
 
 def retrieve_school(schid: int, uuid: str) -> None | SchoolSchema:
     """This is only to be used for the API, not for other modules."""
-    if schid in school_data:
+    if str(schid) in school_data.keys():
         school = school_data[schid]  # This requires 1 less read than using school_data[schid] twice
         if uuid in school.students or uuid in school.teachers:
             return school_data[schid]
+        else:
+            return school_data[schid].sanitize()
 
 def is_email_used(email: str):
     # This is for schools

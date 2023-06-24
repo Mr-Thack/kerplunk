@@ -101,7 +101,7 @@
       // This will break unless the school ids line up with the id saved with the user
       // Make sure to make the school id the location in the array
       // @ts-ignore
-      schoolName = schools[rez.data.schid].name;
+      schoolName = (await get('schools/'+rez.data.schid, {}, $userDataStore.token)).data.name;
       // @ts-ignore
       photoData = rez.data.photo;
     } else {
