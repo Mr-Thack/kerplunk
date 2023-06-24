@@ -128,7 +128,7 @@ def post_msg(user: User, convo: Convo, msg: str, reply_to: int = None):
     return resp
 
 class Test005_schools(unittest.TestCase):
-    no_of_schools = null
+    no_of_schools = -1
     def test010_make_school(self):  
         result = client.get('/api/schools')
         self.__class__.no_of_schools = len(result.json()['schools'])
