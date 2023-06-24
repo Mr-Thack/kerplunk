@@ -1,9 +1,4 @@
-
-
-
-
-
-name: backend-testing
+name: Backend Testing
 run-name: Backend Stability Test
 on: [push]
 jobs:
