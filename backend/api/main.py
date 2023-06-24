@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from auth import (login_user, start_signup_user, finish_signup_user,
                   start_reset_pwd, finish_reset_pwd, UpdatePwdData, update_pwd)
 from schools import start_register_school, finish_register_school, list_all_schools, retrieve_school
-from users import multi_get, multi_set, valid_keys, valid_fields, get_users
+from users import multi_get, multi_set, valid_keys, valid_fields
 from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            usr_in_convo, add_user_to_convo, read_msgs, post_msg,
                            IncMsg, read_msgs_as_stream, get_convo)

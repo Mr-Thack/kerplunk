@@ -16,7 +16,7 @@
 
     let chatName: string;
 
-    function scrollChatBottom(): void {
+    function scrollChatBottom() {
         chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
     }
     
@@ -44,7 +44,7 @@
             users = users; // To force DOM rerender
             // Get all the messages
             // @ts-ignore
-            messages = getMessages($userDataStore.cid, $userDataStore.token);
+            messages = await getMessages($userDataStore.cid, $userDataStore.token);
             // Now scroll to the bottom
             setTimeout(scrollChatBottom, 150);
 
