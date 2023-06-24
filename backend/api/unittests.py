@@ -127,11 +127,12 @@ def post_msg(user: User, convo: Convo, msg: str, reply_to: int = None):
     }, headers=genhed(user))
     return resp
 
+no_of_schools = 0
 
 class Test005_schools(unittest.TestCase):
     def test010_make_school(self):
         result = client.get('/api/schools')
-        self.no_of_schools = len(result.json()['schools'])
+        no_of_schools = len(result.json()['schools'])
         with mail.fm.record_messages() as outbox:
             result = client.post('/api/register', json={
                 'name': school1.name,
@@ -150,7 +151,7 @@ class Test005_schools(unittest.TestCase):
 
     def test020_get_schools(self):
         result = client.get('/api/schools')
-        self.assertEqual(len(result.json()['schools']), self.no_of_schools+1)
+        self.assertEqual(len(result.json()['schools']), no_of_schools+1)
         self.assertEqual(result.status_code, 200)
 
 
