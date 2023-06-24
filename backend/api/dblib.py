@@ -1,6 +1,7 @@
 import lmdb
 from os import path, mkdir
 from orjson import dumps, loads
+import json
 # from ormsgpack import packb, unpackb
 # I wanted to use ormsgpack, bcz it's based off of orjson and it's super fast
 # It uses the msgpack format instead of the JSON format, so it's waay faster
@@ -41,7 +42,7 @@ tmpenv = lmdb.open(PATH + 'userdata', max_dbs=1, writemap=True,
 # Not sure what the safety concerns of writemap=True are, but they exist!
 # This is a nice big wrapper for LMDB
 class db:
-    def __init__(self, name: str, schema, conversation=False, tmp=False):
+    def __init__(self, name: str, schema, conversation=False, tmp=False, read_json=""):
         self.name = name
         self.schema = schema
         self.fields = tuple(schema.__annotations__.keys()) if schema else None
@@ -55,10 +56,19 @@ class db:
         try:
             # The key is set to name
             self.db = self.env.open_db(bytes(self.name, 'utf-8'))
+            if read_json:
+                self._load_data(read_json)
         except Exception as e:  # if failed
             print('ERR OPEN DB ' + self.name + ' @ ' + self.env.path() + ' BC')
             print(e)
             quit(0)
+
+    def _load_data(self, read_json: str):
+        f = open(read_json)
+        data = json.load(f)
+ 
+        for key in data:
+            self[key] = data.get(key)
 
     def _fixintindex(self, key: int | str):
         if isinstance(key, int):
@@ -87,10 +97,11 @@ class db:
                 key = bytes(key, 'utf-8')
             if self.schema:
                 if not isinstance(value, self.schema):
-                    print(f"{value} is a {type(value)}, not a {self.schema}.")
-                    print("CHECK YOUR CODE!")
-                    print("YOU ARE SETTING THE ITEM IN THE DB WITH AN INCORRECT TYPE!")
-                    quit(1)
+                    if set(self.schema.__annotations__.keys()) != set(value.keys()):
+                        print(f"{value} is a {type(value)}, not a {self.schema}.")
+                        print("CHECK YOUR CODE!")
+                        print("YOU ARE SETTING THE ITEM IN THE DB WITH AN INCORRECT TYPE!")
+                        quit(1)
                 value = self._serialize(value)
             elif isinstance(value, str):
                 value = bytes(value, 'utf-8')
