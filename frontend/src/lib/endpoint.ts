@@ -5,11 +5,9 @@ const headers_form = {'Content-Type': 'application/x-www-form-urlencoded', 'Acce
 
 export function endpoint(endpoint: string) {
     endpoint = '/api/' + endpoint;
-    if (dev) {
-        return 'localhost:8000' + endpoint;
-    } else {
-        return window.location.host + endpoint;
-    }
+    // This wont work in prod, fix later
+    return window.location.host.split(":")[0] + ":8000" + endpoint;
+
 }
 
 async function request(method: string, endPoint: string, hs: HeadersInit, body: string, token: string) {
