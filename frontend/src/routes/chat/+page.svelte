@@ -16,9 +16,13 @@
 
     let chatName: string;
 
-    function scrollChatBottom(): void {
-        chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
-    }
+    function scrollChatBottom() {
+        if (chatbox) {
+            chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
+        } else {
+            console.log(chatbox);
+        }
+     }
     
     var messages: Array<Message> = [];
     

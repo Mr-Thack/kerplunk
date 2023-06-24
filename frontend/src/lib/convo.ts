@@ -51,12 +51,12 @@ export async function getChatInfo(cid: string, token: string) {
   return (await get(`convos/${cid}/info`, {}, token)).data;
 }
 
-export async function getMessages(cid: string, token: string) {
+export async function getMessages(cid: string, token: string) : Promise<Array<Message>> {
   return (await get(`convos/${cid}`, {
     'start': 0
   // @ts-ignore
   }, token))
-  .data.map(data => new Message(data));
+  .data.map(d => new Message(d));
 }
 
 export function subscribeEventStream(cid: string, token: string, fn: (m:Message) => void, start: number = 0) {
