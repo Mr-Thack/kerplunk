@@ -33,29 +33,32 @@
     } // No need to handle error, because it's handled in joinConvo()
   }
 
-  async function makeChatroom() {
-    if (await makeConvo(chatName, chatPwd, true)) {
-      salert("All's well! Should show up soon!");
-    }
+  async function makeChatroom(chatName, chatPwd) {
+    return await makeConvo(chatName, chatPwd, true)
   }
 
   async function promptRoom() {
-    proompt("Name of the chatroom?", (r: string) => {
+    proompt("Name of the chatroom?", async (r: string) => {
+      var create = true;
       chatName = r;
       if (chatName) {
-        askbool('Do You Want a Password?', (b: boolean) => {
+        askbool('Do You Want a Password?', async (b: boolean) => {
           if (b) {
             proompt("Password Of The Chat Room?", async (p: string) => {
               chatPwd = p;
-              makeChatroom();
-            });
-          } else {
-            makeChatroom();
+            })
           }
         });
       } else {
+        var create = false;
         salert("You need a chat room name!")
       }
+      if (create) {
+        if (await makeChatroom(chatName, chatPwd)) {
+          salert("All's well! Should show up soon!");
+        }
+        
+    }
     });
   }
 
