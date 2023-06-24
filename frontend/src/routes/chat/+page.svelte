@@ -1,25 +1,17 @@
 <script lang="ts">
     import { Avatar } from '@skeletonlabs/skeleton';
-    import { get, post, endpoint } from '$library/endpoint';
     import { userDataStore } from '$library/stores';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
+    import { Message, type User, sendMessage, getChatInfo, getMessages, subscribeEventStream} from '$lib/convo';
 
     let chatbox: HTMLElement, chatInput: HTMLElement;
     var inputText = '';
 
 
-    type User  = {
-        email: string;
-        student: boolean;
-        photo: string;
-        name: string
-    }
-
     type Users = { [name: string]: User; }
     var users: Users;
-
 
 
     let chatName: string;
@@ -27,41 +19,11 @@
     function scrollChatBottom(): void {
         chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
     }
-		  
-
-    class Message {
-        text: string;
-        author: string;
-        replyTo: number;
-        time: string;
     
-        public constructor(data: {text: string, author: string, replyTo: number, time: string}) {
-            this.text = data.text;
-            this.author = data.author;
-            this.replyTo = data.replyTo;
-            this.time = data.time;
-        }
-
-        public humanTime(): string {
-            let d = new Date(this.time);
-            // [TODO]: Check if the user uses 12 hour or 24 hour time
-            let h = d.getHours();
-            let m = d.getMinutes();
-            if (true) {  // User uses 12 hour time
-                return (h > 12? h - 12:(h==0?12:h)) + ':' + (m < 10? '0' + m: m) + ' ' + (h>12?'P.M.':'A.M.');
-            } else {
-                return h + ':' + m;
-            }
-        }
-    }
-
     var messages: Array<Message> = [];
     
-    async function sendMessage() {
-        await post(`convos/${$userDataStore.cid}`, {
-            'text': inputText
-            //, 'reply_to': 
-        })
+    async function sendMsg() {
+        await sendMessage($userDataStore.cid, $userDataStore.token, inputText);
         inputText = '';
     }
 
@@ -71,7 +33,7 @@
                 goto('/chatrooms')
             });
         } else {
-            const chatInfo = (await get(`convos/${$userDataStore.cid}/info`, {}, $userDataStore.token)).data
+            const chatInfo = await getChatInfo($userDataStore.cid, $userDataStore.token);
 
             // @ts-ignore            
             chatName = chatInfo.name;
@@ -82,27 +44,20 @@
             users = users; // To force DOM rerender
             // Get all the messages
             // @ts-ignore
-            messages = (await get(`convos/${$userDataStore.cid}`, {
-                'start': 0
-                // @ts-ignore
-                }, $userDataStore.token)).data.map((data) => {
-                    return new Message(data)
-                });
-
+            messages = getMessages($userDataStore.cid, $userDataStore.token);
             // Now scroll to the bottom
             setTimeout(scrollChatBottom, 150);
 
             // Setup the Event Stream
-            var es = new EventSource(`http://${endpoint('stream_convos')}/${$userDataStore.cid}?token=${$userDataStore.token}&start=${messages.length}`)
-            es.onmessage = function (event) {
-                messages = [...messages, new Message(JSON.parse(event.data))]
+            subscribeEventStream($userDataStore.cid, $userDataStore.token, (m: Message) => {
+                messages = [...messages, m];
                 setTimeout(scrollChatBottom, 75)
-            }
+            }, messages.length);
             
             chatInput.addEventListener('keypress', function(event) {
                 if (event.key == "Enter") {
                     event.preventDefault();
-                    sendMessage()
+                    sendMsg()
                 }
             });
         }
@@ -185,6 +140,6 @@
             name="prompt"
             placeholder="Message Here..."
             rows="1" />
-        <button class="variant-filled-primary material-symbols-outlined h-100" on:click={sendMessage}>send</button>
+        <button class="variant-filled-primary material-symbols-outlined h-100" on:click={sendMsg}>send</button>
     </div>
 </div>
