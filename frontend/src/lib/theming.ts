@@ -1,3 +1,7 @@
+import { getSettings } from '$lib/settings';
+import { userDataStore } from '$lib/stores';
+
+
 export function removeClass(styleClass: string) {
   // Remove a Style Class from the Document
   document.documentElement.classList.remove(styleClass);
@@ -16,7 +20,7 @@ export function isClass(styleClass: string) {
 
 export async function getThemeAndAccent() {
   var rez = await getSettings(["theme", 'accent']);
-  	console.log(rez)
+  console.log(rez)
 	if (rez && !rez.error) {
 		userDataStore.write('accent', rez.data.accent);
 		// This seems to fix login theming problems.
