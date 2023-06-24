@@ -240,7 +240,7 @@
                     <span>Change Password</span>
                 </button>
             {:else if tabSet === 3}
-                <p class="p">This will be the future delete account page</p>
+                <p class="p">Someday, my child.</p>
             {/if}
         </svelte:fragment>
     </TabGroup>
