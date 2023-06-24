@@ -12,7 +12,7 @@
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
-	let password = '', fname = '', lname = '', email = '',
+	let password = '', repeatPassword = '', fname = '', lname = '', email = '',
 		  school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
@@ -40,6 +40,7 @@
 	{
 		// source: https://stackoverflow.com/questions/201323/how-can-i-validate-an-email-address-using-a-regular-expression
 		let isEmailGood = isValidEmail(email);
+		let doesPasswordMatch = password === repeatPassword;
 		let score = zxcvbn(password).score + 1;
 		let isScoreGood = score >= MINREQ
 		// ZXCVBN normally returns on scale 0-4, add 1 to get scale 1-5
@@ -48,15 +49,21 @@
 		if (!isEmailGood) {
 			salert("Check the Spelling of Your Email!");
 		} else {
-			let body = "On a scale from 1 to 5, your password got a " + score + "!"
-			if (score < MINREQ) {
-				salert("Try a Stronger Password...", body)
+			if (doesPasswordMatch) {
+				let body = "On a scale from 1 to 5, your password got a " + score + "!"
+				if (score < MINREQ) {
+					salert("Try a Stronger Password...", body)
+				} else {
+					salert("Great!", body)
+				}
 			} else {
-				salert("Great!", body)
+				salert("The password doesn't match.");
 			}
+
+
 		}
 		
-		return isEmailGood && isScoreGood;
+		return isEmailGood && isScoreGood && doesPasswordMatch;
 	}
 
 	async function onCompleteHandler() {
@@ -141,9 +148,9 @@
 		}
 
 		switch(e.detail.step) {
-			case 0:
+			case 1:
 				if (!checkUserDetails()) {
-					e.detail.state.current = 0;
+					e.detail.state.current = 1;
 					// push the user back
 				}
 				break;
@@ -162,15 +169,6 @@
 <div class="w-full h-full flex items-center h-screen absolute inset-x-0 inset-y-0 pl-28 pr-4">
 <!-- It complains on the next line that on:step function handler has a type mismatch, but it doesn't impact us -->
 	<Stepper on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4 w-full">
-		<Step locked={!(email && password && fname && lname)} class="m-8">
-			<svelte:fragment slot="header">Basic Info</svelte:fragment>
-			<div class="grid grid-cols-2">
-				<input class="input w-fill-available moz-available m-2" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
-				<input class="input w-fill-available moz-available m-2" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
-			</div>
-			<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Email' />
-			<input class="input m-2" title="Password" type='password' bind:value={password} placeholder='Your Password' />
-	</Step>
 		<Step class="m-8">
 			<h3 class="h3 text-center">Are you a student or a teacher?</h3>
 
@@ -189,6 +187,16 @@
 						<h5 class="h5">Student</h5>
 					</RadioItem>
 				</RadioGroup>
+		</Step>
+		<Step locked={!(email && password && fname && lname)} class="m-8">
+			<svelte:fragment slot="header">Basic Info</svelte:fragment>
+			<div class="grid grid-cols-2">
+				<input class="input w-fill-available moz-available m-2" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
+				<input class="input w-fill-available moz-available m-2" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
+			</div>
+			<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Email' />
+			<input class="input m-2" title="Password" type='password' bind:value={password} placeholder='Your Password' />
+			<input class="input m-2" title="Repeat Password" type='password' bind:value={repeatPassword} placeholder='Repeat Password' />
 		</Step>
 		<Step locked={schid === -1} class="m-8">
 			<svelte:fragment slot="header">School Info</svelte:fragment>
