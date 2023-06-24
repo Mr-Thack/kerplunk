@@ -17,7 +17,6 @@ class InitConvoData(BaseModel):
 
 class Convo(InitConvoData):
     owner: str  # This is a UUID str
-    cid: str
     users: list[str] = []
 
     def sanitize(self):
@@ -63,22 +62,23 @@ because the info will be accessed constantly, whereas the texts aren't.
 So, only when required we'll open up the subdb holding the texts.
 For simplicity, we'll just call the subdb for each convo by it's convo id (cid)
 """
+# Holds cid: Convo
 convos = db('ConvosInfo', Convo, conversation=True)
 opened_convos: dict = {}
 
 
 def is_name_taken(name: str) -> bool:
-    for convo in convos:
+    for (cid, convo) in convos:
         if name == convo.name:
             return True
 
-def list_chat_rooms() -> str:
+def list_chat_rooms() -> [str]:
     """List all chat rooms by their display name"""
     return [convo.name for (cid, convo) in convos if convo.chatroom]
 
 
 def open_convo(cid: str):
-    if cid not in opened_convos.keys():
+    if cid not in opened_convos:
         opened_convos[cid] = db(cid, Message, conversation=True)
     return opened_convos[cid]
 
@@ -87,9 +87,8 @@ def create_convo(data: InitConvoData, owner: str):
     # We take owner as a UUID str
     if not is_name_taken(data.name):
         cid = token_urlsafe(32)
-        new_convo = Convo(cid=cid,
-                          owner=owner, **data.__dict__)
-        convos[new_convo.cid] = new_convo  # Write info to the db
+        new_convo = Convo(owner=owner, **data.__dict__)
+        convos[cid] = new_convo  # Write info to the db
         convo_data = open_convo(cid)  # Open a fresh new one
         
         text: str
@@ -99,7 +98,7 @@ def create_convo(data: InitConvoData, owner: str):
             text = f"Welcome to the class of {get_field(owner, 'lname')}!"
             
         convo_data[0] = Message(text=text, author='SYSTEM')
-        return new_convo.cid
+        return cid
 
 
 async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | None:
@@ -149,7 +148,7 @@ def get_convo(uuid: str, cid: str):
         return convos[cid].sanitize()
         
 
-def write_msg(cid: str, msg: Message):
+def write_msg(cid: str, msg: Message) -> bool:
     # TODO: Check for problems in txt msg or smth
     convo = open_convo(cid)
 

@@ -1,8 +1,8 @@
 import getSettings from '$lib/settings';
-import { get, post, endpoint } from '$lib/endpoint';
-
-
-
+import { get, post, patch, endpoint } from '$lib/endpoint';
+import { salert, falert } from '$lib/alerts';
+import { goto } from '$app/navigation';
+import { userDataStore } from '$lib/stores';
 
 export type User  = {
   email: string;
@@ -64,4 +64,36 @@ export function subscribeEventStream(cid: string, token: string, fn: (m:Message)
   eventStream.onmessage = function (event) {
     fn(new Message(JSON.parse(event.data)));
   };
+}
+
+
+export async function joinConvo(room: string) : Promise<boolean> {
+  const r = await patch('convos', {}, {'name': room}, userDataStore.readonce('token'));
+  if (r.error) {
+    salert(`JOIN ERROR: ${r.data}`);
+    console.log(r);
+    return false;
+  } else {
+    // @ts-ignore
+    userDataStore.write('cid', r.data.cid);
+    return true;
+  }
+}
+
+
+export async function makeConvo(name: string, pwd: string, isChatroom: boolean) : Promise<boolean> {
+  const data = {
+    name: name,
+    pwd: pwd,
+    public: (pwd === ""),
+    chatroom: isChatroom 
+  }
+  const r = await post('convos', data, userDataStore.readonce('token'));
+  if (r.error) {
+    salert(`ERROR OPENING CONVO: ${r.data}`);
+    console.log(r);
+    return false;
+  } else {
+    return true;
+  }
 }

@@ -1,22 +1,26 @@
 <script lang='ts'>
-  import { get, post, patch } from '$library/endpoint';
+  import { get } from '$library/endpoint';
 	import { userDataStore } from '$library/stores';
   import { onDestroy, onMount } from 'svelte';
   import { goto } from '$app/navigation';
-
-  import { salert, falert, askbool, proompt } from '$library/alerts';
+  import { salert, askbool, proompt } from '$library/alerts';
+  import { joinConvo, makeConvo } from '$lib/convo';
 
   var chatName: string = "", chatPwd: string = "";
 
   async function updateChats() {
     // @ts-ignore
     chatrooms = (await get('chats')).data.chatrooms;
+    console.log(chatrooms);
   };
 
 
   var chatrooms: string[] = [];
   var updateInterval: number; // setInterval type is number
   onMount( async function() {
+    if (!$userDataStore.token) {
+      goto('/login');
+    }
     updateChats();
     updateInterval = setInterval(async function() {
       await updateChats();
@@ -24,24 +28,16 @@
   });
 
   async function join(room: string) {
-    if (!$userDataStore.token) {
-      falert('Login First!!', () => {
-        goto('/login')  
-      });
-    } else {
-      const r = await patch('convos', {}, {'name': room}, userDataStore.readonce('token'));
-      console.log(r)
-      if (r.error) {
-        salert(`JOIN ERROR: ${r.data}`);
-      } else {
-        // @ts-ignore
-        userDataStore.write('cid', r.data.cid);
-        goto('/chat');
-      }
-    }
+    if (await joinConvo(room)) {
+      goto('/chat');
+    } // No need to handle error, because it's handled in joinConvo()
   }
 
- 
+  async function makeChatroom() {
+    if (await makeConvo(chatName, chatPwd, true)) {
+      salert("All's well! Should show up soon!");
+    }
+  }
 
   async function promptRoom() {
     proompt("Name of the chatroom?", (r: string) => {
@@ -49,26 +45,12 @@
       if (chatName) {
         askbool('Do You Want a Password?', (b: boolean) => {
           if (b) {
-            proompt("Password Of The Chat Room?", (p: string) => {
+            proompt("Password Of The Chat Room?", async (p: string) => {
               chatPwd = p;
-              var r = makeRoom();
-              // @ts-ignore
-              if (r.error) {
-                // @ts-ignore
-                salert(`ERROR MAKING: ${r.data}`);
-              } else {
-                salert('All\'s well! Should show up soon!')
-              }
+              makeChatroom();
             });
           } else {
-            var r = makeRoom();
-            // @ts-ignore
-            if (r.error) {
-              // @ts-ignore
-              salert(`ERROR MAKING: ${r.data}`);
-            } else {
-              salert('All\'s well! Should show up soon!')
-            }
+            makeChatroom();
           }
         });
       } else {
@@ -77,16 +59,7 @@
     });
   }
 
-  async function makeRoom() {
-    const data = {
-      name: chatName,
-      pwd: chatPwd,
-      public: (chatPwd === ""),
-      chatroom: true
-    }
-    return await post('convos', data, $userDataStore.token);
- }   
-  
+ 
   onDestroy(() => {
     clearInterval(updateInterval);
   });
