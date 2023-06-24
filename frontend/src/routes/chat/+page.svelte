@@ -5,7 +5,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
-	import getSettings from '$library/settings';
+    import getSettings from '$library/settings';
 	
 
     let chatbox: HTMLElement, chatInput: HTMLElement;
@@ -56,7 +56,7 @@
             let h = d.getHours();
             let m = d.getMinutes();
             if (true) {  // User uses 12 hour time
-                return (h > 12? h - 12:h) + ':' + (m < 10? '0' + m: m) + ' ' + (h>12?'P.M.':'A.M.');
+                return (h > 12? h - 12:(h==0?12:h)) + ':' + (m < 10? '0' + m: m) + ' ' + (h>12?'P.M.':'A.M.');
             } else {
                 return h + ':' + m;
             }
