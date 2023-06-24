@@ -42,7 +42,7 @@ export class Message {
 
 export async function sendMessage(cid: string, token: string, text: string, replyTo?: string) {
   await post(`convos/${cid}`, {
-    'text': inputText,
+    'text': text,
     'reply_to': replyTo
   }, token);
 }
