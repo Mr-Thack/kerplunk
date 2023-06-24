@@ -28,5 +28,5 @@ export function logout() {
     // As of now, the backend doesn't actually have a logout function
     // But all we really need to do is wipe the user data and reload
     userDataStore.wipe();
-    window.location.replace(dev? 'index':'/index.html');
+    window.location.replace(dev? '/':'/index.html');
 }
