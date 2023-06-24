@@ -42,7 +42,7 @@ export class Message {
 
 export async function sendMessage(cid: string, token: string, text: string, replyTo?: string) {
   await post(`convos/${cid}`, {
-    'text': inputText,
+    'text': text,
     'reply_to': replyTo
   }, token);
 }
@@ -56,7 +56,7 @@ export async function getMessages(cid: string, token: string) {
     'start': 0
   // @ts-ignore
   }, token))
-  .data.map(data => new Message(data);
+  .data.map(data => new Message(data));
 }
 
 export function subscribeEventStream(cid: string, token: string, fn: (m:Message) => void, start: number = 0) {

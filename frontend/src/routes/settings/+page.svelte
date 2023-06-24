@@ -148,6 +148,7 @@
             var imageUploaded = await uploadImage(fileContents);
             if (imageUploaded) {
                 photoData = fileContents;
+                userDataStore.write("photo", photoData);
             }
         };
     }
