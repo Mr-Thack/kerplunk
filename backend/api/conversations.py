@@ -76,12 +76,19 @@ def list_chat_rooms() -> [str]:
     """List all chat rooms by their display name"""
     return [convo.name for (cid, convo) in convos if convo.chatroom]
 
-
 def open_convo(cid: str):
     if cid not in opened_convos:
         opened_convos[cid] = db(cid, Message, conversation=True)
     return opened_convos[cid]
 
+
+def add_convo_to_user_data(uuid: str, cid: str):
+    """Add this convo to the user's list"""
+    user_convos = get_field(uuid, 'convos')
+    if not cid in user_convos:
+        user_convos.append(cid)
+        set_field(uuid, 'convos', user_convos)
+    
 
 def create_convo(data: InitConvoData, owner: str):
     # We take owner as a UUID str
@@ -90,6 +97,8 @@ def create_convo(data: InitConvoData, owner: str):
         new_convo = Convo(owner=owner, **data.__dict__)
         convos[cid] = new_convo  # Write info to the db
         convo_data = open_convo(cid)  # Open a fresh new one
+
+        add_convo_to_user_data(owner, cid)
         
         text: str
         if data.chatroom:
@@ -111,15 +120,13 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
         return
 
     convo = convos[cid]  # Instead of accessing the dict over and over again, we're gonna do this
-    if not convo.pwd or (pwd and convo.pwd == pwd):
+    if not convo.pwd or (pwd and convo.pwd == pwd) or convo.owner == uuid:
         # If this UUID isn't recognized
         if uuid not in convo.users:
             
             # Add this convo to the user's list
-            user_convos = get_field(uuid, 'convos')
-            user_convos.append(cid)
-            set_field(uuid, 'convos', user_convos)
-
+            add_convo_to_user_data(uuid, cid)
+            
             # Add this user to the convo's list
             convo.users.append(uuid)
             convos[cid] = convo  # In the previous line, we only updated our copy in memory
@@ -141,7 +148,7 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
 def usr_in_convo(uuid: str, cid: str):
     """Check if user is in given conversation"""
     convo = convos[cid]
-    return convo and uuid in convo.users
+    return convo and uuid in convo.users or uuid == convo.owner
 
 def get_convo(uuid: str, cid: str):
     if usr_in_convo(uuid, cid):

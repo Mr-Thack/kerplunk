@@ -34,25 +34,24 @@
     icon: string;
 
     // This seems verbose...
-    constructor(u: string, au:string, n: string, i: string) {
+    constructor(u: string, n: string, i: string, au?: string) {
       this.url = u;
-      this.alturl = au;
       this.name = n;
       this.icon = i;
+      this.alturl = au? au: u;
     }
 
   }
 
 
   const ALLNAVS = [
-    new Page('/chatrooms', '/chat', 'Chat!', 'chat'),
-
-    new Page('/login', '/login', 'Login!', 'login'),
-    // the logic of swapping between login and signup is handled in the markup
-    new Page('/signup', '/signup', 'Sign Up!', 'person_add')
+    new Page('/chatrooms', 'Chat', 'chat', '/chat'),
+    new Page('/classrooms', 'Classes', 'school', '/class'),
+    new Page('/login', 'Login', 'login'),
+    new Page('/signup', 'Sign Up', 'person_add')
   ];
 
-  function removePage(arr: Page[], pages: string[]) {
+  function removePages(arr: Page[], pages: string[]) {
     // the name page is reserved for the current page
     for (let p of pages) {
       for (var i=0; i<arr.length; i++) {
@@ -66,16 +65,22 @@
   var navs = ALLNAVS;
   // Checking token's status is like checking if they're logged in
   $: {
-    if ($userDataStore.token !== undefined && $userDataStore.token !== "") {
+    if ($userDataStore.token) {
+      // These print the same result, so I'm going to use the 2nd
+      // console.log($userDataStore.token !== undefined && $userDataStore.token !== "");
+      // console.log(Boolean($userDataStore.token));
       isLoggedIn = true;
       navs = ALLNAVS.slice(); // clone instead of copy
-      removePage(navs,['/signup', '/login']);
+      removePages(navs,[
+        '/signup',
+        '/login'
+      ]);
       change();
       // Twice because signup and login at the end
     } else {
       isLoggedIn = false;
       navs = ALLNAVS.slice(); // clone instead of copy
-      removePage(navs, [
+      removePages(navs, [
         '/chatrooms',
         $page.url.pathname === "/login"? '/signup':''
       ])

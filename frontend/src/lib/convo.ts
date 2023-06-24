@@ -11,6 +11,15 @@ export type User  = {
   name: string
 }
 
+export type Class = {
+  name: string;
+  public: boolean;
+  chatroom: boolean;
+  owner: string;
+  users: Array<string>;
+  cid?: string;
+}
+
 
 
 export class Message {
@@ -40,27 +49,27 @@ export class Message {
 }
 
 
-export async function sendMessage(cid: string, token: string, text: string, replyTo?: string) {
+export async function sendMessage(cid: string, text: string, replyTo?: string) {
   await post(`convos/${cid}`, {
     'text': text,
     'reply_to': replyTo
-  }, token);
+  }, userDataStore.readonce('token'));
 }
 
-export async function getChatInfo(cid: string, token: string) {
-  return (await get(`convos/${cid}/info`, {}, token)).data;
+export async function getConvoInfo(cid: string) {
+  return (await get(`convos/${cid}/info`, {}, userDataStore.readonce('token'))).data;
 }
 
-export async function getMessages(cid: string, token: string) : Promise<Array<Message>> {
+export async function getMessages(cid: string) : Promise<Array<Message>> {
   return (await get(`convos/${cid}`, {
     'start': 0
   // @ts-ignore
-  }, token))
+  }, userDataStore.readonce('token')))
   .data.map(d => new Message(d));
 }
 
-export function subscribeEventStream(cid: string, token: string, fn: (m:Message) => void, start: number = 0) {
-  const eventStream = new EventSource(`http://${endpoint('stream_convos')}/${cid}?token=${token}&start=${start}`)
+export function subscribeEventStream(cid: string, fn: (m:Message) => void, start: number = 0) {
+  const eventStream = new EventSource(`http://${endpoint('stream_convos')}/${cid}?token=${userDataStore.readonce('token')}&start=${start}`)
   eventStream.onmessage = function (event) {
     fn(new Message(JSON.parse(event.data)));
   };
