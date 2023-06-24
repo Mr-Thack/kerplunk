@@ -128,9 +128,10 @@ def post_msg(user: User, convo: Convo, msg: str, reply_to: int = None):
     return resp
 
 class Test005_schools(unittest.TestCase):
-    result = client.get('/api/schools')
-    no_of_schools = len(result.json()['schools'])
-    def test010_make_school(self):
+    no_of_schools = null
+    def test010_make_school(self):  
+        result = client.get('/api/schools')
+        self.__class__.no_of_schools = len(result.json()['schools'])
         with mail.fm.record_messages() as outbox:
             result = client.post('/api/register', json={
                 'name': school1.name,
