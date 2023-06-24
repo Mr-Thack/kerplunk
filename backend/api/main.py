@@ -140,14 +140,6 @@ async def user_set_field(fields: dict, uuid: str = Depends(oauth_uuid)):
         raise HTTPException(status_code=400, detail='Invalid Fields')
     return {'changed': multi_set(uuid, fields)}
 
-@api.get('/users')
-async def get_info_of_users():
-    users = get_users()
-    userdata = {}
-    for value in users.keys():
-        data = users[value]
-        userdata[data.fname+" "+data.lname] = data
-    return userdata
 
 
 @api.get('/chats')

@@ -2,7 +2,7 @@ import { formdata_post } from '$lib/endpoint';
 import { userDataStore } from '$lib/stores';
 import { salert } from '$lib/alerts';
 import { dev } from '$app/environment';
-
+import getSettings from '$lib/settings';
 
 
 async function setInfo() {

@@ -15,14 +15,27 @@ class UserSchema():
     theme: int = 0
     convos: [str] = field(default_factory=list)
 
+    @property
+    def name(self):
+        return self.fname + ' ' + self.lname
+    
+    def sanitize(self):
+        return {
+            'email': self.email,
+            'name': self.name,
+            'student': self.student,
+            'photo': self.photo
+        }
+
+    @property
+    def sanitized(self):
+        return self.sanitize()
+
 # These are things that they shouldn't be able to change easily, or at all
 RESTRICTED = ('schid', 'student')
 
 # Eventually hold uuid: email, username, fname+lname, phone#, school, classes, photo
 user_data: db = db("UserData", UserSchema)
-
-def get_users() -> db:
-    return user_data
 
 
 def is_email_used(email: str) -> bool:
@@ -65,8 +78,6 @@ def valid_fields(vals: dict, is_get: bool = False) -> bool:
 
 
 def get_field(uuid: str, field: str):
-    if field == "name":
-        return user_data[uuid, 'fname'] + ' ' + user_data[uuid, 'lname']
     return user_data[uuid, field]
 
 

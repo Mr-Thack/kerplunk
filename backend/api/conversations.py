@@ -26,7 +26,7 @@ class Convo(InitConvoData):
             'public': self.public,
             'chatroom': self.chatroom,
             'owner': get_field(self.owner, 'name'),
-            'users': [get_field(user, 'name') for user in self.users]
+            'users': [get_field(user, 'sanitized') for user in self.users]
         }
 
 
