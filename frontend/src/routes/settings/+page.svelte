@@ -6,7 +6,7 @@
     import { userDataStore } from '$library/stores';
     import { salert } from '$library/alerts';
     import { browser } from '$app/environment';
-    import { removeClass, addClass, isClass } from '$lib/generalHelpers';
+    import { removeClass, addClass, isClass } from '$lib/theming';
     
     let firstName = "", lastName = "";
     let curPwd = "", newPwd = "", repPwd = "";

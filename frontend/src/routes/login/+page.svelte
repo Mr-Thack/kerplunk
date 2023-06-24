@@ -3,7 +3,7 @@
 	import { userDataStore } from '$lib/stores';
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
-	import { getThemeAndAccent } from '$library/settings';
+	import { getThemeAndAccent } from '$library/theming';
 	
 	var email = "", pwd = "";
 	
