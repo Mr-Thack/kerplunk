@@ -18,6 +18,7 @@ class InitConvoData(BaseModel):
 class Convo(InitConvoData):
     owner: str  # This is a UUID str
     users: list[str] = []
+    replies: list[str] = []
 
     def sanitize(self):
         return {
@@ -155,12 +156,22 @@ def get_convo(uuid: str, cid: str):
         return convos[cid].sanitize()
         
 
-def write_msg(cid: str, msg: Message) -> bool:
+async def write_msg(cid: str, msg: Message) -> bool:
     # TODO: Check for problems in txt msg or smth
     convo = open_convo(cid)
 
-    if msg:
-        convo[len(convo)] = msg
+
+    if not events.does_exist(cid):
+        events.add_event(cid)
+
+    if convo and msg:
+        id = len(convo)
+        convo[id] = msg
+        if msg.reply_to:
+            replied = convo[msg.reply_to]
+            replied.replies.append(id)
+            convo[msg.reply_to] = replied
+        await events.send_msg(cid, msg)
         # Since indices start at 0, len() will return 1 + the last index
         return True
 
@@ -222,12 +233,9 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
     opencids[cid] = opencids[cid] - 1
 
 async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
-    if len(msg.text) > 250:
+    if len(msg.text) or len(msg.text) > 250:
         return False
-    if not events.does_exist(cid):
-        events.add_event(cid)
     msg = Message(text=msg.text,
                   reply_to=msg.reply_to,
                   author=uuid)
-    await events.send_msg(cid, msg)
-    return write_msg(cid, msg)
+    return await write_msg(cid, msg)
