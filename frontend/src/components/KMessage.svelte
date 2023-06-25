@@ -21,7 +21,11 @@
      class:justify-items-end={isThisUser}
      class:text-right={isThisUser}
      class:text-left={!isThisUser}>
-    
+
+  {#if !isThisUser}  
+    <KAvatar src={src} />
+  {/if}
+  
   <div class="card p-4 space-y-2"
        class:rounded-tr-none={isThisUser}
        class:rounded-tl-none={!isThisUser}
@@ -33,5 +37,8 @@
     </header>
     <p>{msg.text}</p>
   </div>
-  <KAvatar src={src} />
+
+  {#if isThisUser}
+    <KAvatar src={src} />
+  {/if}
 </div>
