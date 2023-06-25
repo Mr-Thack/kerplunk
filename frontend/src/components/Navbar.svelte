@@ -82,6 +82,7 @@
       navs = ALLNAVS.slice(); // clone instead of copy
       removePages(navs, [
         '/chatrooms',
+        '/classrooms',
         $page.url.pathname === "/login"? '/signup':''
       ])
     }
