@@ -46,6 +46,38 @@ export class Message {
       return h + ':' + m;
     }
   }
+
+  public elapsedTime() : string {
+    let msgDate = new Date(this.time);
+    // [TODO] : TIMEZONE
+    let curDate = new Date();
+    const diffSeconds = parseInt((curDate - msgDate) / 1000)
+    const diffMinutes = parseInt(diffSeconds / 60);
+    const diffHours = parseInt(diffMinutes / 60);
+    const diffDays = parseInt(diffHours / 24);
+    const diffWeeks = parseInt(diffDays / 7);
+    const diffMonths = parseInt(diffDays / 30);  // Good enough
+    const diffYears = parseInt(diffDays / 365);
+
+    const options = [
+      // Years and months aren't on here
+      [diffWeeks, 'w'],
+      [diffDays, 'd'],
+      [diffHours, 'h'],
+      [diffMinutes, 'm'],
+      [diffSeconds, 's']
+    ];
+
+    // Return the first one which is more than or equal to 1
+    for (const option of options) {
+      if (option[0] >= 1) {
+        return option[0] + option[1];
+      }
+    }
+
+    // mm/dd/yy
+    return msgDate.getUTCMonth() + 1 + '/' + msgDate.getUTCDate() + '/' + msgDate.getUTCFullYear() - 2000;
+  }
 }
 
 
