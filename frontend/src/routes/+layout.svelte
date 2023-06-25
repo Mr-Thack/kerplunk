@@ -15,6 +15,7 @@
 	import getSettings from '$library/settings';
 	import { onMount } from 'svelte';
 	import Tabbar from '$components/Tabbar.svelte';
+	import AppDrawer from '$components/AppDrawer.svelte';
 
 	onMount(async () => {
 		var rez = await getSettings(["theme", 'accent']);
@@ -34,13 +35,14 @@
 
 
 <Modal />
+<AppDrawer />
 
 <AppShell slotSidebarLeft="lg:p-4 z-10">
 	<svelte:fragment slot="sidebarLeft">
 		<Navbar/>
 	</svelte:fragment>
 
-	<div class="h-full w-full content-center text-center">
+	<div class="h-full w-screen lg:w-full content-center text-center">
 		<slot />
 	</div>
 
