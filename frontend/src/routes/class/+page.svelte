@@ -5,7 +5,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
-    import { Message, type User, sendMessage, getConvoInfo, getMessages, subscribeEventStream} from '$lib/convo';
+    import { Message, type User, sendMessage, getConvoInfo, getMessages} from '$lib/convo';
 
     let feed: HTMLElement;
 
@@ -16,22 +16,30 @@
 
     let className: string;
 
-    /*
-    function scrollFeedTop() {
-        if (feed) {
-            // [NOTE]
-            // Before pushing, make it scroll to bottom
-            feed.scrollTo({ top: feed.scrollHeight, behavior: 'smooth' });
-        } else {
-            // There's some weird bug happening every 1 in 5 times where it prints an error to the console
-            console.log(feed);
-        }
-     }*/
-    
     var messages: Array<Message> = [];
+
+
+    function scrollFeedTop() {
+        feed.scrollTo({ top: -feed.scrollHeight, behavior: 'smooth' });
+     }
+
+
+    async function updateLog() {
+        const tmp = await getMessages($userDataStore.cid);
+        tmp.forEach(async (m: Message) => {
+            if (!Object.keys(users).includes(m.author)) {
+                users = (await getConvoInfo($userDataStore.cid)).users;
+            }
+        });
+        messages = tmp;
+    }
+
+    
 
     async function sendMsg(input: string) {
         await sendMessage($userDataStore.cid, input);
+        // Maybe make a loading indicator
+        setTimeout(updateLog, 1000);
     }
 
     onMount(async () => {
@@ -45,23 +53,18 @@
         // @ts-ignore            
         className = classInfo.name;
         // @ts-ignore
-        users = {}
-        // @ts-ignore
-        classInfo.users.forEach((u: User) => {users[u.name] = u});
-        users = users; // To force DOM rerender
+        users = classInfo.users;
         // Get all the messages
         // @ts-ignore
         messages = await getMessages($userDataStore.cid);
-            
+        
         // I don't think we should scroll the feed automatically
         // Now scroll to the bottom
         //setTimeout(scrollFeedTop, 150);
 
-        // Setup the Event Stream
-        subscribeEventStream($userDataStore.cid, (m: Message) => {
-            messages = [...messages, m];
-            //setTimeout(scrollFeedTop, 75)
-        }, messages.length);
+        setInterval(updateLog, 1000 * 60);  // 1 Minute
+
+        scrollFeedTop();
     })
 
 

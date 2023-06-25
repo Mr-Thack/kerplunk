@@ -11,6 +11,23 @@ export type User  = {
   name: string
 }
 
+export type Users = { [name: string]: User; }
+
+
+export async function getUsers(cid: string) : Promise<{users: Users; name: string}> {
+  const chatInfo = await getConvoInfo(cid);
+  // @ts-ignore
+  const tmp: Users = {}
+  // @ts-ignore
+  chatInfo.users.forEach((u: User) => {tmp[u.name] = u});
+  return {
+    users: tmp,
+    // @ts-ignore
+    name: chatInfo.name
+  }
+}
+
+
 export type Class = {
   name: string;
   public: boolean;
@@ -89,7 +106,21 @@ export async function sendMessage(cid: string, text: string, replyTo?: string) {
 }
 
 export async function getConvoInfo(cid: string) {
-  return (await get(`convos/${cid}/info`, {}, userDataStore.readonce('token'))).data;
+  const convoInfo = (await get(`convos/${cid}/info`, {}, userDataStore.readonce('token'))).data;
+  const tmp: Users = {};
+  // @ts-ignore
+  convoInfo.users.forEach((u: User) => {tmp[u.name] = u});
+  return {
+    users: tmp,
+    // @ts-ignore
+    name: convoInfo.name,
+    // @ts-ignore
+    public: convoInfo.public,
+    // @ts-ignore
+    chatroom: convoInfo.chatroom,
+    // @ts-ignore
+    owner: convoInfo.owner
+  }
 }
 
 export async function getMessages(cid: string) : Promise<Array<Message>> {
@@ -100,10 +131,11 @@ export async function getMessages(cid: string) : Promise<Array<Message>> {
   .data.map(d => new Message(d));
 }
 
-export function subscribeEventStream(cid: string, fn: (m:Message) => void, start: number = 0) {
+export function subscribeEventStream(cid: string, fn: (m:Message) => void | Promise<void>, start: number = 0) {
   const eventStream = new EventSource(`http://${endpoint('stream_convos')}/${cid}?token=${userDataStore.readonce('token')}&start=${start}`)
   eventStream.onmessage = function (event) {
-    fn(new Message(JSON.parse(event.data)));
+    // Promise.resolve() will resolve a promise even if it's not a promise
+    Promise.resolve(fn(new Message(JSON.parse(event.data))));
   };
 }
 

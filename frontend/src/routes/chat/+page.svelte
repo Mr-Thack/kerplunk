@@ -5,12 +5,13 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
-    import { Message, type User, sendMessage, getConvoInfo, getMessages, subscribeEventStream} from '$lib/convo';
+    import { Message, type User, type Users, sendMessage, 
+        getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
+    
 
     let chatbox: HTMLElement;
 
 
-    type Users = { [name: string]: User; }
     var users: Users;
 
 
@@ -37,15 +38,11 @@
                 goto('/chatrooms')
             });
         }
-        const chatInfo = await getConvoInfo($userDataStore.cid);
 
-        // @ts-ignore            
-        chatName = chatInfo.name;
-        // @ts-ignore
-        users = {}
-        // @ts-ignore
-        chatInfo.users.forEach((u: User) => {users[u.name] = u});
-        users = users; // To force DOM rerender
+        const data = await getConvoInfo($userDataStore.cid);
+        users = data.users;
+        chatName = data.name;
+        
         // Get all the messages
         // @ts-ignore
         messages = await getMessages($userDataStore.cid);
@@ -53,8 +50,10 @@
         setTimeout(scrollChatBottom, 150);
 
         // Setup the Event Stream
-        subscribeEventStream($userDataStore.cid, (m: Message) => {
-            console.log(m)
+        subscribeEventStream($userDataStore.cid, async (m: Message) => {
+            if (!Object.keys(users).includes(m.author)) {
+                users = (await getConvoInfo($userDataStore.cid)).users;
+            }
             messages = [...messages, m];
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
