@@ -70,6 +70,9 @@
 
 </script>
 <div class="flex flex-col min-h-screen max-h-screen overflow-hidden pr-4">
+    <div class="h-auto variant-filled-primary mt-4">
+        <h3 class="h3 p-2">{className? 'Classroom ' + className: 'Loading...'}</h3>
+    </div>    
     <KTextArea onclick={sendMsg} sendOnEnter={false} />
     <section bind:this={feed}
         class="flex flex-col-reverse p-4 overflow-y-auto space-y-4 mb-8"
@@ -80,14 +83,14 @@
         {:else}
             {#each messages as msg}
                 {#if msg.author === "SYSTEM"}
-                    <div class="grid gap-4 text-center w-full">
+                    <div class="grid gap-4 text-center w-full w-6/12 mx-auto">
                         <!-- We can add avatars later.... -->
                         <div class="border-0 space-y-2 w-full mt-4 variant-filled-surface p-2 w-9/12 mx-auto rounded-xl">
                             <p>{msg.text+" - "+msg.humanTime()}</p>
                         </div>
                     </div>
                 {:else}
-                    <div class="card p-4 rounded-tl-none rounded-br-none space-y-2 variant-soft grid gap-2 text-left w-full">
+                    <div class="card p-4 rounded-tl-none rounded-br-none space-y-2 variant-soft grid gap-2 text-left w-6/12 mx-auto">
                         <header class="flex flex-row">
                             <div class="flex-initial align-left">
                                 <KAvatar src={(msg.author === $userDataStore.name)? $userDataStore.photo: users[msg.author].photo} />
@@ -101,8 +104,4 @@
             {/each}
         {/if}
     </section>
-</div>
-
-<div class="h-auto variant-filled-primary sticky bottom-4">
-    <h3 class="h3 p-2">{className? 'Classroom ' + className: 'Loading...'}</h3>
 </div>
