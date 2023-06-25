@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { page } from '$app/stores';
-	import { AppRail, AppRailAnchor, Drawer, drawerStore, Avatar } from '@skeletonlabs/skeleton';
+	import { AppRail, AppRailAnchor, Drawer, drawerStore, Avatar, TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
   import { userDataStore } from '$lib/stores'
   import { logout } from '$lib/auth';
@@ -164,7 +164,7 @@
 	{/if}
 </Drawer>
 
-<AppRail class="w-auto h-auto">
+<AppRail class="w-auto h-auto hidden md:block">
   <svelte:fragment slot="lead">
     <!-- If you're logged in, we want you to go to home instead of the front page -->
     <AppRailAnchor href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
@@ -192,3 +192,18 @@
     </AppRailAnchor>
   {/if}
 </AppRail>
+<TabGroup 
+	justify="justify-center"
+	active="variant-filled-primary"
+	hover="hover:variant-soft-primary"
+	flex="flex-1 lg:flex-none"
+	rounded=""
+	border=""
+	class="bg-surface-100-800-token w-full"
+>
+	<TabAnchor href="/" selected={$page.url.pathname === '/'}>
+		<svelte:fragment slot="lead">(icon)</svelte:fragment>
+		<span>(label)</span>
+	</TabAnchor>
+	<!-- ... -->
+</TabGroup>
