@@ -233,7 +233,7 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
     opencids[cid] = opencids[cid] - 1
 
 async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
-    if len(msg.text) or len(msg.text) > 250:
+    if not len(msg.text) or len(msg.text) > 250:
         return False
     msg = Message(text=msg.text,
                   reply_to=msg.reply_to,
