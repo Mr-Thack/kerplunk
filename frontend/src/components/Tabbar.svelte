@@ -1,12 +1,12 @@
-<script lang='ts'>
-  import { page } from '$app/stores';
-	import { AppRail, AppRailAnchor, Drawer, drawerStore, Avatar } from '@skeletonlabs/skeleton';
-  import type { DrawerSettings } from '@skeletonlabs/skeleton';
-  import { userDataStore } from '$lib/stores'
-  import { logout } from '$lib/auth';
-  import { goto } from '$app/navigation';
-  import getSettings from '$lib/settings';
-  import { get } from '$lib/endpoint'
+<script lang="ts">
+	import { page } from "$app/stores";
+	import { TabGroup, TabAnchor, Tab, drawerStore, Drawer, Avatar } from "@skeletonlabs/skeleton";
+    import type { DrawerSettings } from '@skeletonlabs/skeleton';
+    import { userDataStore } from '$lib/stores'
+    import { logout } from '$lib/auth';
+    import { goto } from '$app/navigation';
+    import getSettings from '$lib/settings';
+    import { get } from '$lib/endpoint'
 	import { salert } from '$library/alerts';
 
 
@@ -163,31 +163,36 @@
 	{/if}
 </Drawer>
 
-<AppRail class="w-auto h-auto hidden lg:block">
-  <svelte:fragment slot="lead">
-    <!-- If you're logged in, we want you to go to home instead of the front page -->
-    <AppRailAnchor href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
-      <img src={"/icon_"+accent+".png"} alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
-    </AppRailAnchor>
-  </svelte:fragment>
-  {#each navs as nav}
-    <AppRailAnchor id={nav.icon} href={nav.url} selected={$page.url.pathname === nav.url + "/" || $page.url.pathname === nav.alturl + "/"}>
-      <svelte:fragment slot="lead">
-        <span class="material-symbols-outlined">
-          {nav.icon}
-        </span>
-      </svelte:fragment>
-      <span>{nav.name}</span>
-    </AppRailAnchor>
-  {/each}
-  {#if isLoggedIn}
-    <AppRailAnchor on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
-      <svelte:fragment slot="lead">
-        <span class="material-symbols-outlined">
-          account_circle
-        </span>
-      </svelte:fragment>
-      <span>Account</span>
-    </AppRailAnchor>
-  {/if}
-</AppRail>
+<TabGroup 
+	justify="justify-center"
+	active="variant-filled-primary"
+	hover="hover:variant-soft-primary"
+	flex="flex-1 lg:flex-none"
+	rounded=""
+	border=""
+	class="bg-surface-100-800-token w-full block lg:hidden">
+        <!-- If you're logged in, we want you to go to home instead of the front page -->
+        <TabAnchor class="max-w-[94px] transition-all" padding='px-2 py-0'href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
+          <img src={"/icon_"+accent+".png"} alt="icon" class="my-2" />
+        </TabAnchor>
+      {#each navs as nav}
+        <TabAnchor class="max-w-[94px]" id={nav.icon} href={nav.url} selected={$page.url.pathname === nav.url + "/" || $page.url.pathname === nav.alturl + "/"}>
+            <span class="material-symbols-outlined">
+              {nav.icon}
+            </span>
+            <div class="min-w-[54px]">
+                <span>{nav.name}</span>
+            </div>
+        </TabAnchor>
+      {/each}
+      {#if isLoggedIn}
+        <TabAnchor class="max-w-[94px]" on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
+            <span class="material-symbols-outlined">
+              account_circle
+            </span>
+            <div class="min-w-[62px]">
+                <span>Account</span>
+            </div>
+        </TabAnchor>
+      {/if}
+</TabGroup>

@@ -18,6 +18,32 @@
 
     var messages: Array<Message> = [];
 
+    var header:HTMLElement; var inputbox:HTMLElement;
+
+    function getTotalHeight(element: HTMLElement) {
+        const height = element.offsetHeight;
+        const style = getComputedStyle(element);
+        const marginTop = parseInt(style.getPropertyValue('margin-top'));
+        const marginBottom = parseInt(style.getPropertyValue('margin-bottom'));
+        return height + marginTop + marginBottom;
+    }
+
+    function calculateHeight() {
+        if (window.innerWidth <= 1023) {
+            return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 126 - 32
+        } else {
+            return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 32
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        try {
+            feed.style.maxHeight = calculateHeight().toString()+"px";
+            feed.style.minHeight = calculateHeight().toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+    });
 
     function scrollFeedTop() {
         feed.scrollTo({ top: -feed.scrollHeight, behavior: 'smooth' });
@@ -65,15 +91,19 @@
         setInterval(updateLog, 1000 * 60);  // 1 Minute
 
         scrollFeedTop();
+        feed.style.maxHeight = calculateHeight().toString()+"px";
+        feed.style.minHeight = calculateHeight().toString()+"px";
     })
 
 
 </script>
-<div class="flex flex-col min-h-screen max-h-screen overflow-hidden pr-4">
-    <div class="h-auto variant-filled-primary mt-4">
+<div class="flex flex-col max-h-screen overflow-hidden px-4 lg:pl-0">
+    <div class="h-auto variant-filled-primary mt-4" bind:this={header}>
         <h3 class="h3 p-2">{className? 'Classroom ' + className: 'Loading...'}</h3>
     </div>    
-    <KTextArea onclick={sendMsg} sendOnEnter={false} />
+    <div bind:this={inputbox}>
+        <KTextArea onclick={sendMsg} sendOnEnter={false} />
+    </div>
     <section bind:this={feed}
         class="flex flex-col-reverse p-4 overflow-y-auto space-y-4 mb-8"
         class:placeholder='{!messages.length}'

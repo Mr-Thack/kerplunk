@@ -29,7 +29,7 @@
   });
 </script>
 
-<div class="input-group input-group-divider flex flex-shrink-0 rounded-container-token mt-4 mb-8">
+<div class="input-group input-group-divider flex flex-shrink-0 rounded-container-token mt-4 mb-4">
   <textarea
     bind:this={bindTo}
     bind:value={value}

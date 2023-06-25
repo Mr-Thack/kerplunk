@@ -14,6 +14,7 @@
 	import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton'
 	import getSettings from '$library/settings';
 	import { onMount } from 'svelte';
+	import Tabbar from '$components/Tabbar.svelte';
 
 	onMount(async () => {
 		var rez = await getSettings(["theme", 'accent']);
@@ -34,7 +35,7 @@
 
 <Modal />
 
-<AppShell slotSidebarLeft="p-4 z-10">
+<AppShell slotSidebarLeft="lg:p-4 z-10">
 	<svelte:fragment slot="sidebarLeft">
 		<Navbar/>
 	</svelte:fragment>
@@ -42,6 +43,13 @@
 	<div class="h-full w-full content-center text-center">
 		<slot />
 	</div>
+
+	<svelte:fragment slot="pageFooter">
+		<div class="p-4 lg:p-0 z-10">
+			<Tabbar/>
+		</div>
+	</svelte:fragment>
+
 	<!-- Put this down when we have a footer!
 	<svelte:fragment slot="pageFooter">
 		<Footer />
