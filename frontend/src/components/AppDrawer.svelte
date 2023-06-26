@@ -29,7 +29,7 @@
   ];
 </script>
 
-<Drawer class="">
+<Drawer class="align-center text-center mx-auto">
 	{#if $drawerStore.id == 'drawerAccount'}
     <div class="justify-center">
       <div class="rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 py-4 mb-8">
@@ -51,8 +51,7 @@
       </div>
     </div>
   {:else if $drawerStore.id == "drawerReplies"}
-    <h2 class="h2">PLEASE CENTER THIS</h2>
-    <KTextArea sendOnEnter={false} onclick={async (text) => {await $drawerStore.meta.reply(text, $drawerStore.meta.mid)}}  />
+    <KTextArea sendOnEnter={false} onclick={async (text) => {await $drawerStore.meta.reply(text, $drawerStore.meta.mid)}} />
     
     <div class="flex flex-col-reverse overflow-auto-y">
     
@@ -61,7 +60,8 @@
           <KPost 
             msg={msg} 
             src={(msg.author == $userDataStore.name)? $userDataStore.photo: $drawerStore.meta.users[msg.author].photo}
-            like={() => {}}  />
+            like={() => {}} 
+            isReply={true} />
         </div>
       {/each}
     </div>

@@ -5,9 +5,8 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
-    import { Message, type User, type Users, sendMessage, 
+    import { Message, type Users, sendMessage, 
         getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
-	import { browser } from '$app/environment';
     
 
     let chatbox: HTMLElement;

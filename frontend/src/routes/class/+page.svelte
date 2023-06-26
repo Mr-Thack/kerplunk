@@ -51,7 +51,7 @@
     
     const drawerReplies : DrawerSettings = {
         id: 'drawerReplies',
-	      width: 'w-9/12',
+	      width: 'mx-auto align-center content-center w-9/12',
         height: 'h-2/3',
 	      padding: 'p-4',
         position: 'bottom',
@@ -152,7 +152,7 @@
                             {#if i < 3}
                                 <!-- This is how we make it mini -->
                                 <div class="w-9/12 mx-auto align-center">
-                                    <KPost src={(messages[reply].author === $userDataStore.name)? $userDataStore.photo: users[messages[reply].author].photo} msg={messages[reply]} isReply={false} />
+                                    <KPost src={(messages[reply].author === $userDataStore.name)? $userDataStore.photo: users[messages[reply].author].photo} msg={messages[reply]} isReply={true} />
                                 </div>
                             {/if}
                         {/each}
