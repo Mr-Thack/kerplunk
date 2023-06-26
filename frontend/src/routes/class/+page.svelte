@@ -95,7 +95,7 @@
 </script>
 <div class="flex flex-col max-h-screen overflow-hidden px-4 lg:pl-0">
     <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
-        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/chatrooms">arrow_back_ios</a>
+        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/classrooms">arrow_back_ios</a>
         <h3 class="h3 px-2 my-auto">{className? 'Classroom ' + className: 'Loading...'}</h3>
         <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
     </div>
