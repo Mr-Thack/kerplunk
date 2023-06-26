@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Stepper, Step, modalStore, type ModalSettings, RadioGroup, RadioItem, type AutocompleteOption, Autocomplete } from '@skeletonlabs/skeleton';
+	import { Stepper, Step, modalStore, type ModalSettings, RadioGroup, RadioItem, type AutocompleteOption, Autocomplete, ProgressBar } from '@skeletonlabs/skeleton';
 	import zxcvbn from 'zxcvbn';
 	import { goto } from '$app/navigation';
 	import { get, post } from '$lib/endpoint';
@@ -12,7 +12,7 @@
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
-	let password = '', repeatPassword = '', fname = '', lname = '', email = '',
+	let password:HTMLElement, repeatPassword:HTMLElement, fname = '', lname = '', email = '',
 		  school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
@@ -35,13 +35,74 @@
 		buttonTextCancel: 'OK'
 	}
 
+    var passwordScoreText:HTMLElement, passwordScoreColor:string, passwordScore:number = 0,
+    passwordMatch:HTMLElement, passwordBtnState:boolean = true, passStep:boolean = false;
+
+	$: {
+        if (password) {
+            password.addEventListener('input', () => {
+                if (password.value) {
+                    let score = zxcvbn(password.value).score + 1;
+                    let passwordMatches = password.value === repeatPassword.value
+                    passwordScore = score;
+                    if (score === 1) {
+                        passwordScoreColor = "bg-error-900";
+                        passwordScoreText.innerHTML = "Poor";
+                    } else if (score === 2) {
+                        passwordScoreColor = "bg-error-900";
+                        passwordScoreText.innerHTML = "Bad"; 
+                    } else if (score === 3) {
+                        passwordScoreColor = "bg-warning-900";
+                        passwordScoreText.innerHTML = "Ok"; 
+                    } else if (score === 4) {
+                        passwordScoreColor = "bg-success-900";
+                        passwordScoreText.innerHTML = "Good"; 
+                    } else {
+                        passwordScoreColor = "bg-success-900";
+                        passwordScoreText.innerHTML = "Great";
+                    }
+                    if (passwordMatches) {
+                        passwordMatch.innerHTML = "✔"
+                    } else {
+                        passwordMatch.innerHTML = "✖"
+                    }
+                    if (score >= 4 && passwordMatches) {
+                        passStep = true;
+                    } else {
+                        passStep = false;
+                    }
+                } else {
+                    passwordScore = 0;
+                    passwordScoreText.innerHTML = "";
+                    passwordMatch.innerHTML = ""
+                }
+            });
+            repeatPassword.addEventListener('input', () => {
+                if (password.value) {
+                    let score = zxcvbn(password.value).score + 1;
+                    let passwordMatches = password.value === repeatPassword.value
+                    if (passwordMatches) {
+                        passwordMatch.innerHTML = "✔"
+                    } else {
+                        passwordMatch.innerHTML = "✖"
+                    }
+                    if (score >= 4 && passwordMatches) {
+                        passStep = true;
+                    } else {
+                        passStep = false;
+                    }
+                }
+            });
+        }
+    
+    }
 
 	function checkUserDetails()
 	{
 		// source: https://stackoverflow.com/questions/201323/how-can-i-validate-an-email-address-using-a-regular-expression
 		let isEmailGood = isValidEmail(email);
-		let doesPasswordMatch = password === repeatPassword;
-		let score = zxcvbn(password).score + 1;
+		let doesPasswordMatch = password.value === repeatPassword.value;
+		let score = zxcvbn(password.value).score + 1;
 		let isScoreGood = score >= MINREQ
 		// ZXCVBN normally returns on scale 0-4, add 1 to get scale 1-5
 
@@ -76,7 +137,7 @@
 			modalStore.trigger(failureSignupModal);
 		} else {
 			// Now, we'll sign the user up, login, and then redirect them to home
-			await checkCredentials(email, password);
+			await checkCredentials(email, password.value);
 			modalStore.trigger(successSignupModal);
 		}
 	}
@@ -86,7 +147,7 @@
 		const rez = await post('signup', {
 			'fname': fname,
 			'lname': lname,
-			'pwd': password,
+			'pwd': password.value,
 			'email': email,
 			'schid': schid,
 			'student': isStudent
@@ -187,15 +248,24 @@
 				</RadioGroup>
 			</div>
 		</Step>
-		<Step locked={!(email && password && fname && lname)} class="m-4 max-h-[calc(100vh-220px)] overflow-auto">
+		<Step locked={!(email && passStep && fname && lname)} class="m-4 max-h-[calc(100vh-220px)] overflow-auto">
 			<svelte:fragment slot="header">Basic Info</svelte:fragment>
 			<div class="grid grid-cols-2 w-full">
 				<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
 				<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
 			</div>
 			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' bind:value={email} placeholder='Your Email' />
-			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Password" type='password' bind:value={password} placeholder='Your Password' />
-			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Repeat Password" type='password' bind:value={repeatPassword} placeholder='Repeat Password' />
+			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Password" type='password' bind:this={password} placeholder='Your Password' />
+			<div class="flex justify-center">
+				<ProgressBar label="Password Score" class="m-2 w-[50vw]" meter={passwordScoreColor} value={passwordScore} max={5} />
+				<p class="p"bind:this={passwordScoreText}></p>
+			</div>
+			<div class="input-group input-group-divider grid-cols-[1fr_auto] m-2 lg:m-4 w-fill-available moz-available">
+				<input id="repeat-password" bind:this={repeatPassword} class="input text-xs h-8 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat Password' />
+				<a>
+					<p class="my-auto text-xl" bind:this={passwordMatch}></p>
+				</a>
+			</div>
 		</Step>
 		<Step locked={schid === -1} class="m-4 max-h-[calc(100vh-220px)] overflow-y-auto">
 			<svelte:fragment slot="header">School Info</svelte:fragment>

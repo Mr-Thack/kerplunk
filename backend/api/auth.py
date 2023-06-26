@@ -65,9 +65,10 @@ def gen_hash(pwd: str) -> str:
 
 
 def login_user(email: str, pwd: str, ip: str):
+    email = email.lower()
     ahash: str = gen_hash(email + pwd)
     user: CredsSchema = get_user(ahash)
-    if user and user.email == email:
+    if user and user.email.lower() == email.lower():
         # This won't work when running behind a proxy
         return makeSID(user.uuid, ip)
         # req.client = (client_ip_addr, client_port)
