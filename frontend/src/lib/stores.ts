@@ -8,7 +8,8 @@ type UserData = {
     cid: string,
     photo: string,
     email: string,
-    accent: string
+    accent: string,
+    school: string
 }
 
 
@@ -24,6 +25,7 @@ function createUserDataStore() {
     const {subscribe, set, update } = writable<UserData>(initVal);
     // Setup our own custom function for updating the userDataStore
     return {
+        set,
         subscribe,
         write: (key: string, value: any) => update(u => {
             u[key] = value;

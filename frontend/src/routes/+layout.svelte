@@ -1,4 +1,5 @@
 <script lang="ts">
+	import KDrawer from '$components/KDrawer.svelte';
 	import Navbar from '$components/Navbar.svelte';
 	import '../themes/theme_red.postcss';
 	import '../themes/theme_orange.postcss';
@@ -31,7 +32,7 @@
 
 </script>
 
-
+<KDrawer />
 <Modal />
 
 <AppShell slotSidebarLeft="p-4 z-10">

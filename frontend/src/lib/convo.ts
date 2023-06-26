@@ -42,14 +42,16 @@ export type Class = {
 export class Message {
   text: string;
   author: string;
-  replyTo: number;
+  replyTo: Integer;
   time: string;
+  replies: Array<Integer>;
     
-  public constructor(data: {text: string, author: string, replyTo: number, time: string}) {
+  public constructor(data: {text: string, author: string, replyTo: number, time: string, replies: Array<Number>}) {
     this.text = data.text;
     this.author = data.author;
-    this.replyTo = data.replyTo;
+    this.replyTo = data.reply_to;
     this.time = data.time;
+    this.replies = data.replies;
   }
 
   public humanTime(): string {
@@ -98,7 +100,7 @@ export class Message {
 }
 
 
-export async function sendMessage(cid: string, text: string, replyTo?: string) {
+export async function sendMessage(cid: string, text: string, replyTo?: number) {
   await post(`convos/${cid}`, {
     'text': text,
     'reply_to': replyTo

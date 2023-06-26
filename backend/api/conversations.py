@@ -9,16 +9,22 @@ from events import events
 from datetime import datetime
 from json import dumps
 
+
 class InitConvoData(BaseModel):
     name: str
     public: bool
     chatroom: bool  # Is this a chatroom or a feed?
     pwd: str | None = None
 
-class Convo(InitConvoData):
+
+
+class Convo(BaseModel):
+    name: str
+    public: bool
+    chatroom: bool
     owner: str  # This is a UUID str
+    pwd: str | None = None
     users: list[str] = []
-    replies: list[str] = []
 
     def sanitize(self):
         return {
@@ -40,10 +46,11 @@ class IncMsg():
 # This is specifically for a message in the db, or something we're sending to the user
 @dataclass
 class Message():
-    text: str
     author: str
+    text: str
     reply_to: int | None = None
     time: str | None = None
+    replies: [int] = field(default_factory=list)
 
     def __post_init__(self):
         if not self.time:
@@ -54,7 +61,8 @@ class Message():
             'text': self.text,
             'author': self.author if self.author == 'SYSTEM' else get_field(self.author, 'name'),
             'reply_to': self.reply_to,
-            'time': self.time
+            'time': self.time,
+            'replies': self.replies
         }
 """
 In the conversation environement, we'll have a subdatabase for each conversation.
@@ -95,6 +103,8 @@ def create_convo(data: InitConvoData, owner: str):
     # We take owner as a UUID str
     if not is_name_taken(data.name):
         cid = token_urlsafe(32)
+        print(data)
+        print(data.__dict__)
         new_convo = Convo(owner=owner, **data.__dict__)
         convos[cid] = new_convo  # Write info to the db
         convo_data = open_convo(cid)  # Open a fresh new one
@@ -105,7 +115,7 @@ def create_convo(data: InitConvoData, owner: str):
         if data.chatroom:
             text = f"User {get_field(owner, 'name')} has created chatroom {new_convo.name}!"
         else:
-            text = f"Welcome to the class of {get_field(owner, 'lname')}!"
+            text = f"Welcome to {new_convo.name}!"
             
         convo_data[0] = Message(text=text, author='SYSTEM')
         return cid
@@ -116,7 +126,7 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
     for curcid, convo in convos:
         if convo.name == name:
             cid = curcid
-      
+
     if not cid:
         return
 
@@ -138,7 +148,7 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
                 msg = Message(text=f"{name} has joined the chat!",
                               author='SYSTEM')
                               # [NOTE]: 'SYSTEM' messages
-                write_msg(cid, msg)  # write to db
+                await write_msg(cid, msg)  # write to db
         return {
             'cid': cid,
             'owner': get_field(convo.owner, 'name'),
@@ -149,6 +159,7 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
 def usr_in_convo(uuid: str, cid: str):
     """Check if user is in given conversation"""
     convo = convos[cid]
+    print(convo)
     return convo and uuid in convo.users or uuid == convo.owner
 
 def get_convo(uuid: str, cid: str):
@@ -181,6 +192,8 @@ def read_msgs(cid: str, start: int, end: int | None) -> [str]:
     convo = open_convo(cid)
     if end and len(convo) <= end:
         return []  # Since having nothing is nonsensical, this should be interpreted as an error
+    for (mid, msg) in convo:
+        print(msg)
     return [convo[i].sanitize() for i in range(start, len(convo) if not end else 1 + end)]
 
 opencids = {}
@@ -233,7 +246,7 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
     opencids[cid] = opencids[cid] - 1
 
 async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
-    if len(msg.text) or len(msg.text) > 250:
+    if not len(msg.text) or len(msg.text) > 250:
         return False
     msg = Message(text=msg.text,
                   reply_to=msg.reply_to,

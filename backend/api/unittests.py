@@ -306,6 +306,7 @@ class Test030_Convos(unittest.TestCase):
         
         resp = post_msg(user1, chat, msg)    
         self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json())
 
     
     def test050_2nd_user_join_chat(self):
