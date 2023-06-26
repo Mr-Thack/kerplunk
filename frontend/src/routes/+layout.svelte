@@ -1,5 +1,4 @@
 <script lang="ts">
-	import KDrawer from '$components/KDrawer.svelte';
 	import Navbar from '$components/Navbar.svelte';
 	import '../themes/theme_red.postcss';
 	import '../themes/theme_orange.postcss';
@@ -11,10 +10,11 @@
 	import '../app.postcss';
 
 	import { AppShell, setModeCurrent, setModeUserPrefers } from '@skeletonlabs/skeleton';
-	import { Modal, modalStore } from '@skeletonlabs/skeleton';
-	import type { ModalSettings, ModalComponent } from '@skeletonlabs/skeleton'
+	import { Modal } from '@skeletonlabs/skeleton';
 	import getSettings from '$library/settings';
 	import { onMount } from 'svelte';
+	import Tabbar from '$components/Tabbar.svelte';
+	import AppDrawer from '$components/AppDrawer.svelte';
 
 	onMount(async () => {
 		var rez = await getSettings(["theme", 'accent']);
@@ -32,17 +32,24 @@
 
 </script>
 
-<KDrawer />
 <Modal />
+<AppDrawer />
 
-<AppShell slotSidebarLeft="p-4 z-10">
+<AppShell slotSidebarLeft="lg:p-4 z-10">
 	<svelte:fragment slot="sidebarLeft">
 		<Navbar/>
 	</svelte:fragment>
 
-	<div class="h-full w-full content-center text-center">
+	<div class="h-full w-screen lg:w-full content-center text-center">
 		<slot />
 	</div>
+
+	<svelte:fragment slot="pageFooter">
+		<div class="lg:p-0 z-10">
+			<Tabbar/>
+		</div>
+	</svelte:fragment>
+
 	<!-- Put this down when we have a footer!
 	<svelte:fragment slot="pageFooter">
 		<Footer />

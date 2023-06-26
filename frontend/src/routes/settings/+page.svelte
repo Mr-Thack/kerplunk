@@ -169,7 +169,7 @@
 </header>
 
 <div class="grid grid-rows-1">
-    <TabGroup>
+    <TabGroup class="w-screen lg:w-full">
         {#each tabs as tab, i}
             <!-- !i will run when i=0 -->
             <!-- So, the on:click function will be loadInfo on i=0 -->

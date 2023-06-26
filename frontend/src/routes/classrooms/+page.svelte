@@ -5,9 +5,6 @@
   import { salert, proompt } from '$library/alerts';
   import { joinConvo, makeConvo, getConvoInfo, type Class } from '$lib/convo';
   import getSettings from '$lib/settings';
-
-  
-  
   
   let classes: Array<Class> =  [];
 

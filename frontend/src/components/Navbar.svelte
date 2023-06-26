@@ -1,21 +1,12 @@
 <script lang='ts'>
-  
-  
-  
-  
-  
-  
-  
-  
   import { page } from '$app/stores';
-	import { AppRail, AppRailAnchor, drawerStore, Avatar, TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
+	import { AppRail, AppRailAnchor, drawerStore } from '@skeletonlabs/skeleton';
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
   import { userDataStore } from '$lib/stores'
   import getSettings from '$lib/settings';
 	import { salert } from '$library/alerts';
   import { getSchool } from '$lib/schools';
 
-  
   var isLoggedIn = false;
   // I wanted to have this isLoggedIn function in $lib/auth, but it's not playing nice with Svelte Stores
 
@@ -84,6 +75,7 @@
       navs = ALLNAVS.slice(); // clone instead of copy
       removePages(navs, [
         '/chatrooms',
+        '/classrooms',
         $page.url.pathname === "/login/"? '/signup':''
       ])
     }
@@ -114,7 +106,7 @@
   }
 </script>
 
-<AppRail class="w-auto h-auto">
+<AppRail class="w-auto h-auto hidden lg:block">
   <svelte:fragment slot="lead">
     <!-- If you're logged in, we want you to go to home instead of the front page -->
     <AppRailAnchor href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
@@ -142,19 +134,3 @@
     </AppRailAnchor>
   {/if}
 </AppRail>
-
-<TabGroup 
-	justify="justify-center"
-	active="variant-filled-primary"
-	hover="hover:variant-soft-primary"
-	flex="flex-1 lg:flex-none"
-	rounded=""
-	border=""
-	class="bg-surface-100-800-token w-full hidden"
->
-	<TabAnchor href="/" selected={$page.url.pathname === '/'}>
-		<svelte:fragment slot="lead">(icon)</svelte:fragment>
-		<span>(label)</span>
-	</TabAnchor>
-	<!-- ... -->
-</TabGroup>

@@ -7,15 +7,16 @@
     import { falert } from '$library/alerts';
     import { Message, type User, type Users, sendMessage, 
         getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
+	import { browser } from '$app/environment';
     
 
     let chatbox: HTMLElement;
 
-
     var users: Users;
 
-
     let chatName: string;
+
+    var header:HTMLElement; var inputbox:HTMLElement;
 
     function scrollChatBottom() {
         if (chatbox) {
@@ -31,6 +32,28 @@
     async function sendMsg(input: string) {
         await sendMessage($userDataStore.cid, input);
     }
+
+    function getTotalHeight(element: HTMLElement) {
+        const height = element.offsetHeight;
+        const style = getComputedStyle(element);
+        const marginTop = parseInt(style.getPropertyValue('margin-top'));
+        const marginBottom = parseInt(style.getPropertyValue('margin-bottom'));
+        return height + marginTop + marginBottom;
+    }
+
+    function calculateHeight() {
+        console.log(window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox))
+        return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox)
+    }
+
+    window.addEventListener('resize', () => {
+        try {
+            chatbox.style.maxHeight = calculateHeight().toString()+"px";
+            chatbox.style.minHeight = calculateHeight().toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+    });
 
     onMount(async () => {
         if (!$userDataStore.token) {
@@ -57,15 +80,19 @@
             messages = [...messages, m];
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
+        chatbox.style.maxHeight = calculateHeight().toString()+"px";
+        chatbox.style.minHeight = calculateHeight().toString()+"px";
     })
     
 </script>
-<div class="flex flex-col min-h-screen max-h-screen overflow-hidden pr-4">
-    <div class="h-auto variant-filled-primary mt-4">
-        <h3 class="h3 p-2">{chatName? chatName: 'Loading...'}</h3>
+<div class="flex flex-col overflow-hidden px-4 lg:pl-0">
+    <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
+        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/chatrooms">arrow_back_ios</a>
+        <h3 class="h3 px-2 my-auto">{chatName? chatName: 'Loading...'}</h3>
+        <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
     </div>
     <section bind:this={chatbox}
-        class="flex-grow p-4 overflow-y-auto space-y-4"
+        class="p-4 overflow-y-auto space-y-4"
         class:placeholder='{!messages.length}'
         class:animate-pulse='{!messages.length}'>
         {#if !$userDataStore.name || !users || !messages.length}
@@ -87,5 +114,8 @@
             {/each}
         {/if}
     </section>
-    <KTextArea onclick={sendMsg} sendOnEnter={true} />
+    <div bind:this={inputbox}>
+        <KTextArea onclick={sendMsg} sendOnEnter={true} />
+    </div>
+    
 </div>

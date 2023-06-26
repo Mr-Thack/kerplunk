@@ -8,8 +8,6 @@
     import { falert } from '$library/alerts';
     import { Message, type User, sendMessage, getConvoInfo, getMessages} from '$lib/convo';
     import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
-	import KAvatar from '$components/KAvatar.svelte';
-	import KDrawer from '$components/KDrawer.svelte';
 
     let feed: HTMLElement;
 
@@ -21,6 +19,28 @@
 
     var messages: Array<Message> = [];
 
+    var header:HTMLElement; var inputbox:HTMLElement;
+
+    function getTotalHeight(element: HTMLElement) {
+        const height = element.offsetHeight;
+        const style = getComputedStyle(element);
+        const marginTop = parseInt(style.getPropertyValue('margin-top'));
+        const marginBottom = parseInt(style.getPropertyValue('margin-bottom'));
+        return height + marginTop + marginBottom;
+    }
+
+    function calculateHeight() {
+        return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 32
+    }
+
+    window.addEventListener('resize', () => {
+        try {
+            feed.style.maxHeight = calculateHeight().toString()+"px";
+            feed.style.minHeight = calculateHeight().toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+    });
 
     function scrollFeedTop() {
         feed.scrollTo({ top: -feed.scrollHeight, behavior: 'smooth' });
@@ -101,15 +121,21 @@
         setInterval(updateLog, 1000 * 60);  // 1 Minute
 
         scrollFeedTop();
+        feed.style.maxHeight = calculateHeight().toString()+"px";
+        feed.style.minHeight = calculateHeight().toString()+"px";
     })
 
 
 </script>
-<div class="flex flex-col min-h-screen max-h-screen overflow-hidden pr-4">
-    <div class="h-auto variant-filled-primary mt-4">
-        <h3 class="h3 p-2">{className? 'Classroom ' + className: 'Loading...'}</h3>
-    </div>    
-    <KTextArea onclick={sendMsg} sendOnEnter={false} />
+<div class="flex flex-col max-h-screen overflow-hidden px-4 lg:pl-0">
+    <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
+        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/classrooms">arrow_back_ios</a>
+        <h3 class="h3 px-2 my-auto">{className? 'Classroom ' + className: 'Loading...'}</h3>
+        <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
+    </div>
+    <div bind:this={inputbox}>
+        <KTextArea onclick={sendMsg} sendOnEnter={false} />
+    </div>
     <section bind:this={feed}
         class="flex flex-col-reverse p-4 overflow-y-auto space-y-4 mb-8"
         class:placeholder='{!messages.length}'

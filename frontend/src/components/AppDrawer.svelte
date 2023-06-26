@@ -42,8 +42,8 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto" enable-background="new 0 0 20 20" height="196px" viewBox="0 0 20 20" width="196px" fill="#FFFFFF"><g><rect fill="none" height="20" width="20"/></g><g><g><path d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
         {/if}
       </div>
-      <h2 class="h2 text-center mb-8 max-w-md mx-auto font-medium h-10">{$userDataStore.name}</h2>
-      <h3 class="h3 text-center mb-4 max-w-md mx-auto h-8">{$userDataStore.school}</h3>
+      <h2 class="h3 lg:h2 text-center mb-4 max-w-md mx-auto font-medium h-10">{$userDataStore.name}</h2>
+      <h3 class="h4 lg:h3 text-center mb-3 max-w-md mx-auto h-8">{$userDataStore.school}</h3>
       <div class="flex justify-center m-12">
         {#each drawerBtns as btn}
           <button type="button" class="btn variant-filled-primary mx-auto" on:click={btn.func}>
