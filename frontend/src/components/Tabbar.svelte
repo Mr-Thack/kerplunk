@@ -1,17 +1,19 @@
 <script lang="ts">
 	import { page } from "$app/stores";
 	import { TabGroup, TabAnchor, Tab, drawerStore, Drawer, Avatar } from "@skeletonlabs/skeleton";
-    import type { DrawerSettings } from '@skeletonlabs/skeleton';
-    import { userDataStore } from '$lib/stores'
-    import { logout } from '$lib/auth';
-    import { goto } from '$app/navigation';
-    import getSettings from '$lib/settings';
-    import { get } from '$lib/endpoint'
-	import { salert } from '$library/alerts';
-    import AppDrawer from '$components/AppDrawer.svelte';
+  import type { DrawerSettings } from '@skeletonlabs/skeleton';
+  import { userDataStore } from '$lib/stores'
+  import { logout } from '$lib/auth';
+  import { goto } from '$app/navigation';
+  import getSettings from '$lib/settings';
+  import { get } from '$lib/endpoint'
+  import { salert } from '$library/alerts';
+  import AppDrawer from '$components/AppDrawer.svelte';
 
   var isLoggedIn = false;
   // I wanted to have this isLoggedIn function in $lib/auth, but it's not playing nice with Svelte Stores
+
+  let tabbar:HTMLElement;
 
   var accent = 'red';
 
@@ -109,7 +111,8 @@
     drawerStore.open(drawerSettings);
   }
 </script>
-<TabGroup 
+<div class="m-4" class:hidden={$page.url.pathname==="/chat/"||$page.url.pathname==="/class/"}>
+  <TabGroup 
 	justify="justify-center"
 	active="variant-filled-primary"
 	hover="hover:variant-soft-primary"
@@ -119,7 +122,7 @@
 	class="bg-surface-100-800-token w-full block lg:hidden">
         <!-- If you're logged in, we want you to go to home instead of the front page -->
         <TabAnchor class="max-w-[94px] transition-all" padding='px-2 py-0'href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
-          <img src={"/icon_"+accent+".png"} alt="icon" class="my-2" />
+          <img src={"/icon_"+accent+".png"} alt="icon" class="my-1 mx-auto w-14 h-14" />
         </TabAnchor>
       {#each navs as nav}
         <TabAnchor class="max-w-[94px]" id={nav.icon} href={nav.url} selected={$page.url.pathname === nav.url + "/" || $page.url.pathname === nav.alturl + "/"}>
@@ -142,3 +145,4 @@
         </TabAnchor>
       {/if}
 </TabGroup>
+</div>

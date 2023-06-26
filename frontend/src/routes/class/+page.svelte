@@ -29,11 +29,7 @@
     }
 
     function calculateHeight() {
-        if (window.innerWidth <= 1023) {
-            return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 126 - 32
-        } else {
-            return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 32
-        }
+        return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 32
     }
 
     window.addEventListener('resize', () => {
@@ -98,9 +94,11 @@
 
 </script>
 <div class="flex flex-col max-h-screen overflow-hidden px-4 lg:pl-0">
-    <div class="h-auto variant-filled-primary mt-4" bind:this={header}>
-        <h3 class="h3 p-2">{className? 'Classroom ' + className: 'Loading...'}</h3>
-    </div>    
+    <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
+        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/chatrooms">arrow_back_ios</a>
+        <h3 class="h3 px-2 my-auto">{className? 'Classroom ' + className: 'Loading...'}</h3>
+        <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
+    </div>
     <div bind:this={inputbox}>
         <KTextArea onclick={sendMsg} sendOnEnter={false} />
     </div>

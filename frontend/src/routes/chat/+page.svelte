@@ -42,11 +42,8 @@
     }
 
     function calculateHeight() {
-        if (window.innerWidth <= 1023) {
-            return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 126
-        } else {
-            return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox)
-        }
+        console.log(window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox))
+        return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox)
     }
 
     window.addEventListener('resize', () => {
@@ -89,8 +86,10 @@
     
 </script>
 <div class="flex flex-col overflow-hidden px-4 lg:pl-0">
-    <div class="h-auto variant-filled-primary mt-4" bind:this={header}>
-        <h3 class="h3 p-2">{chatName? chatName: 'Loading...'}</h3>
+    <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
+        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/chatrooms">arrow_back_ios</a>
+        <h3 class="h3 px-2 my-auto">{chatName? chatName: 'Loading...'}</h3>
+        <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
     </div>
     <section bind:this={chatbox}
         class="p-4 overflow-y-auto space-y-4"
