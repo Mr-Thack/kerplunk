@@ -165,13 +165,12 @@
 <header class="mx-auto text-center pr-4">
 	<h2 class="h2">Signup!</h2>
 </header>
-<div class="w-full h-full flex items-center h-screen absolute inset-x-0 inset-y-0 pl-28 pr-4">
+<div class="w-full h-[calc(100vh-144px)] lg:h-fill flex items-center">
 <!-- It complains on the next line that on:step function handler has a type mismatch, but it doesn't impact us -->
-	<Stepper on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4 w-full">
-		<Step class="m-8">
-			<h3 class="h3 text-center">Are you a student or a teacher?</h3>
-
-			<div class="flex flex-row place-content-between justify-center w-full">
+	<Stepper on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4 w-full max-h-[calc(100vh-142px)] lg:max-h-full m-4">
+		<Step class="m-4 max-h-[calc(100vh-220px)] lg:max-h-full overflow-auto">
+			<svelte:fragment slot="header">Are you a student or a teacher?</svelte:fragment>
+			<div class="flex flex-row place-content-between justify-center w-full lg:my-8">
 				<RadioGroup>
 					<RadioItem bind:group={isStudent} name="student-teacher" value={false}>	
 						<span class="material-symbols-outlined">
@@ -186,35 +185,36 @@
 						<h5 class="h5">Student</h5>
 					</RadioItem>
 				</RadioGroup>
-		</Step>
-		<Step locked={!(email && password && fname && lname)} class="m-8">
-			<svelte:fragment slot="header">Basic Info</svelte:fragment>
-			<div class="grid grid-cols-2">
-				<input class="input w-fill-available moz-available m-2" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
-				<input class="input w-fill-available moz-available m-2" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
 			</div>
-			<input class="input m-2" title="Email" type='email' bind:value={email} placeholder='Your Email' />
-			<input class="input m-2" title="Password" type='password' bind:value={password} placeholder='Your Password' />
-			<input class="input m-2" title="Repeat Password" type='password' bind:value={repeatPassword} placeholder='Repeat Password' />
 		</Step>
-		<Step locked={schid === -1} class="m-8">
+		<Step locked={!(email && password && fname && lname)} class="m-4 max-h-[calc(100vh-220px)] overflow-auto">
+			<svelte:fragment slot="header">Basic Info</svelte:fragment>
+			<div class="grid grid-cols-2 w-full">
+				<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="First Name" type='text' bind:value={fname} placeholder='Your First Name' />
+				<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
+			</div>
+			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' bind:value={email} placeholder='Your Email' />
+			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Password" type='password' bind:value={password} placeholder='Your Password' />
+			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Repeat Password" type='password' bind:value={repeatPassword} placeholder='Repeat Password' />
+		</Step>
+		<Step locked={schid === -1} class="m-4 max-h-[calc(100vh-220px)] overflow-y-auto">
 			<svelte:fragment slot="header">School Info</svelte:fragment>
 
 			{#if !isStudent}
 				<!-- We want to open a new tab (_blank) so that they can return to the one -->
-				<a class="btn variant-filled-error h3 text-center" href={dev? "/register":"/register.html"} target="_blank">
-					Don't see your School Here?
+				<a class="btn variant-filled-error text-sm lg:text-base h-8 lg:h-10 text-center mx-auto" href={dev? "/register":"/register.html"} target="_blank">
+					Don't see your school here?
 				</a>
 			{/if}
 		
-			<input class="input m-2" type="search" name="School Name" bind:value={school} placeholder="Search...." />
+			<input class="input m-2 max-w-[70vw] text-xs h-8 lg:m-4 lg:text-base lg:h-10" type="search" name="School Name" bind:value={school} placeholder="Search...." />
 		
 			<!--<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">-->
-			<Autocomplete class="card w-auto p-4 max-h-48 overflow-y-auto" tabindex="-1" bind:input={school} options={schoolOptions} on:selection={onSchoolSelection} />
+			<Autocomplete class="card w-auto p-2 text-xs lg:text-base max-h-48 max-w-[70vw] mx-auto overflow-y-auto" tabindex="-1" bind:input={school} options={schoolOptions} on:selection={onSchoolSelection} />
 		</Step>
 		<Step locked={!signupcode} class="m-8">
 			<svelte:fragment slot="header">Email Signup Code</svelte:fragment>
-			<input class="input m-2" type="text" name="Code" bind:value={signupcode} placeholder="Code from your Email!" />
+			<input class="input m-2 max-w-[70vw] text-xs h-8 lg:m-4 lg:text-base lg:h-10" type="text" name="Code" bind:value={signupcode} placeholder="Code from your Email!" />
 		</Step>
 	</Stepper>
 </div>

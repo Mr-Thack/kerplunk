@@ -1,4 +1,4 @@
-import { formdata_post } from '$lib/endpoint';
+import { formdata_post, get } from '$lib/endpoint';
 import { userDataStore } from '$lib/stores';
 import { salert } from '$lib/alerts';
 import { dev } from '$app/environment';
@@ -6,10 +6,14 @@ import getSettings from '$lib/settings';
 
 
 async function setInfo() {
-    const rez = await getSettings(["name", "photo"]);
+    const rez = await getSettings(["name", "photo", "schid"]);
     if (rez && !rez.error) {
         userDataStore.write("name", rez.data.name);
         userDataStore.write("photo", rez.data.photo);
+        await get('schools/'+rez.data.schid.toString(), {}, userDataStore.readonce("token")).then((schoolInfo) => {
+            userDataStore.write("school", schoolInfo.data.name);
+        })
+        
     }
 }
 

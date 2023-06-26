@@ -168,81 +168,83 @@
 	<h2 class="h2">Settings</h2>
 </header>
 
-<div class="grid grid-rows-1">
-    <TabGroup class="w-screen lg:w-full">
+<div class="grid grid-rows-1 mx-4">
+    <TabGroup class="w-full lg:w-full overflow-x-auto text-xs md:text-sm lg:text-base ">
         {#each tabs as tab, i}
             <!-- !i will run when i=0 -->
             <!-- So, the on:click function will be loadInfo on i=0 -->
             <Tab bind:group={tabSet} name={tab} value={i} on:click={(!i)? loadGeneralInfo : null}>{tab}</Tab>
         {/each}
         <svelte:fragment slot="panel">
-            {#if tabSet === 0}
-                {#if photoData}
-                    <Avatar id="photo-settings" src={photoData} width="w-40" rounded="rounded-full" class="mx-auto"/>
-                {:else}
-                    <svg id="no-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto" enable-background="new 0 0 20 20" height="196px" viewBox="0 0 20 20" width="196px"><g><rect fill="none" height="20" width="20"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
-                {/if}
-                <FileButton id="file-button" name="profilePicture" class="flex justify-center m-4 mx-auto w-fit" button="variant-filled" bind:files={image} on:change={onChangeHandler}>
-                    {#if !photoData}
-                        Add Image
+            <div class="max-h-[calc(100vh-221px)] max-w-[calc(100vw-2rem)] lg:max-h-[calc(100vh-135px)] overflow-auto">
+                {#if tabSet === 0}
+                    {#if photoData}
+                        <Avatar id="photo-settings" src={photoData} width="w-20 lg:w-40" rounded="rounded-full" class="mx-auto"/>
                     {:else}
-                        Edit Image
+                        <svg id="no-photo-settings" xmlns="http://www.w3.org/2000/svg" class="mx-auto w-20 lg:w-40" enable-background="new 0 0 20 20" viewBox="0 0 20 20"><g><rect fill="none"/></g><g><g><path fill="currentColor" d="M10 2c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 11c-2.05 0-3.87-.95-5.07-2.44 1.45-.98 3.19-1.56 5.07-1.56s3.62.58 5.07 1.56c-1.2 1.49-3.02 2.44-5.07 2.44z"/></g></g></svg>
                     {/if}
-                </FileButton>
-                <div class="grid grid-cols-2">
-                    <input id="first-name" class="input m-2 w-fill-available moz-available col-start-1" title="First Name" type='text' placeholder='Your First Name' bind:value={firstName} />
-                    <input id="last-name" class="input m-2 w-fill-available moz-available col-start-2" title="Last Name" type='text' placeholder='Your Last Name' bind:value={lastName}/>
-                </div>
-                    {#if $userDataStore}
-                        <input id="email" class="input m-2 w-fill-available moz-available" title="Email" type='email' placeholder='Your Email' bind:value={$userDataStore.email}/>
+                    <FileButton id="file-button" name="profilePicture" class="flex justify-center m-4 mx-auto w-fit text-sm lg:text-base h-8 lg:h-10" button="variant-filled" bind:files={image} on:change={onChangeHandler}>
+                        {#if !photoData}
+                            Add Image
+                        {:else}
+                            Edit Image
+                        {/if}
+                    </FileButton>
+                    <div class="grid grid-cols-2">
+                        <input id="first-name" class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10 col-start-1" title="First Name" type='text' placeholder='Your First Name' bind:value={firstName} />
+                        <input id="last-name" class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10 col-start-2" title="Last Name" type='text' placeholder='Your Last Name' bind:value={lastName}/>
+                    </div>
+                        {#if $userDataStore}
+                            <input id="email" class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' placeholder='Your Email' bind:value={$userDataStore.email}/>
+                        {:else}
+                            <input id="email" class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' placeholder='Your Email'/>
+                        {/if}
+                        <div class="flex justify-center m-2">
+                        <button type="button" class="btn variant-filled mx-8 my-4 text-sm lg:text-base h-8 lg:h-10" on:click={loadGeneralInfo}>
+                            <span>Reset</span>
+                        </button>
+                        <button type="button" class="btn variant-filled-primary mx-8 my-4 text-sm lg:text-base h-8 lg:h-10" on:click={updateGeneral}>
+                            <span>Update Information</span>
+                        </button>
+                    </div>
+                {:else if tabSet === 1}
+                <!-- I know, this isn't clean but what am I supposed to do? -->
+                    {#if !(currentTheme === 0 || currentTheme === 1)}
+                        <p class="p">Loading....</p>
                     {:else}
-                        <input id="email" class="input m-2 w-fill-available moz-available" title="Email" type='email' placeholder='Your Email'/>
-                    {/if}
-                    <div class="flex justify-center m-12">
-                    <button type="button" class="btn variant-filled mx-8 my-4" on:click={loadGeneralInfo}>
-                        <span>Reset</span>
-                    </button>
-                    <button type="button" class="btn variant-filled-primary mx-8 my-4" on:click={updateGeneral}>
-                        <span>Update Information</span>
-                    </button>
-                </div>
-            {:else if tabSet === 1}
-            <!-- I know, this isn't clean but what am I supposed to do? -->
-                {#if !(currentTheme === 0 || currentTheme === 1)}
-                    <p class="p">Loading....</p>
-                {:else}
-                    
-                    <h3 class="h3">Theme</h3>
-                    <RadioGroup>
-                        {#each themes as theme, i}
-                            <RadioItem bind:group={currentTheme} name="theme" value={i}>	
-                                <span class="material-symbols-outlined">
-                                    {theme + "_mode"}
-                                </span>
-                                <h5 class="h5">{capitalize(theme)}</h5>
-                            </RadioItem>
-                        {/each}
-                    </RadioGroup>
+                        
+                        <h3 class="h3">Theme</h3>
+                        <RadioGroup>
+                            {#each themes as theme, i}
+                                <RadioItem bind:group={currentTheme} name="theme" value={i}>	
+                                    <span class="material-symbols-outlined">
+                                        {theme + "_mode"}
+                                    </span>
+                                    <h5 class="h5">{capitalize(theme)}</h5>
+                                </RadioItem>
+                            {/each}
+                        </RadioGroup>
 
-                    <h3 class="h3">Accent Color</h3>
-                    <RadioGroup active="variant-filled-primary">
-                        {#each accents as color}
-                            <RadioItem bind:group={currentAccent} name="accent" value={color}>	
-                                <span class="material-icons {color === 'red' ? 'text-red' : ''} {color === 'orange' ? 'text-orange' : ''} {color === 'yellow' ? 'text-yellow' : ''} {color === 'green' ? 'text-green' : ''} {color === 'blue' ? 'text-blue' : ''} {color === 'purple' ? 'text-purple' : ''}">lens</span>
-                            </RadioItem>
-                        {/each}
-                    </RadioGroup>
+                        <h3 class="h3">Accent Color</h3>
+                        <RadioGroup active="variant-filled-primary">
+                            {#each accents as color}
+                                <RadioItem bind:group={currentAccent} name="accent" value={color} padding="px-2 md:px-4 py-1">	
+                                    <span class="material-icons {color === 'red' ? 'text-red' : ''} {color === 'orange' ? 'text-orange' : ''} {color === 'yellow' ? 'text-yellow' : ''} {color === 'green' ? 'text-green' : ''} {color === 'blue' ? 'text-blue' : ''} {color === 'purple' ? 'text-purple' : ''}">lens</span>
+                                </RadioItem>
+                            {/each}
+                        </RadioGroup>
+                    {/if}
+                {:else if tabSet === 2}
+                    <input id="current-password" bind:value={curPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Current Password" type='password' placeholder='Current Password' />
+                    <input id="new-password" bind:value={newPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="New Password" type='password' placeholder='New Password' />
+                    <input id="repeat-password" bind:value={repPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat New Password' />
+                    <button type="button" class="btn variant-filled-primary mx-8 my-4 text-sm lg:text-base h-8 lg:h-10" on:click={updatePassword}>
+                        <span>Change Password</span>
+                    </button>
+                {:else if tabSet === 3}
+                    <p class="p">Someday, my child.</p>
                 {/if}
-            {:else if tabSet === 2}
-                <input id="current-password" bind:value={curPwd} class="input m-2 w-fill-available moz-available" title="Current Password" type='password' placeholder='Current Password' />
-                <input id="new-password" bind:value={newPwd} class="input m-2 w-fill-available moz-available" title="New Password" type='password' placeholder='New Password' />
-                <input id="repeat-password" bind:value={repPwd} class="input m-2 w-fill-available moz-available" title="Repeat Password" type='password' placeholder='Repeat New Password' />
-                <button type="button" class="btn variant-filled-primary mx-8 my-4" on:click={updatePassword}>
-                    <span>Change Password</span>
-                </button>
-            {:else if tabSet === 3}
-                <p class="p">Someday, my child.</p>
-            {/if}
+            </div>
         </svelte:fragment>
     </TabGroup>
 </div>

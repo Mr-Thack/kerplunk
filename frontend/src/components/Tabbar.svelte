@@ -84,7 +84,7 @@
     var drawerSettings: DrawerSettings;
     if (window.innerWidth <= 639) {
         drawerSettings = {
-            id: 'drawer_account',
+            id: 'drawerAccount',
             width: 'w-screen',
             height: 'h-[380px]',
             padding: 'p-4',
@@ -93,9 +93,9 @@
         };
     } else {
         drawerSettings = {
-            id: 'drawer_account',
+            id: 'drawerAccount',
             width: 'w-[340px]',
-            height: 'h-[78vh]',
+            height: 'h-full',
             padding: 'p-4',
             rounded: 'rounded-xl',
             position: 'left'

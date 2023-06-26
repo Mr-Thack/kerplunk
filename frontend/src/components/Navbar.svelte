@@ -73,6 +73,7 @@
     } else {
       isLoggedIn = false;
       navs = ALLNAVS.slice(); // clone instead of copy
+      // Why hide signup?
       removePages(navs, [
         '/chatrooms',
         '/classrooms',

@@ -68,15 +68,16 @@
   });
 
 </script>
-
-<button class='btn mb-10 text-center variant-filled' on:click={promptRoom}>Make Your Own!</button>
-<h1 class="h1 text-center mb-5">Chatrooms:</h1>
-
-{#if chatrooms.length}
-  {#each chatrooms as chatroom}
-    <button class="btn bg-gradient-to-br variant-filled-secondary mt-3 w-25" on:click={() => join(chatroom)}>Join {chatroom}</button>
-    <br />
-  {/each}
-{:else}
-  <h2 class="h2 text-center">There aren't any yet! Make one!</h2>
-{/if}
+<div class="max-h-[calc(100vh-134px)] m-4 overflow-auto">
+  <button class='btn mb-10 text-center variant-filled' on:click={promptRoom}>Make Your Own!</button>
+  <h1 class="h1 text-center mb-5">Chatrooms:</h1>
+  
+  {#if chatrooms.length}
+    {#each chatrooms as chatroom}
+      <button class="btn bg-gradient-to-br variant-filled-secondary mt-3 w-25 text-sm lg:text-base h-8 lg:h-10" on:click={() => join(chatroom)}>Join {chatroom}</button>
+      <br />
+    {/each}
+  {:else}
+    <h2 class="h2 text-center">There aren't any yet! Make one!</h2>
+  {/if}
+</div>

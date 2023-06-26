@@ -42,7 +42,6 @@
     }
 
     function calculateHeight() {
-        console.log(window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox))
         return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox)
     }
 
@@ -56,8 +55,10 @@
     });
 
     onMount(async () => {
+        chatbox.style.maxHeight = calculateHeight().toString()+"px";
+        chatbox.style.minHeight = calculateHeight().toString()+"px";
         if (!$userDataStore.token) {
-            falert('Sign in to a chatroom first!', () => {
+            falert('Open a chatroom first!', () => {
                 goto('/chatrooms')
             });
         }
@@ -80,8 +81,6 @@
             messages = [...messages, m];
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
-        chatbox.style.maxHeight = calculateHeight().toString()+"px";
-        chatbox.style.minHeight = calculateHeight().toString()+"px";
     })
     
 </script>
@@ -92,18 +91,18 @@
         <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
     </div>
     <section bind:this={chatbox}
-        class="p-4 overflow-y-auto space-y-4"
+        class="p-1 overflow-y-auto space-y-4"
         class:placeholder='{!messages.length}'
         class:animate-pulse='{!messages.length}'>
         {#if !$userDataStore.name || !users || !messages.length}
-            <p class="p">Please Wait...</p>
+            <p class="p w-full">Please Wait...</p>
         {:else}
             {#each messages as msg}
                 {#if msg.author === "SYSTEM"}
                     <div class="grid gap-4 text-center w-full">
                         <!-- We can add avatars later.... -->
                         <div class="border-0 space-y-2 w-full mb-4 variant-filled-surface p-2 w-9/12 mx-auto rounded-xl">
-                            <p>{msg.text+" - "+msg.humanTime()}</p>
+                            <p class="text-xs lg:text-base">{msg.text+" - "+msg.humanTime()}</p>
                         </div>
                     </div>
                 {:else if msg.author === $userDataStore.name}
