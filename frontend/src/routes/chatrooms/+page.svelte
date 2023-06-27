@@ -9,6 +9,15 @@
   var chatName: string = "", chatPwd: string = "";
   var chatrooms: string[] = [];
   var updateInterval: number; // setInterval type is number
+  let chatroomList:HTMLElement;
+
+  window.addEventListener('resize', () => {
+        try {
+          chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+  });
 
   
   async function updateChats() {
@@ -20,6 +29,7 @@
     
       
   onMount( async function() {
+    chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
     if (!$userDataStore.token) {
       goto('/login');
     }
@@ -68,10 +78,9 @@
   });
 
 </script>
-<div class="max-h-[calc(100vh-134px)] m-4 overflow-auto">
+<div bind:this={chatroomList} class="m-4 overflow-auto">
   <button class='btn mb-10 text-center variant-filled' on:click={promptRoom}>Make Your Own!</button>
-  <h1 class="h1 text-center mb-5">Chatrooms:</h1>
-  
+  <h1 class="h1 text-center mb-5">Chatrooms:</h1>  
   {#if chatrooms.length}
     {#each chatrooms as chatroom}
       <button class="btn bg-gradient-to-br variant-filled-secondary mt-3 w-25 text-sm lg:text-base h-8 lg:h-10" on:click={() => join(chatroom)}>Join {chatroom}</button>

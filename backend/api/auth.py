@@ -67,7 +67,7 @@ def gen_hash(pwd: str) -> str:
 def login_user(email: str, pwd: str, ip: str):
     ahash: str = gen_hash(email + pwd)
     user: CredsSchema = get_user(ahash)
-    if user and user.email == email:
+    if user and user.email.lower() == email:
         # This won't work when running behind a proxy
         return makeSID(user.uuid, ip)
         # req.client = (client_ip_addr, client_port)
@@ -83,11 +83,11 @@ def set_pwd(email: str, pwd: str, uuid: str):
 
 
 async def start_signup_user(data: SignUpData) -> str:
-    if is_valid_schid(data.schid) and not is_email_used(data.email):
+    if is_valid_schid(data.schid) and not is_email_used(data.email.lower()):
         code = gen_code()
         waiting_users[code] = data    
         
-        await send_signup_email(data.email, data.fname + ' ' + data.lname, code)
+        await send_signup_email(data.email.lower(), data.fname + ' ' + data.lname, code)
         # This will be continued in finish_signup_user
         
         return code
@@ -96,7 +96,7 @@ def finish_signup_user(code: str) -> bool:
     if code.upper() in waiting_users:
         data = waiting_users[code.upper()]
 
-        uuid = make_user(data.email, data.fname, data.lname, data.schid, data.student)
+        uuid = make_user(data.email.lower(), data.fname, data.lname, data.schid, data.student)
         set_pwd(data.email, data.pwd, uuid)
                 
         return True

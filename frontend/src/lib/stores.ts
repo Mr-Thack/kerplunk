@@ -19,13 +19,14 @@ type UserData = {
 var initVal;
 if (browser) {
     initVal = JSON.parse(window.sessionStorage.getItem('userDataStore') || '{}');
+    console.log(initVal)
 }
 
 function createUserDataStore() {
     const {subscribe, set, update } = writable<UserData>(initVal);
     // Setup our own custom function for updating the userDataStore
     return {
-        set,
+        set: (k) => {console.log(k), set(k)},
         subscribe,
         write: (key: string, value: any) => update(u => {
             u[key] = value;

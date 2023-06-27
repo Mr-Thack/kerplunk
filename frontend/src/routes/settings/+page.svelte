@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Avatar, TabGroup, Tab, FileButton, RadioItem, RadioGroup, setModeUserPrefers, setModeCurrent } from '@skeletonlabs/skeleton';
+    import { Avatar, TabGroup, Tab, FileButton, RadioItem, RadioGroup, setModeUserPrefers, setModeCurrent, ProgressBar } from '@skeletonlabs/skeleton';
     import getSettings from '$lib/settings';
     import {  post } from '$library/endpoint';
     import { onMount } from 'svelte';
@@ -7,9 +7,10 @@
     import { salert } from '$library/alerts';
     import { browser } from '$app/environment';
     import { removeClass, addClass, isClass } from '$lib/theming';
+	import zxcvbn from 'zxcvbn';
     
     let firstName = "", lastName = "";
-    let curPwd = "", newPwd = "", repPwd = "";
+    let curPwd:HTMLElement, newPwd:HTMLElement, repPwd:HTMLElement;
 
     let tabSet: number = 0;
     let image: FileList;
@@ -20,8 +21,18 @@
     const accents = ["red", "orange", "yellow", "green", "blue", "purple"];
     const themes = ["dark", "light"];
     const tabs = ["General", "Appearance", "Password", "Delete"];
+    let settings:HTMLElement;
+
+    window.addEventListener('resize', () => {
+        try {
+            settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+    });
     
     onMount(async () => {
+        settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
         var rez = await getSettings(["theme", 'accent']);
         if (rez !== undefined && !rez.error) {
             // @ts-ignore
@@ -40,6 +51,9 @@
             changeTheme(currentTheme);
         }
     }
+
+    var passwordScoreText:HTMLElement, passwordScoreColor:string, passwordScore:number = 0,
+    passwordMatch:HTMLElement, passwordBtnState:boolean = true;
 
     async function changeTheme(currentTheme:number) {
         if (currentTheme !== -1) {
@@ -70,6 +84,7 @@
 
 
     onMount(async () => {
+
         var rez = await getSettings(["fname", "lname", "email", "photo"]);
         if (rez && !rez.error) {
             // @ts-ignore
@@ -86,7 +101,77 @@
         }
     })
 
-
+    $: {
+        if (tabSet === 2 && newPwd) {
+            newPwd.addEventListener('input', () => {
+                if (newPwd.value) {
+                    let score = zxcvbn(newPwd.value).score + 1;
+                    let passwordMatches = newPwd.value === repPwd.value
+                    passwordScore = score;
+                    if (score === 1) {
+                        passwordScoreColor = "bg-error-900";
+                        passwordScoreText.innerHTML = "Poor";
+                    } else if (score === 2) {
+                        passwordScoreColor = "bg-error-900";
+                        passwordScoreText.innerHTML = "Bad"; 
+                    } else if (score === 3) {
+                        passwordScoreColor = "bg-warning-900";
+                        passwordScoreText.innerHTML = "Ok"; 
+                    } else if (score === 4) {
+                        passwordScoreColor = "bg-success-900";
+                        passwordScoreText.innerHTML = "Good"; 
+                    } else {
+                        passwordScoreColor = "bg-success-900";
+                        passwordScoreText.innerHTML = "Great";
+                    }
+                    if (passwordMatches) {
+                        passwordMatch.innerHTML = "✔"
+                    } else {
+                        passwordMatch.innerHTML = "✖"
+                    }
+                    if (score >= 4 && passwordMatches && curPwd.value) {
+                        passwordBtnState = false;
+                    } else {
+                        passwordBtnState = true;
+                    }
+                } else {
+                    passwordScore = 0;
+                    passwordScoreText.innerHTML = "";
+                    passwordMatch.innerHTML = ""
+                }
+            });
+            repPwd.addEventListener('input', () => {
+                if (newPwd.value) {
+                    let score = zxcvbn(newPwd.value).score + 1;
+                    let passwordMatches = newPwd.value === repPwd.value
+                    if (passwordMatches) {
+                        passwordMatch.innerHTML = "✔"
+                    } else {
+                        passwordMatch.innerHTML = "✖"
+                    }
+                    if (score >= 4 && passwordMatches && curPwd) {
+                        passwordBtnState = false;
+                    } else {
+                        passwordBtnState = true;
+                    }
+                }
+            });
+            curPwd.addEventListener('input', () => {
+                if (curPwd.value) {
+                    let score = zxcvbn(newPwd.value).score + 1;
+                    let passwordMatches = newPwd.value === repPwd.value
+                    if (score >= 4 && passwordMatches && curPwd) {
+                        passwordBtnState = false;
+                    } else {
+                        passwordBtnState = true;
+                    }
+                } else {
+                    passwordBtnState = true;
+                }
+            });
+        }
+    
+    }
     async function loadGeneralInfo() {
         var rez = await getSettings(["fname", "lname", "email", "photo"]);
         if (rez && !rez.error) {
@@ -119,10 +204,10 @@
     }
 
     async function updatePassword() {
-        if (newPwd === repPwd) {
+        if (newPwd.value === repPwd.value) {
             var upload = await post('update_pwd', {
-                "pwd": curPwd,
-                "new_pwd": newPwd,
+                "pwd": curPwd.value,
+                "new_pwd": newPwd.value,
             }, $userDataStore.token);
             if (upload.status === 200) {
                 salert("Your password was changed successfully.")
@@ -176,7 +261,7 @@
             <Tab bind:group={tabSet} name={tab} value={i} on:click={(!i)? loadGeneralInfo : null}>{tab}</Tab>
         {/each}
         <svelte:fragment slot="panel">
-            <div class="max-h-[calc(100vh-221px)] max-w-[calc(100vw-2rem)] lg:max-h-[calc(100vh-135px)] overflow-auto">
+            <div bind:this={settings} class="max-w-[calc(100vw-2rem)] lg:max-h-[calc(100vh-135px)] overflow-auto">
                 {#if tabSet === 0}
                     {#if photoData}
                         <Avatar id="photo-settings" src={photoData} width="w-20 lg:w-40" rounded="rounded-full" class="mx-auto"/>
@@ -235,10 +320,20 @@
                         </RadioGroup>
                     {/if}
                 {:else if tabSet === 2}
-                    <input id="current-password" bind:value={curPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Current Password" type='password' placeholder='Current Password' />
-                    <input id="new-password" bind:value={newPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="New Password" type='password' placeholder='New Password' />
-                    <input id="repeat-password" bind:value={repPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat New Password' />
-                    <button type="button" class="btn variant-filled-primary mx-8 my-4 text-sm lg:text-base h-8 lg:h-10" on:click={updatePassword}>
+                    <input id="current-password" bind:this={curPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Current Password" type='password' placeholder='Current Password' />
+                    <input id="new-password" bind:this={newPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="New Password" type='password' placeholder='New Password' />
+                    <div class="flex justify-center">
+                        <ProgressBar label="Password Score" class="m-1 lg:m-2 w-[70vw]" meter={passwordScoreColor} value={passwordScore} max={5} />
+                        <p class="p"bind:this={passwordScoreText}></p>
+                    </div>
+                    <div class="input-group input-group-divider grid-cols-[1fr_auto] m-2 lg:m-4 w-fill-available moz-available">
+                        <input id="repeat-password" bind:this={repPwd} class="input text-xs h-8 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat New Password' />
+                        <a>
+                            <p class="my-auto text-xl" bind:this={passwordMatch}></p>
+                        </a>
+                        
+                    </div>
+                    <button type="button" disabled={passwordBtnState} class="btn variant-filled-primary mx-8 my-4 text-sm lg:text-base h-8 lg:h-10" on:click={updatePassword}>
                         <span>Change Password</span>
                     </button>
                 {:else if tabSet === 3}
