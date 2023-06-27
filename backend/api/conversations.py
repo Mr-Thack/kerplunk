@@ -26,10 +26,9 @@ class Convo(BaseModel):
     pwd: str | None = None
     users: list[str] = []
 
-    def sanitize(self, mid: int):
+    def sanitize(self):
         return {
             'name': self.name,
-            'mid': mid,
             'public': self.public,
             'chatroom': self.chatroom,
             'owner': get_field(self.owner, 'name'),
@@ -58,9 +57,10 @@ class Message():
         if not self.time:
             self.time = datetime.now().isoformat()
 
-    def sanitize(self):
+    def sanitize(self, mid: int):
         return {
             'text': self.text,
+            'mid': mid,
             'author': self.author if self.author == 'SYSTEM' else get_field(self.author, 'name'),
             'reply_to': self.reply_to,
             'time': self.time,
@@ -176,13 +176,13 @@ async def write_msg(cid: str, msg: Message) -> bool:
         events.add_event(cid)
 
     if convo and msg:
-        id = len(convo)
-        convo[id] = msg
+        mid = len(convo)
+        convo[mid] = msg
         if msg.reply_to:
             replied = convo[msg.reply_to]
-            replied.replies.append(id)
+            replied.replies.append(mid)
             convo[msg.reply_to] = replied
-        await events.send_msg(cid, msg)
+        await events.send_msg(cid, msg.sanitize(mid))
         # Since indices start at 0, len() will return 1 + the last index
         return True
 
@@ -233,7 +233,7 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
         yield {
             "event": "message",
             "id": i,
-            "data": dumps(convo[i].sanitize())
+            "data": dumps(convo[i].sanitize(i))
         }
 
     # If there was a definite end, quit

@@ -55,7 +55,7 @@ export class Message {
     this.time = data.time;
     this.replies = data.replies;
     this.likes = data.likes;
-    this.mid = mid;
+    this.mid = data.mid;
   }
 
   public humanTime(): string {
