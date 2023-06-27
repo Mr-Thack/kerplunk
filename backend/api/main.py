@@ -11,7 +11,7 @@ from schools import start_register_school, finish_register_school, list_all_scho
 from users import multi_get, multi_set, valid_keys, valid_fields
 from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            usr_in_convo, add_user_to_convo, read_msgs, post_msg,
-                           IncMsg, read_msgs_as_stream, get_convo)
+                           IncMsg, read_msgs_as_stream, get_convo, like_msg)
 from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
 from os import path, environ
@@ -212,6 +212,10 @@ async def post_message(msg: IncMsg, cid_uuid=Depends(convoids)):
     (cid, uuid) = cid_uuid
     return await post_msg(cid, uuid, msg)
 
+@api.patch('/convos/{cid}/{mid}')
+def like_message(mid: int, cid_uuid=Depends(convoids)):
+    (cid, uuid) = cid_uuid
+    return like_msg(cid, uuid, mid)
 
 @api.get('/stream_convos/{cid}')
 async def get_messages_from_stream(req: Request,

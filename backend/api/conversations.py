@@ -26,9 +26,10 @@ class Convo(BaseModel):
     pwd: str | None = None
     users: list[str] = []
 
-    def sanitize(self):
+    def sanitize(self, mid: int):
         return {
             'name': self.name,
+            'mid': mid,
             'public': self.public,
             'chatroom': self.chatroom,
             'owner': get_field(self.owner, 'name'),
@@ -51,6 +52,7 @@ class Message():
     reply_to: int | None = None
     time: str | None = None
     replies: [int] = field(default_factory=list)
+    likers: [str] = field(default_factory=list)
 
     def __post_init__(self):
         if not self.time:
@@ -62,7 +64,8 @@ class Message():
             'author': self.author if self.author == 'SYSTEM' else get_field(self.author, 'name'),
             'reply_to': self.reply_to,
             'time': self.time,
-            'replies': self.replies
+            'replies': self.replies,
+            'likes': len(self.likers)
         }
 """
 In the conversation environement, we'll have a subdatabase for each conversation.
@@ -103,8 +106,6 @@ def create_convo(data: InitConvoData, owner: str):
     # We take owner as a UUID str
     if not is_name_taken(data.name):
         cid = token_urlsafe(32)
-        print(data)
-        print(data.__dict__)
         new_convo = Convo(owner=owner, **data.__dict__)
         convos[cid] = new_convo  # Write info to the db
         convo_data = open_convo(cid)  # Open a fresh new one
@@ -159,7 +160,6 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
 def usr_in_convo(uuid: str, cid: str):
     """Check if user is in given conversation"""
     convo = convos[cid]
-    print(convo)
     return convo and uuid in convo.users or uuid == convo.owner
 
 def get_convo(uuid: str, cid: str):
@@ -186,15 +186,23 @@ async def write_msg(cid: str, msg: Message) -> bool:
         # Since indices start at 0, len() will return 1 + the last index
         return True
 
+def like_msg(cid: str, uuid: str, mid: int) -> bool:
+    convo = open_convo(cid)
+
+    if convo and usr_in_convo(uuid, cid) and len(convo) > mid:
+        likers = convo[mid, 'likers']
+        if uuid not in likers:
+            likers.append(uuid)
+            convo[mid, 'likers'] = likers
+            return True
+
 
 def read_msgs(cid: str, start: int, end: int | None) -> [str]:
     """Read all messages from start index to end index, inclusive."""
     convo = open_convo(cid)
     if end and len(convo) <= end:
         return []  # Since having nothing is nonsensical, this should be interpreted as an error
-    for (mid, msg) in convo:
-        print(msg)
-    return [convo[i].sanitize() for i in range(start, len(convo) if not end else 1 + end)]
+    return [convo[i].sanitize(i) for i in range(start, len(convo) if not end else 1 + end)]
 
 opencids = {}
 
@@ -251,4 +259,4 @@ async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
     msg = Message(text=msg.text,
                   reply_to=msg.reply_to,
                   author=uuid)
-    return await write_msg(cid, msg)
+    return await write_msg(cid, msg)   

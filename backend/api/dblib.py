@@ -84,7 +84,11 @@ class db:
         if isinstance(key, int):
             if key < 0:
                 key = len(self) - key
-            key = str(key)
+            return str(key)
+        elif isinstance(key, tuple) and isinstance(key[0], int):
+            if key[0] < 0:
+                key[0] = len(self) - key[0]
+            return (str(key[0]), key[1])
         return key
 
     def _serialize(self, obj):
@@ -101,8 +105,9 @@ class db:
     def __setitem__(self, key: str, value):
         """Simplified Writing To Disk"""
         txn = self.env.begin(db=self.db, write=True)  # write to disk
+        key = self._fixintindex(key)
+        
         if not isinstance(key, tuple):
-            key = self._fixintindex(key)
             if isinstance(key, str):
                 key = bytes(key, 'utf-8')
             if self.schema:

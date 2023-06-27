@@ -6,7 +6,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
-    import { Message, type User, sendMessage, getConvoInfo, getMessages} from '$lib/convo';
+    import { Message, type User, sendMessage, getConvoInfo, getMessages, likeMsg} from '$lib/convo';
     import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
 
     let feed: HTMLElement;
@@ -39,6 +39,7 @@
             feed.style.minHeight = calculateHeight().toString()+"px";
         } catch {
             // Real men don't solve their problems
+            // lol. Johnathan too funny.
         }
     });
 
@@ -55,7 +56,13 @@
         height: 'h-2/3',
 	      padding: 'p-4',
         position: 'bottom',
-        meta: { msgs: [], users: users, mid: mid, reply: reply},
+        meta: { 
+            msgs: [],
+            users: users,
+            mid: mid,
+            reply: reply,
+            like: like
+        },
 	      rounded: 'rounded-xl'
     };
 
@@ -70,7 +77,8 @@
     }
 
     async function like(m: number) {
-        
+        await likeMsg($userDataStore.cid, m);
+        setTimeout(updateLog, 1000);
     }
 
     
@@ -152,7 +160,11 @@
                             {#if i < 3}
                                 <!-- This is how we make it mini -->
                                 <div class="w-9/12 mx-auto align-center">
-                                    <KPost src={(messages[reply].author === $userDataStore.name)? $userDataStore.photo: users[messages[reply].author].photo} msg={messages[reply]} isReply={true} />
+                                    <KPost src={(messages[reply].author === $userDataStore.name)? $userDataStore.photo: users[messages[reply].author].photo}
+                                           msg={messages[reply]} 
+                                           isReply={true} 
+                                           like={() => {like(reply)}}
+                                        />
                                 </div>
                             {/if}
                         {/each}

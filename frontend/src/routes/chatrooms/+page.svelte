@@ -7,24 +7,24 @@
   import { joinConvo, makeConvo } from '$lib/convo';
 
   var chatName: string = "", chatPwd: string = "";
+  var chatrooms: string[] = [];
+  var updateInterval: number; // setInterval type is number
 
+  
   async function updateChats() {
     // @ts-ignore
     chatrooms = (await get('chats')).data.chatrooms;
     console.log(chatrooms);
   };
 
-
-  var chatrooms: string[] = [];
-  var updateInterval: number; // setInterval type is number
+    
+      
   onMount( async function() {
     if (!$userDataStore.token) {
       goto('/login');
     }
     updateChats();
-    updateInterval = setInterval(async function() {
-      await updateChats();
-    }, 5000);
+    updateInterval = setInterval(updateChats, 5000);
   });
 
   async function join(room: string) {
@@ -33,7 +33,7 @@
     } // No need to handle error, because it's handled in joinConvo()
   }
 
-  async function makeChatroom(chatName, chatPwd) {
+  async function makeChatroom(chatName: string, chatPwd: string) {
     return await makeConvo(chatName, chatPwd, true)
   }
 

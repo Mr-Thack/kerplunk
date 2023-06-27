@@ -60,7 +60,7 @@
           <KPost 
             msg={msg} 
             src={(msg.author == $userDataStore.name)? $userDataStore.photo: $drawerStore.meta.users[msg.author].photo}
-            like={() => {}} 
+            like={() => $drawerStore.meta.like(msg.mid)} 
             isReply={true} />
         </div>
       {/each}

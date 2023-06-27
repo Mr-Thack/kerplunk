@@ -45,13 +45,17 @@ export class Message {
   replyTo: Integer;
   time: string;
   replies: Array<Integer>;
-    
-  public constructor(data: {text: string, author: string, replyTo: number, time: string, replies: Array<Number>}) {
+  likes: number;
+  mid: number;
+  
+  public constructor(data: {text: string, author: string, replyTo: number, time: string, replies: Array<Number>, likes: number, mid:number}) {
     this.text = data.text;
     this.author = data.author;
     this.replyTo = data.reply_to;
     this.time = data.time;
     this.replies = data.replies;
+    this.likes = data.likes;
+    this.mid = mid;
   }
 
   public humanTime(): string {
@@ -167,8 +171,11 @@ export async function makeConvo(name: string, pwd: string, isChatroom: boolean) 
   if (r.error) {
     salert(`ERROR OPENING CONVO: ${r.data}`);
     console.log(r);
-    return false;
-  } else {
-    return true;
   }
+  return r.error;
+}
+
+export async function likeMsg(cid: string, mid: number) : Promise<boolean> {
+  const r = await patch(`convos/${cid}/${mid}`, {}, {}, userDataStore.readonce('token'))
+  return r.data;
 }

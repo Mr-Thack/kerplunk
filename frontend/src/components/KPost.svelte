@@ -5,14 +5,13 @@
     text: string;
     elapsedTime: () => string;
     replies: Array<Number>;
+    likes: number;
   }
   export let src: string;
   export let isReply = false;
   export let reply =  () => {};
   export let like = () => {};
 </script>
-
-
 
 
 <div class="card p-4 rounded-tl-none rounded-br-none space-y-2 variant-soft grid gap-2 text-left mx-auto w-6/12">
@@ -25,7 +24,7 @@
   </header>
   <p>{msg.text}</p>
   <footer class="flex flex-row place-content-evenly">
-    <span class="chip variant-filled-error hover:variant-filled" on:click={() => like()} >Likes</span>
+    <span class="chip variant-filled-error hover:variant-filled" on:click={() => like()} >{msg.likes} Likes</span>
     {#if !isReply}
       <span class="chip variant-filled-secondary hover:variant-filled text-center" on:click={() => reply()}>Replies</span>
     {/if}
