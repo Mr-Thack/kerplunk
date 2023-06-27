@@ -7,6 +7,15 @@
   import getSettings from '$lib/settings';
   
   let classes: Array<Class> =  [];
+  let classroomList:HTMLElement;
+
+  window.addEventListener('resize', () => {
+        try {
+          classroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+    });
 
   async function updateClasses() {
     // @ts-ignore
@@ -28,6 +37,7 @@
 
   var updateInterval: number; // setInterval type is number
   onMount( async function() {
+    classroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
     if (!$userDataStore.token) {
       goto('/login');
     }
@@ -69,7 +79,7 @@
   });
 
 </script>
-<div class="max-h-[calc(100vh-134px)] m-4 overflow-auto">
+<div bind:this={classroomList} class="m-4 overflow-auto">
   <button class='btn mb-10 text-center variant-filled' on:click={promptRoom}>Make Your Own!</button>
   <h1 class="h1 text-center mb-5">Your Classes:</h1>
 

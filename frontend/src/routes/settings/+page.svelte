@@ -21,8 +21,18 @@
     const accents = ["red", "orange", "yellow", "green", "blue", "purple"];
     const themes = ["dark", "light"];
     const tabs = ["General", "Appearance", "Password", "Delete"];
+    let settings:HTMLElement;
+
+    window.addEventListener('resize', () => {
+        try {
+            settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+    });
     
     onMount(async () => {
+        settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
         var rez = await getSettings(["theme", 'accent']);
         if (rez !== undefined && !rez.error) {
             // @ts-ignore
@@ -251,7 +261,7 @@
             <Tab bind:group={tabSet} name={tab} value={i} on:click={(!i)? loadGeneralInfo : null}>{tab}</Tab>
         {/each}
         <svelte:fragment slot="panel">
-            <div class="max-h-[calc(100vh-221px)] max-w-[calc(100vw-2rem)] lg:max-h-[calc(100vh-135px)] overflow-auto">
+            <div bind:this={settings} class="max-w-[calc(100vw-2rem)] lg:max-h-[calc(100vh-135px)] overflow-auto">
                 {#if tabSet === 0}
                     {#if photoData}
                         <Avatar id="photo-settings" src={photoData} width="w-20 lg:w-40" rounded="rounded-full" class="mx-auto"/>

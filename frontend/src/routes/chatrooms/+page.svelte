@@ -7,6 +7,15 @@
   import { joinConvo, makeConvo } from '$lib/convo';
 
   var chatName: string = "", chatPwd: string = "";
+  let chatroomList:HTMLElement;
+
+  window.addEventListener('resize', () => {
+        try {
+          chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
+        } catch {
+            // Real men don't solve their problems
+        }
+    });
 
   async function updateChats() {
     // @ts-ignore
@@ -18,6 +27,7 @@
   var chatrooms: string[] = [];
   var updateInterval: number; // setInterval type is number
   onMount( async function() {
+    chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
     if (!$userDataStore.token) {
       goto('/login');
     }
@@ -68,7 +78,7 @@
   });
 
 </script>
-<div class="max-h-[calc(100vh-134px)] m-4 overflow-auto">
+<div bind:this={chatroomList} class="m-4 overflow-auto">
   <button class='btn mb-10 text-center variant-filled' on:click={promptRoom}>Make Your Own!</button>
   <h1 class="h1 text-center mb-5">Chatrooms:</h1>
   
