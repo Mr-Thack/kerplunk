@@ -24,7 +24,10 @@
   </header>
   <p>{msg.text}</p>
   <footer class="flex flex-row place-content-evenly">
-    <span class="chip variant-filled-error hover:variant-filled" on:click={() => like()} >{msg.likes} Likes</span>
+    <span class="chip variant-filled-error hover:variant-filled" on:click={() => like()} >
+      <p> {msg.likes} </p> 
+      <span class="material-symbols-outlined"> favorite </span>
+    </span>
     {#if !isReply}
       <span class="chip variant-filled-secondary hover:variant-filled text-center" on:click={() => reply()}>Replies</span>
     {/if}

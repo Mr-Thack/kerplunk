@@ -146,19 +146,29 @@ export function subscribeEventStream(cid: string, fn: (m:Message) => void | Prom
 }
 
 
-export async function joinConvo(room: string) : Promise<boolean> {
-  const r = await patch('convos', {}, {'name': room}, userDataStore.readonce('token'));
+export async function joinChat(room: string, pwd: string = '') : Promise<boolean> {
+  const r = await patch('chats', {}, {'name': room, 'pwd': pwd}, userDataStore.readonce('token'));
   if (r.error) {
     salert(`JOIN ERROR: ${r.data}`);
     console.log(r);
-    return false;
   } else {
     // @ts-ignore
     userDataStore.write('cid', r.data.cid);
-    return true;
   }
+  return !r.error;
 }
 
+export async function joinClass(code: string) : Promise<boolean> {
+  const r = await patch('classes', {}, {'code': code}, userDataStore.readonce('token'));
+  if (r.error) {
+    salert(`JOIN ERROR: ${r.data}`);
+    console.log(r);
+  } else {
+    // @ts-ignore
+    userDataStore.write('cid', r.data.cid);
+  }
+  return !r.error;
+}
 
 export async function makeConvo(name: string, pwd: string, isChatroom: boolean) : Promise<boolean> {
   const data = {
@@ -172,7 +182,7 @@ export async function makeConvo(name: string, pwd: string, isChatroom: boolean) 
     salert(`ERROR OPENING CONVO: ${r.data}`);
     console.log(r);
   }
-  return r.error;
+  return !r.error;
 }
 
 export async function likeMsg(cid: string, mid: number) : Promise<boolean> {

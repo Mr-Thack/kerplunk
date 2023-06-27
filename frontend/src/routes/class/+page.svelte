@@ -88,6 +88,7 @@
         for (const msg of messages[m].replies) {
             drawerReplies.meta.msgs.push(messages[msg]);
         }
+        drawerReplies.meta.users = users;
         drawerReplies.meta.mid = m;
         drawerStore.open(drawerReplies);
     }

@@ -37,5 +37,5 @@
     name="prompt"
     placeholder="Message Here..."
     rows="1" />
-  <button class="variant-filled-primary material-symbols-outlined h-100" on:click={(e) => {onclick(value); value="";}}>send</button>
+  <button class="variant-filled-primary material-symbols-outlined h-100" on:click={() => {onclick(value); value="";}}>send</button>
 </div>

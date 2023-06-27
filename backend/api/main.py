@@ -10,8 +10,8 @@ from auth import (login_user, start_signup_user, finish_signup_user,
 from schools import start_register_school, finish_register_school, list_all_schools, retrieve_school
 from users import multi_get, multi_set, valid_keys, valid_fields
 from conversations import (list_chat_rooms, create_convo, InitConvoData,
-                           usr_in_convo, add_user_to_convo, read_msgs, post_msg,
-                           IncMsg, read_msgs_as_stream, get_convo, like_msg)
+                           usr_in_convo, add_user_to_chatroom, add_user_to_classroom, 
+                           read_msgs, post_msg, IncMsg, read_msgs_as_stream, get_convo, like_msg)
 from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
 from os import path, environ
@@ -158,17 +158,30 @@ def get_conversation(cid: str, uuid: str = Depends(oauth_uuid)):
 @api.post('/convos')
 async def open_conversation(data: InitConvoData,
                         uuid: str = Depends(oauth_uuid)):
-    cid = create_convo(data, uuid)
-    if cid:
-        return {'cid': cid}
+    success = create_convo(data, uuid)
+    if success:
+        return True
     else:
         raise HTTPException(status_code=400, detail='Name already in use.')
 
 
-@api.patch('/convos')
-async def user_join_conversation(name: str, pwd: str | None = None,
+# If we join a chatroom, we need both name and pwd (or no pwd if no pwd)
+@api.patch('/chats')
+async def user_join_chatroom(name: str, pwd: str | None = None,
                                  uuid: str = Depends(oauth_uuid)):
-    data = await add_user_to_convo(uuid, name, pwd)
+    data = await add_user_to_chatroom(uuid, name, pwd)
+    if data:
+        return data
+    else:
+        raise HTTPException(status_code=403,
+                            detail='Invalid conversation name or pwd')
+
+
+# If we join a chatroom, we need both name and pwd (or no pwd if no pwd)
+@api.patch('/classes')
+async def user_join_classroom(code: str | None = None,
+                              uuid: str = Depends(oauth_uuid)):
+    data = await add_user_to_classroom(uuid, code)
     if data:
         return data
     else:

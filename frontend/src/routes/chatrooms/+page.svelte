@@ -4,7 +4,7 @@
   import { onDestroy, onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { salert, askbool, proompt } from '$library/alerts';
-  import { joinConvo, makeConvo } from '$lib/convo';
+  import { joinChat, makeConvo } from '$lib/convo';
 
   var chatName: string = "", chatPwd: string = "";
   var chatrooms: string[] = [];
@@ -38,9 +38,9 @@
   });
 
   async function join(room: string) {
-    if (await joinConvo(room)) {
+    if (await joinChat(room)) {
       goto('/chat');
-    } // No need to handle error, because it's handled in joinConvo()
+    }
   }
 
   async function makeChatroom(chatName: string, chatPwd: string) {

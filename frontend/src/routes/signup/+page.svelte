@@ -4,16 +4,15 @@
 	import { goto } from '$app/navigation';
 	import { get, post } from '$lib/endpoint';
 	import { checkCredentials } from '$lib/auth';
-	import { userDataStore } from '$lib/stores';
 	import { salert } from '$lib/alerts';
 	import { onMount, onDestroy } from 'svelte';
 	import isValidEmail from "$lib/email";
-	import { dev, browser } from '$app/environment';
+	import { dev } from '$app/environment';
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
-	let password:HTMLElement, repeatPassword:HTMLElement, fname = '', lname = '', email = '',
-		  school = '', schid = -1, isStudent = false, signupcode = '';
+	let fname = '', lname = '', email = '',
+		  pwd = '', repPwd = '', school = '', schid = -1, isStudent = false, signupcode = '';
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
@@ -35,74 +34,16 @@
 		buttonTextCancel: 'OK'
 	}
 
-    var passwordScoreText:HTMLElement, passwordScoreColor:string, passwordScore:number = 0,
-    passwordMatch:HTMLElement, passwordBtnState:boolean = true, passStep:boolean = false;
+  var pwdScoreText = '', pwdScoreColor = '', pwdScore:number = 0,
+  pwdMatch = '', passStep = false;
 
-	$: {
-        if (password) {
-            password.addEventListener('input', () => {
-                if (password.value) {
-                    let score = zxcvbn(password.value).score + 1;
-                    let passwordMatches = password.value === repeatPassword.value
-                    passwordScore = score;
-                    if (score === 1) {
-                        passwordScoreColor = "bg-error-900";
-                        passwordScoreText.innerHTML = "Poor";
-                    } else if (score === 2) {
-                        passwordScoreColor = "bg-error-900";
-                        passwordScoreText.innerHTML = "Bad"; 
-                    } else if (score === 3) {
-                        passwordScoreColor = "bg-warning-900";
-                        passwordScoreText.innerHTML = "Ok"; 
-                    } else if (score === 4) {
-                        passwordScoreColor = "bg-success-900";
-                        passwordScoreText.innerHTML = "Good"; 
-                    } else {
-                        passwordScoreColor = "bg-success-900";
-                        passwordScoreText.innerHTML = "Great";
-                    }
-                    if (passwordMatches) {
-                        passwordMatch.innerHTML = "✔"
-                    } else {
-                        passwordMatch.innerHTML = "✖"
-                    }
-                    if (score >= 4 && passwordMatches) {
-                        passStep = true;
-                    } else {
-                        passStep = false;
-                    }
-                } else {
-                    passwordScore = 0;
-                    passwordScoreText.innerHTML = "";
-                    passwordMatch.innerHTML = ""
-                }
-            });
-            repeatPassword.addEventListener('input', () => {
-                if (password.value) {
-                    let score = zxcvbn(password.value).score + 1;
-                    let passwordMatches = password.value === repeatPassword.value
-                    if (passwordMatches) {
-                        passwordMatch.innerHTML = "✔"
-                    } else {
-                        passwordMatch.innerHTML = "✖"
-                    }
-                    if (score >= 4 && passwordMatches) {
-                        passStep = true;
-                    } else {
-                        passStep = false;
-                    }
-                }
-            });
-        }
-    
-    }
-
+	
 	function checkUserDetails()
 	{
 		// source: https://stackoverflow.com/questions/201323/how-can-i-validate-an-email-address-using-a-regular-expression
 		let isEmailGood = isValidEmail(email);
-		let doesPasswordMatch = password.value === repeatPassword.value;
-		let score = zxcvbn(password.value).score + 1;
+		let doesPasswordMatch = pwd === repPwd;
+		let score = zxcvbn(pwd).score + 1;
 		let isScoreGood = score >= MINREQ
 		// ZXCVBN normally returns on scale 0-4, add 1 to get scale 1-5
 
@@ -137,7 +78,7 @@
 			modalStore.trigger(failureSignupModal);
 		} else {
 			// Now, we'll sign the user up, login, and then redirect them to home
-			await checkCredentials(email, password.value);
+			await checkCredentials(email, pwd);
 			modalStore.trigger(successSignupModal);
 		}
 	}
@@ -147,7 +88,7 @@
 		const rez = await post('signup', {
 			'fname': fname,
 			'lname': lname,
-			'pwd': password.value,
+			'pwd': pwd,
 			'email': email,
 			'schid': schid,
 			'student': isStudent
@@ -187,18 +128,38 @@
 		}
 	}
 
-	if (browser) {
-		onMount(async function() {
-			await focusHandler(); // Just run it once
-			document.addEventListener("visibilitychange", focusHandler);
-		})
-
-		onDestroy(() => {
-			document.removeEventListener("visibilitychange", focusHandler);
-		});
+	function pwdCheck() {
+		if (pwd) {
+			pwdScore = zxcvbn(pwd).score + 1;
+			let options = [
+				['bg-error-900', 'Poor'],
+				['bg-warning-900', 'OK'],
+				['bg-warning-900', 'OK'],
+				['bg-success-900', 'Good'],
+				['bg-success-900', 'Great']
+			];
+			pwdScoreColor = options[pwdScore-1][0];
+			pwdScoreText = options[pwdScore-1][1];
+			let pwdMatches = pwd === repPwd;
+			pwdMatch = pwdMatches? "✔": "✖";
+			passStep = pwdScore >= 4 && pwdMatches;
+		} else {
+			pwdScore = 0;
+			pwdScoreText = "";
+			pwdMatch = "";
+		}
 	}
+	
+	onMount(async function() {
+		await focusHandler(); // Just run it once
+		document.addEventListener("visibilitychange", focusHandler);
+	})
 
-	function onSchoolSelection(event: any): void {
+	onDestroy(() => {
+		document.removeEventListener("visibilitychange", focusHandler);
+	});
+
+	function onSchoolSelection(event: any) {
 		schid = event.detail.value; // school id
 	}
 
@@ -255,15 +216,15 @@
 				<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Last Name" type='text' bind:value={lname} placeholder='Your Last Name' />
 			</div>
 			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' bind:value={email} placeholder='Your Email' />
-			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Password" type='password' bind:this={password} placeholder='Your Password' />
+			<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Password" type='password' bind:value={pwd} on:input={pwdCheck} placeholder='Your Password' />
 			<div class="flex justify-center">
-				<ProgressBar label="Password Score" class="m-2 w-[50vw]" meter={passwordScoreColor} value={passwordScore} max={5} />
-				<p class="p"bind:this={passwordScoreText}></p>
+				<ProgressBar label="Password Score" class="m-2 w-[50vw]" meter={pwdScoreColor} bind:value={pwdScore} max={5} />
+				<p class="p">{pwdScoreText}</p>
 			</div>
 			<div class="input-group input-group-divider grid-cols-[1fr_auto] m-2 lg:m-4 w-fill-available moz-available">
-				<input id="repeat-password" bind:this={repeatPassword} class="input text-xs h-8 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat Password' />
+				<input id="repeat-password" bind:value={repPwd} on:input={pwdCheck} class="input text-xs h-8 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat Password' />
 				<a>
-					<p class="my-auto text-xl" bind:this={passwordMatch}></p>
+					<p class="my-auto text-xl">{pwdMatch}</p>
 				</a>
 			</div>
 		</Step>

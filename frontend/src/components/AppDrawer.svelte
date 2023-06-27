@@ -56,13 +56,12 @@
     <KTextArea sendOnEnter={false} onclick={async (text) => {await $drawerStore.meta.reply(text, $drawerStore.meta.mid)}} />
     
     <div class="flex flex-col-reverse overflow-auto-y">
-    
       {#each $drawerStore.meta.msgs as msg}
         <div class="my-4">
           <KPost 
             msg={msg} 
-            src={(msg.author == $userDataStore.name)? $userDataStore.photo: $drawerStore.meta.users[msg.author].photo}
-            like={() => $drawerStore.meta.like(msg.mid)} 
+            src={$drawerStore.meta.users[msg.author].photo}
+            like={async () => await $drawerStore.meta.like(msg.mid)} 
             isReply={true} />
         </div>
       {/each}

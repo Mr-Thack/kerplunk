@@ -1,3 +1,4 @@
+from mail import gen_code
 from users import get_field, set_field
 from pydantic import BaseModel
 from dataclasses import dataclass, field
@@ -67,6 +68,7 @@ class Message():
             'replies': self.replies,
             'likes': len(self.likers)
         }
+
 """
 In the conversation environement, we'll have a subdatabase for each conversation.
 This one will hold the info on all the conversations, but not the actualy messages,
@@ -102,27 +104,28 @@ def add_convo_to_user_data(uuid: str, cid: str):
         set_field(uuid, 'convos', user_convos)
     
 
-def create_convo(data: InitConvoData, owner: str):
+def create_convo(data: InitConvoData, owner: str) -> str:
     # We take owner as a UUID str
     if not is_name_taken(data.name):
         cid = token_urlsafe(32)
+        if not data.chatroom:
+            data.pwd = gen_code()
         new_convo = Convo(owner=owner, **data.__dict__)
         convos[cid] = new_convo  # Write info to the db
         convo_data = open_convo(cid)  # Open a fresh new one
 
         add_convo_to_user_data(owner, cid)
         
-        text: str
         if data.chatroom:
-            text = f"User {get_field(owner, 'name')} has created chatroom {new_convo.name}!"
+            convo_data[0] = Message(text=f"User {get_field(owner, 'name')} has created chatroom {new_convo.name}!", author='SYSTEM')
         else:
-            text = f"Welcome to {new_convo.name}!"
+            convo_data[0] = Message(text=f"Welcome to {new_convo.name}!", author='SYSTEM')
+            convo_data[1] = Message(text=f"The join code is {data.pwd}. This can also be found in the settings of this classroom on the top right.", author='SYSTEM')
             
-        convo_data[0] = Message(text=text, author='SYSTEM')
         return cid
 
 
-async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | None:
+async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | None:
     cid = None
     for curcid, convo in convos:
         if convo.name == name:
@@ -150,6 +153,42 @@ async def add_user_to_convo(uuid: str, name: str, pwd: str | None) -> dict | Non
                               author='SYSTEM')
                               # [NOTE]: 'SYSTEM' messages
                 await write_msg(cid, msg)  # write to db
+        return {
+            'cid': cid,
+            'owner': get_field(convo.owner, 'name'),
+            'users': [get_field(user, 'name') for user in convo.users]
+        }
+
+
+
+
+async def add_user_to_classroom(uuid: str, pwd: str | None) -> dict | None:
+    cid = None
+    for curcid, convo in convos:
+        if convo.pwd == pwd:
+            cid = curcid
+
+    if not cid:
+        return
+
+    convo = convos[cid]  # Instead of accessing the dict over and over again, we're gonna do this
+    # If this UUID isn't recognized
+    if uuid not in convo.users or uuid == convo.owner:       
+        # Add this convo to the user's list
+        add_convo_to_user_data(uuid, cid)
+            
+        # Add this user to the convo's list
+        convo.users.append(uuid)
+        convos[cid] = convo  # In the previous line, we only updated our copy in memory
+        # This line puts it back into the dict and then the db
+            
+        name = get_field(uuid, 'name')
+        if convo.chatroom:
+            msg = Message(text=f"{name} has joined the chat!",
+                          author='SYSTEM')
+            # [NOTE]: 'SYSTEM' messages
+            await write_msg(cid, msg)  # write to db
+
         return {
             'cid': cid,
             'owner': get_field(convo.owner, 'name'),
@@ -247,7 +286,7 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
         msg = await event.get(eid)
         yield {
             "event": "message",
-            "data": dumps(msg.sanitize())
+            "data": dumps(msg)
         }
             
     event.unsub(eid)
