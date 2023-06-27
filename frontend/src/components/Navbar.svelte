@@ -76,8 +76,7 @@
       // Why hide signup?
       removePages(navs, [
         '/chatrooms',
-        '/classrooms',
-        $page.url.pathname === "/login/"? '/signup':''
+        '/classrooms'
       ])
     }
     navs = navs;

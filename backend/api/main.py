@@ -119,7 +119,7 @@ def retrive_a_school(schid: int, uuid = Depends(oauth_uuid)):
 
 @api.post('/login')
 async def login(req: Request, fd: OAuth2PasswordRequestForm = Depends()):
-    token = login_user(fd.username, fd.password, req.client.host)
+    token = login_user(fd.username.lower(), fd.password, req.client.host)
     if not token:
         raise HTTPException(status_code=401,
                             detail='Incorrect email or password')

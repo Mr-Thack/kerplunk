@@ -5,6 +5,8 @@
   import { userDataStore } from '$lib/stores';
   import KPost from '$components/KPost.svelte';
   import KTextArea from '$components/KTextArea.svelte';
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
   function openSettings() {
     goto("/settings")
