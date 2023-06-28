@@ -108,16 +108,18 @@ def get_user_sid(user: User):
     r = client.post('/api/login', data=con).json()
     return r['access_token']
 
-def join_convo(user: User, convo: Convo):
-    return client.patch('/api/convos', params={
-        'name': convo.name
+def join_chat(user: User, convo: Convo):
+    return client.patch('/api/chats', params={
+        'name': convo.name,
+        'pwd': convo.pwd
     }, headers=genhed(user))
 
 def get_msgs(user: User, convo: Convo):
     baseuri = f'/api/convos/{convo.cid}'
     user.chat_log = client.get(baseuri, params={
         'start': 0
-    }, headers=genhed(user)).json()
+    }, headers=genhed(user))
+    user.chat_log = user.chat_log.json()
 
 def post_msg(user: User, convo: Convo, msg: str, reply_to: int = None):
     baseuri = f'/api/convos/{convo.cid}'
@@ -266,9 +268,9 @@ class Test030_Convos(unittest.TestCase):
             'chatroom': chat.chatroom,
             'public': True
         }
-        r = client.post('/api/convos', json=js, headers=genhed(user1)).json()
-        self.assertIn('cid', r)
-        chat.cid = r['cid']
+        r = client.post('/api/convos', json=js, headers=genhed(user1))
+        self.assertEqual(r.status_code, 200)
+
 
     def test020_list_chat_rooms(self):
         """Check if API returns correct list of chat rooms"""
@@ -276,20 +278,21 @@ class Test030_Convos(unittest.TestCase):
         # And no parameters required
         r = client.get('/api/chats').json()
         self.assertEqual(r['chatrooms'], [convos[0].name])
+        
 
     def test030_first_user_join_chat(self):
         """Check what data is being given back from the
         first time a user joins the chat"""
         chat: Convo = convos[0]
-        r = join_convo(user1, chat)
+        r = join_chat(user1, chat)
         self.assertEqual(r.status_code, 200)
 
         r = r.json()
         self.assertEqual(r['owner'], user1.name())
-        self.assertEqual(r['cid'], chat.cid)
         self.assertListEqual(r['users'], [user1.name()])
         chat.owner = r['owner']
         chat.pwd = ''
+        chat.cid = r['cid']
         # Now we'll connect to the websocket port and get our messages so far
         # join_wschat(user1, chat)
         # self.assertTrue(user1.chat_log)
@@ -312,7 +315,7 @@ class Test030_Convos(unittest.TestCase):
     def test050_2nd_user_join_chat(self):
         """Check if users other than the owner can join"""
         chat: Chat = convos[0]
-        r = join_convo(user2, chat).json()
+        r = join_chat(user2, chat).json()
         self.assertEqual(r['users'], [user1.name(), user2.name()])
 
     def test060_2nd_user_send_and_recv_msg(self):
@@ -331,13 +334,15 @@ class Test030_Convos(unittest.TestCase):
 
 
 # Clear data directory
-print("Clearing Data")
-rmtree('../data/')
-mkdir('../data/')
+if __name__ == '__main__':
+    print("Clearing Data")
+    rmtree('../data/')
+    print("Data Cleared")
+    mkdir('../data/')
     
-mail.isTesting = True
-mail.fm.config.SUPPRESS_SEND = 1
+    mail.isTesting = True
+    mail.fm.config.SUPPRESS_SEND = 1
 
-client = TestClient(app)
+    client = TestClient(app)
 
-unittest.main()
+    unittest.main()
