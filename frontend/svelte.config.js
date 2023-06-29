@@ -21,10 +21,7 @@ const config = {
 			fallback: null,
 			precompress: false,
 			strict: true
-		}),
-		paths: {
-			base: process.env.NODE_ENV === 'production' ? '/github-pages' : ''
-		}
+		})
 	}
 };
 export default config;
