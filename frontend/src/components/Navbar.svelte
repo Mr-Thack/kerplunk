@@ -6,7 +6,8 @@
   import getSettings from '$lib/settings';
 	import { salert } from '$library/alerts';
   import { getSchool } from '$lib/schools';
-
+  import { base } from '$app/paths';
+  
   var isLoggedIn = false;
   // I wanted to have this isLoggedIn function in $lib/auth, but it's not playing nice with Svelte Stores
 
@@ -109,12 +110,12 @@
 <AppRail class="w-auto h-auto hidden lg:block">
   <svelte:fragment slot="lead">
     <!-- If you're logged in, we want you to go to home instead of the front page -->
-    <AppRailAnchor href={isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
+    <AppRailAnchor href={base + isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
       <img src={"/icon_"+accent+".png"} alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
   {#each navs as nav}
-    <AppRailAnchor id={nav.icon} href={nav.url} selected={$page.url.pathname === nav.url + "/" || $page.url.pathname === nav.alturl + "/"}>
+    <AppRailAnchor id={nav.icon} href={base + nav.url} selected={$page.url.pathname === base + nav.url + "/" || $page.url.pathname === base + nav.alturl + "/"}>
       <svelte:fragment slot="lead">
         <span class="material-symbols-outlined">
           {nav.icon}

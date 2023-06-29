@@ -8,6 +8,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import isValidEmail from "$lib/email";
 	import { dev } from '$app/environment';
+	import { base } from '$app/paths';
 	// We just need to initialize them to avoid errors
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
@@ -233,7 +234,7 @@
 
 			{#if !isStudent}
 				<!-- We want to open a new tab (_blank) so that they can return to the one -->
-				<a class="btn variant-filled-error text-sm lg:text-base h-8 lg:h-10 text-center mx-auto" href={dev? "/register":"/register.html"} target="_blank">
+				<a class="btn variant-filled-error text-sm lg:text-base h-8 lg:h-10 text-center mx-auto" href={base + (dev? "/register":"/register.html")} target="_blank">
 					Don't see your school here?
 				</a>
 			{/if}

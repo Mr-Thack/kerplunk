@@ -5,6 +5,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
+    import { base } from '$app/paths';
     import { Message, type Users, sendMessage, 
         getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
     import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
@@ -58,15 +59,6 @@
         return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox)
     }
 
-    window.addEventListener('resize', () => {
-        try {
-            chatbox.style.maxHeight = calculateHeight().toString()+"px";
-            chatbox.style.minHeight = calculateHeight().toString()+"px";
-        } catch {
-            // Real men don't solve their problems
-        }
-    });
-
     onMount(async () => {
         chatbox.style.maxHeight = calculateHeight().toString()+"px";
         chatbox.style.minHeight = calculateHeight().toString()+"px";
@@ -94,12 +86,21 @@
             messages = [...messages, m];
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
+
+        window.addEventListener('resize', () => {
+            try {
+                chatbox.style.maxHeight = calculateHeight().toString()+"px";
+                chatbox.style.minHeight = calculateHeight().toString()+"px";
+            } catch {
+                // Real men don't solve their problems
+            }
+        });
     })
     
 </script>
 <div class="flex flex-col overflow-hidden px-4 lg:pl-0">
     <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
-        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/chatrooms">arrow_back_ios</a>
+        <a class="btn-icon material-symbols-outlined w-8 h-8" href="{base}/chatrooms">arrow_back_ios</a>
         <h3 class="h3 px-2 my-auto">{chatName? chatName: 'Loading...'}</h3>
         <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
     </div>

@@ -6,6 +6,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
+    import { base } from '$app/paths';
     import { Message, type User, sendMessage, getConvoInfo, getMessages, likeMsg} from '$lib/convo';
     import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
 
@@ -138,7 +139,7 @@
 </script>
 <div class="flex flex-col max-h-screen overflow-hidden px-4 lg:pl-0">
     <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
-        <a class="btn-icon material-symbols-outlined w-8 h-8" href="/classrooms">arrow_back_ios</a>
+        <a class="btn-icon material-symbols-outlined w-8 h-8" href="{base}/classrooms">arrow_back_ios</a>
         <h3 class="h3 px-2 my-auto">{className? 'Classroom ' + className: 'Loading...'}</h3>
         <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
     </div>

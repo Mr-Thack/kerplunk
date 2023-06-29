@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
 	import { getThemeAndAccent } from '$library/theming';
-	
+	import { base } from '$app/paths';	
 	var email = "", pwd = "";
 	
  	async function sendLogin() {
@@ -33,7 +33,7 @@
 			<!-- We have to do it twice bcz Svelte can't handle one {} doing both, also we only check passwd.len in 2nd bc it has priority-->
 			<button type="button" class="btn variant-filled-primary text-sm lg:text-base h-8 lg:h-10" disabled={!(email && pwd)} on:click={sendLogin}>Log In!</button>
 			
-			<a href='/reset' class="btn variant-filled-secondary text-sm lg:text-base h-8 lg:h-10">Forgot Your Password?</a>
+			<a href='{base}/reset' class="btn variant-filled-secondary text-sm lg:text-base h-8 lg:h-10">Forgot Your Password?</a>
 			
 		</footer>
 	</div>

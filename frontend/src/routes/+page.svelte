@@ -1,4 +1,8 @@
-<img src={"/icon_red_cropped.png"} alt="Kerplunk Logo" class="w-64 mx-auto mt-4 mb-8" />
+<script lang='ts'>
+  import { base } from '$app/paths';
+</script>
+
+<img src={`${base}/icon_red_cropped.png`} alt="Kerplunk Logo" class="w-64 mx-auto mt-4 mb-8" />
 
 <h1 class="h1 mt-8 mb-4">Welcome to Kerplunk!</h1>
 
