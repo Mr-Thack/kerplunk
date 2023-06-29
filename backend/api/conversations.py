@@ -111,11 +111,14 @@ def create_convo(data: InitConvoData, owner: str) -> str:
         if not data.chatroom:
             data.pwd = gen_code()
         new_convo = Convo(owner=owner, **data.__dict__)
-        convos[cid] = new_convo  # Write info to the db
-        convo_data = open_convo(cid)  # Open a fresh new one
-
-        add_convo_to_user_data(owner, cid)
         
+        new_convo.users.append(owner)        
+        add_convo_to_user_data(owner, cid)
+                 
+        convo_data = open_convo(cid)  # Open a fresh new one
+        convos[cid] = new_convo  # Write info to the db
+        
+                
         if data.chatroom:
             convo_data[0] = Message(text=f"User {get_field(owner, 'name')} has created chatroom {new_convo.name}!", author='SYSTEM')
         else:

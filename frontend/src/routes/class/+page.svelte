@@ -157,21 +157,22 @@
                     <SystemMessage msg={msg} />
                     <hr class="border-4 rounded-full drop-shadow-xl" />
                 {:else if !msg.replyTo}
-                        {#each msg.replies as reply, i}
-                            {#if i < 3}
-                                <!-- This is how we make it mini -->
-                                <div class="w-9/12 mx-auto align-center">
-                                    <KPost src={(messages[reply].author === $userDataStore.name)? $userDataStore.photo: users[messages[reply].author].photo}
-                                           msg={messages[reply]} 
-                                           isReply={true} 
-                                           like={() => {like(reply)}}
-                                        />
-                                </div>
-                            {/if}
-                        {/each}
+                    <!-- reply is an int -->
+                    {#each msg.replies as reply, j}
+                        {#if j < 3}
+                            <!-- This is how we make it mini -->
+                            <div class="w-9/12 mx-auto align-center">
+                                <KPost src={users[messages[reply].author].photo}
+                                       msg={messages[reply]} 
+                                       isReply={true}
+                                       like={() => {like(reply)}}
+                                />
+                            </div>
+                        {/if}
+                    {/each}
                     <!-- You'd think this goes before the replies, but no! -->
                     <!-- We use flex-reverse or something to style the container so that they show up in reverse order (so earliest first)-->
-                    <KPost src={(msg.author === $userDataStore.name)? $userDataStore.photo: users[msg.author].photo}
+                    <KPost src={users[msg.author].photo}
                            msg={msg} reply={() => {openReplies(i)}} like={() => {like(i)}} />
                     <hr class="border-4 rounded-full drop-shadow-xl" />
                 {/if}
