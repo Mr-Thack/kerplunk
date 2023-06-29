@@ -10,7 +10,8 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
-		"tauri": "tauri"
+		"tauri": "tauri",
+		"deploy": "npm build && npx gh-pages -d build -t true"
 	},
 	"devDependencies": {
 		"@floating-ui/dom": "^1.4.2",
@@ -26,6 +27,7 @@
 		"eslint": "^8.43.0",
 		"eslint-config-prettier": "^8.8.0",
 		"eslint-plugin-svelte": "^2.31.1",
+		"gh-pages": "^5.0.0",
 		"postcss": "^8.4.24",
 		"prettier": "^2.8.8",
 		"prettier-plugin-svelte": "^2.10.1",
