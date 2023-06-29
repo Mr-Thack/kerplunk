@@ -1,9 +1,19 @@
+import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit()],
-	server: {
-        host: true
-    }
-});
+  plugins: [
+    sveltekit({ hot: !process.env.VITEST }),
+  ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    coverage: {
+        provider: 'istanbul' // or 'v8'
+      },
+      browser: {
+        enabled: true,
+        name: 'chrome', // browser name is required
+      },
+  },
+})
