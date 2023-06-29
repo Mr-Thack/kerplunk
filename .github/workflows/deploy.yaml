@@ -1,8 +1,13 @@
 name: Deploy to GitHub Pages
 
+
+
+
 on:
   push:
-    branches: 'stable'
+    branches: [ "stable" ]
+  pull_request:
+    branches: [ "stable" ]
 
 jobs:
   build_site:
