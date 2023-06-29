@@ -1,6 +1,0 @@
-# syntax=docker/dockerfile:1
-
-FROM node
-WORKDIR /kerplunk/frontend
-EXPOSE 5173
-CMD npm install;npm run dev 
