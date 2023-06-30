@@ -3,6 +3,7 @@
   import { onMount, onDestroy } from "svelte";
   import { goto } from '$app/navigation';
   import getSettings from '$lib/settings';
+  import { base } from '$app/paths';
 
   var accent = 'red';
 
@@ -15,7 +16,7 @@
       // @ts-ignore
       alert(`HOME ERROR: ${rez.data.detail}`);
       if (rez.status === 401) {
-        goto('/login');
+        goto(base + '/login');
       }
     } else {
       // @ts-ignore
@@ -27,7 +28,7 @@
   onDestroy(unsubscribe);
 </script>
 
-<img src={"/icon_"+accent+"_cropped.png"} alt="Kerplunk Logo" class="w-32 lg:w-64 mx-auto mt-4 mb-8" />
+<img src={base + "/icon_"+accent+"_cropped.png"} alt="Kerplunk Logo" class="w-32 lg:w-64 mx-auto mt-4 mb-8" />
 <h1 class="h3 lg:h1 text-center">
   {#if !name}
     Sign In!

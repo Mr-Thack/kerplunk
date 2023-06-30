@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { checkCredentials } from '$lib/auth';
-	import { userDataStore } from '$lib/stores';
   import { goto } from '$app/navigation';
   import { browser } from '$app/environment';
 	import { getThemeAndAccent } from '$library/theming';
@@ -27,7 +26,7 @@
 	  const success = await checkCredentials(email, pwd);
 		if (browser && success) {
 			getThemeAndAccent();
-			goto('/home');
+			goto(base + '/home');
 		}
 	}
 

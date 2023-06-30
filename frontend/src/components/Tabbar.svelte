@@ -75,7 +75,7 @@
       removePages(navs, [
         '/chatrooms',
         '/classrooms',
-        $page.url.pathname === "/login"? '/signup':''
+        ($page.url.pathname === base + "/login")? '/signup':''
       ])
     }
     navs = navs;
@@ -105,7 +105,7 @@
     drawerStore.open(drawerSettings);
   }
 </script>
-<div class="m-4" class:hidden={$page.url.pathname==="/chat/"||$page.url.pathname==="/class/"}>
+<div class="m-4" class:hidden={$page.url.pathname=== base + "/chat/"||$page.url.pathname=== base + "/class/"}>
   <TabGroup 
 	justify="justify-center"
 	active="variant-filled-primary"
@@ -114,12 +114,12 @@
 	rounded=""
 	border=""
 	class="bg-surface-100-800-token w-full block lg:hidden">
-        <!-- If you're logged in, we want you to go to home instead of the front page -->
-        <TabAnchor class="max-w-[94px] transition-all" padding='px-2 py-0'href={base + isLoggedIn? "/home":"/"} selected={$page.url.pathname === '/' || $page.url.pathname === '/home/'}>
-          <img src={"/icon_"+accent+".png"} alt="icon" class="my-1 mx-auto w-14 h-14" />
-        </TabAnchor>
+      <!-- If you're logged in, we want you to go to home instead of the front page -->
+      <TabAnchor class="max-w-[94px] transition-all" padding='px-2 py-0' href={base + (isLoggedIn? "/home":"/")} selected={$page.url.pathname === base + '/' || $page.url.pathname === base + '/home/'}>
+        <img src={base + "/icon_"+accent+".png"} alt="icon" class="my-1 mx-auto w-14 h-14" />
+      </TabAnchor>
       {#each navs as nav}
-        <TabAnchor class="max-w-[94px]" id={nav.icon} href={base + nav.url} selected={$page.url.pathname === nav.url + "/" || $page.url.pathname === nav.alturl + "/"}>
+        <TabAnchor class="max-w-[94px]" id={nav.icon} href={base + nav.url} selected={$page.url.pathname === base + nav.url + "/" || $page.url.pathname === base + nav.alturl + "/"}>
             <span class="material-symbols-outlined">
               {nav.icon}
             </span>
@@ -129,7 +129,7 @@
         </TabAnchor>
       {/each}
       {#if isLoggedIn}
-        <TabAnchor class="max-w-[94px]" on:click={openDrawer} selected={$page.url.pathname === "/settings/"}>
+        <TabAnchor class="max-w-[94px]" on:click={openDrawer} selected={$page.url.pathname === base + "/settings/"}>
             <span class="material-symbols-outlined">
               account_circle
             </span>

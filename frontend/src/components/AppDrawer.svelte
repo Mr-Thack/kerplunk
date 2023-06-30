@@ -6,9 +6,9 @@
   import KPost from '$components/KPost.svelte';
   import KTextArea from '$components/KTextArea.svelte';
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 	import { getConvoInfo } from '$library/convo';
-  
+  import { base } from '$app/paths';
+
   let chatName: string;
 
   window.addEventListener('resize', () => {
@@ -16,7 +16,7 @@
   });
 
   function openSettings() {
-    goto("/settings")
+    goto(base + "/settings")
     drawerStore.close();
   }
 

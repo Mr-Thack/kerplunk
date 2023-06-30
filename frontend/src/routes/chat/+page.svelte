@@ -65,7 +65,7 @@
         chatbox.style.minHeight = calculateHeight().toString()+"px";
         if (!$userDataStore.token) {
             falert('Open a chatroom first!', () => {
-                goto('/chatrooms')
+                goto(base + '/chatrooms')
             });
         }
 

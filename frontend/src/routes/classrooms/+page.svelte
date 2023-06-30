@@ -5,7 +5,8 @@
   import { salert, proompt } from '$library/alerts';
   import { joinClass, makeConvo, getConvoInfo, type Class } from '$lib/convo';
   import getSettings from '$lib/settings';
-  
+  import { base } from '$app/paths';
+    
   let classes: Array<Class> =  [];
   let classroomList:HTMLElement;
 
@@ -37,7 +38,7 @@
   onMount( async function() {
     classroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
     if (!$userDataStore.token) {
-      goto('/login');
+      goto(base + '/login');
     }
     updateClasses();
   });
@@ -48,7 +49,7 @@
     } else {
       salert("Something has gone like really wrong. Go contact an admin about non-existant CID. Error detail: " + cid)
     }
-    goto('/class');
+    goto(base + '/class');
   }
 
   async function joinClassroom() {

@@ -3,7 +3,7 @@ import { userDataStore } from '$lib/stores';
 import { salert } from '$lib/alerts';
 import { dev } from '$app/environment';
 import getSettings from '$lib/settings';
-
+import { base }from '$app/paths';
 
 async function setInfo() {
     const rez = await getSettings(["name", "photo", "schid"]);
@@ -43,5 +43,5 @@ export function logout() {
     // As of now, the backend doesn't actually have a logout function
     // But all we really need to do is wipe the user data and reload
     userDataStore.wipe();
-    window.location.replace(dev? '/':'/index.html');
+    window.location.replace(base + '/');
 }

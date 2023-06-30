@@ -1,8 +1,8 @@
 import getSettings from '$lib/settings';
 import { get, post, patch, endpoint } from '$lib/endpoint';
 import { salert, falert } from '$lib/alerts';
-import { goto } from '$app/navigation';
 import { userDataStore } from '$lib/stores';
+import { dev } from '$app/environment';
 
 export type User  = {
   email: string;
@@ -138,7 +138,7 @@ export async function getMessages(cid: string) : Promise<Array<Message>> {
 }
 
 export function subscribeEventStream(cid: string, fn: (m:Message) => void | Promise<void>, start: number = 0) {
-  const eventStream = new EventSource(`http://${endpoint('stream_convos')}/${cid}?token=${userDataStore.readonce('token')}&start=${start}`)
+  const eventStream = new EventSource(`${dev? "http":"https"}://${endpoint('stream_convos')}/${cid}?token=${userDataStore.readonce('token')}&start=${start}`)
   eventStream.onmessage = function (event) {
     // Promise.resolve() will resolve a promise even if it's not a promise
     Promise.resolve(fn(new Message(JSON.parse(event.data))));

@@ -5,7 +5,8 @@
   import { goto } from '$app/navigation';
   import { salert, askbool, proompt } from '$library/alerts';
   import { joinChat, makeConvo } from '$lib/convo';
-
+  import { base } from '$app/paths';
+  
   var chatName: string = "", chatPwd: string = "";
   var chatrooms: string[] = [];
   var updateInterval: number; // setInterval type is number
@@ -31,7 +32,7 @@
   onMount( async function() {
     chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
     if (!$userDataStore.token) {
-      goto('/login');
+      goto(base + '/login');
     }
     updateChats();
     updateInterval = setInterval(updateChats, 5000);
@@ -39,7 +40,7 @@
 
   async function join(room: string) {
     if (await joinChat(room)) {
-      goto('/chat');
+      goto(base + '/chat');
     }
   }
 

@@ -112,7 +112,7 @@
     onMount(async () => {
         if (!$userDataStore.token) {
             falert('Sign in to a class first!', () => {
-                goto('/classes')
+                goto(base + '/classes')
             });
         }
         const classInfo = await getConvoInfo($userDataStore.cid);

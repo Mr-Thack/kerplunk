@@ -24,7 +24,7 @@
 		title: 'Congrats! You\'ve been signed up!',
 		body: 'Head over to your home page!',
 		buttonTextCancel: 'Yay!',
-		response: () => goto('/home')
+		response: () => goto(base + '/home')
 	}
 
 	// This is shown on failure

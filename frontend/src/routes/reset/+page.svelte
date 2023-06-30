@@ -30,7 +30,7 @@
 					salert("Congrats! The password has been reset!");
 					const success = await checkCredentials(email, pwd);
     			if (browser && success) {
-      			goto('/home');
+      			goto(base + '/home');
     			}
 				}				
 			});
