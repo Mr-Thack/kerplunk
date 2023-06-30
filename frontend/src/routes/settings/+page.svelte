@@ -25,14 +25,22 @@
 
     window.addEventListener('resize', () => {
         try {
-            settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
+            if (window.screen.width <= 1023) {
+                settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
+            } else {
+                settings.style.maxHeight = (window.innerHeight - 135).toString()+"px";
+            }
         } catch {
             // Real men don't solve their problems
         }
     });
     
     onMount(async () => {
-        settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
+        if (window.screen.width <= 1023) {
+            settings.style.maxHeight = (window.innerHeight - 221).toString()+"px";
+        } else {
+            settings.style.maxHeight = (window.innerHeight - 135).toString()+"px";
+        }
         var rez = await getSettings(["theme", 'accent']);
         if (rez !== undefined && !rez.error) {
             // @ts-ignore
@@ -261,7 +269,7 @@
             <Tab bind:group={tabSet} name={tab} value={i} on:click={(!i)? loadGeneralInfo : null}>{tab}</Tab>
         {/each}
         <svelte:fragment slot="panel">
-            <div bind:this={settings} class="max-w-[calc(100vw-2rem)] lg:max-h-[calc(100vh-135px)] overflow-auto">
+            <div bind:this={settings} class="max-w-[calc(100vw-2rem)] overflow-auto">
                 {#if tabSet === 0}
                     {#if photoData}
                         <Avatar id="photo-settings" src={photoData} width="w-20 lg:w-40" rounded="rounded-full" class="mx-auto"/>
@@ -275,10 +283,13 @@
                             Edit Image
                         {/if}
                     </FileButton>
-                    <div class="grid grid-cols-2">
-                        <input id="first-name" class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10 col-start-1" title="First Name" type='text' placeholder='Your First Name' bind:value={firstName} />
-                        <input id="last-name" class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10 col-start-2" title="Last Name" type='text' placeholder='Your Last Name' bind:value={lastName}/>
+                    <div class="grid grid-cols-2 grid-rows-[20px 1fr] mb-1">
+                        <p class="p col-start-1 row-start-1">First Name</p>
+                        <p class="p col-start-2 row-start-1">Last Name</p>
+                        <input id="first-name" class="input col-start-1 row-start-2 m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10 col-start-1" title="First Name" type='text' placeholder='Your First Name' bind:value={firstName} />
+                        <input id="last-name" class="input col-start-2 row-start-2 m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10 col-start-2" title="Last Name" type='text' placeholder='Your Last Name' bind:value={lastName}/>
                     </div>
+                        <p class="p">Email</p>
                         {#if $userDataStore}
                             <input id="email" class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' placeholder='Your Email' bind:value={$userDataStore.email}/>
                         {:else}
@@ -289,7 +300,7 @@
                             <span>Reset</span>
                         </button>
                         <button type="button" class="btn variant-filled-primary mx-8 my-4 text-sm lg:text-base h-8 lg:h-10" on:click={updateGeneral}>
-                            <span>Update Information</span>
+                            <span>Update</span>
                         </button>
                     </div>
                 {:else if tabSet === 1}
@@ -320,12 +331,15 @@
                         </RadioGroup>
                     {/if}
                 {:else if tabSet === 2}
+                    <p class="p">Current Password</p>
                     <input id="current-password" bind:this={curPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Current Password" type='password' placeholder='Current Password' />
+                    <p class="p">New Password</p>
                     <input id="new-password" bind:this={newPwd} class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="New Password" type='password' placeholder='New Password' />
                     <div class="flex justify-center">
                         <ProgressBar label="Password Score" class="m-1 lg:m-2 w-[70vw]" meter={passwordScoreColor} value={passwordScore} max={5} />
                         <p class="p"bind:this={passwordScoreText}></p>
                     </div>
+                    <p class="p">Repeat Password</p>
                     <div class="input-group input-group-divider grid-cols-[1fr_auto] m-2 lg:m-4 w-fill-available moz-available">
                         <input id="repeat-password" bind:this={repPwd} class="input text-xs h-8 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat New Password' />
                         <a>

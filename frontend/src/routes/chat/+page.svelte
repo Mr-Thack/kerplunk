@@ -9,6 +9,7 @@
     import { Message, type Users, sendMessage, 
         getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
     import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
+	import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
     
     async function notificationTest() {
         let permissionGranted = await isPermissionGranted();
@@ -96,13 +97,46 @@
             }
         });
     })
+
+    async function openDrawer() {
+    var drawerChat : DrawerSettings;
+    
+    if (window.innerWidth <= 639) {
+        drawerChat = {
+            id: 'drawerChat',
+            width: 'w-screen',
+            height: 'h-[220px]',
+            padding: 'p-4',
+            rounded: 'rounded-xl',
+            position: 'top'
+        };
+    } else if (window.innerWidth <= 1024) {
+        drawerChat = {
+            id: 'drawerChat',
+            width: 'w-[340px]',
+            height: 'h-full',
+            padding: 'p-4',
+            rounded: 'rounded-xl',
+            position: 'right'
+        };
+    } else {
+        drawerChat = {
+            id: 'drawerChat',
+            width: 'w-[280px] md:w-[480px]',
+            padding: 'p-4',
+            rounded: 'rounded-xl',
+            position: 'right'
+        }
+    }
+    drawerStore.open(drawerChat);
+  }
     
 </script>
 <div class="flex flex-col overflow-hidden px-4 lg:pl-0">
     <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
         <a class="btn-icon material-symbols-outlined w-8 h-8" href="{base}/chatrooms">arrow_back_ios</a>
         <h3 class="h3 px-2 my-auto">{chatName? chatName: 'Loading...'}</h3>
-        <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
+        <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto" on:click={openDrawer}>settings</button>
     </div>
     <section bind:this={chatbox}
         class="p-1 overflow-y-auto space-y-4"

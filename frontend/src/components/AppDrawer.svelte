@@ -7,11 +7,36 @@
   import KTextArea from '$components/KTextArea.svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { getConvoInfo } from '$library/convo';
+  
+  let chatName: string;
+
+  window.addEventListener('resize', () => {
+    drawerStore.close()
+  });
 
   function openSettings() {
     goto("/settings")
     drawerStore.close();
   }
+
+  async function setChat() {
+    const data = await getConvoInfo($userDataStore.cid);
+    chatName = data.name;
+    console.log(chatName)
+  }
+
+  $: {
+    if ($userDataStore.cid) {
+      setChat()
+    }
+  }
+
+  onMount(async () => {
+    const data = await getConvoInfo($userDataStore.cid);
+    chatName = data.name;
+    console.log(chatName)
+  })
   
   class DrawerBtn {
     text: string;
@@ -25,9 +50,14 @@
     }
   }
 
-  const drawerBtns = [
+  const drawerBtnsAccount = [
     new DrawerBtn("Settings", "settings", openSettings),
     new DrawerBtn("Sign Out", "logout", logout)
+  ];
+
+  const drawerBtnsChat = [
+    new DrawerBtn("Update", "sync", openSettings),
+    new DrawerBtn("Delete Chat", "delete", logout)
   ];
 </script>
 
@@ -44,7 +74,7 @@
       <h2 class="h3 lg:h2 text-center lg:mb-4 max-w-md mx-auto font-medium h-10">{$userDataStore.name}</h2>
       <h3 class="h4 lg:h3 text-center mb-3 max-w-md mx-auto h-8">{$userDataStore.school}</h3>
       <div class="flex justify-center m-4 lg:m-12">
-        {#each drawerBtns as btn}
+        {#each drawerBtnsAccount as btn}
           <button type="button" class="btn variant-filled-primary mx-auto text-sm lg:text-base h-8 lg:h-10" on:click={btn.func}>
             <span class="material-symbols-outlined">{btn.icon}</span>
             <span>{btn.text}</span>
@@ -66,7 +96,18 @@
         </div>
       {/each}
     </div>
-	{:else}
+  {:else if $drawerStore.id == "drawerChat"}
+  <p class="p mt-4">Chat Name</p>
+  <input class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Chat Name" type='text' placeholder='Chatroom Name' bind:value={chatName}/>
+  <div class="flex justify-center m-4 lg:m-12">
+    {#each drawerBtnsChat as btn}
+      <button type="button" class="btn variant-filled-primary mx-auto text-sm lg:text-base h-8 lg:h-10" on:click={btn.func}>
+        <span class="material-symbols-outlined">{btn.icon}</span>
+        <span>{btn.text}</span>
+      </button>
+    {/each}
+  </div>
+  {:else}
 		<!-- (fallback contents) -->
 	{/if}
 </Drawer>
