@@ -5,7 +5,7 @@ import { drawerStore } from "@skeletonlabs/skeleton";
 import type { DrawerSettings } from '@skeletonlabs/skeleton';
 import { userDataStore } from '$lib/stores';
 
-describe("Test AppDrawer", () => {
+describe("AppDrawer", () => {
     it("should load from userDataStore properly", () => {
         // This will fail due to vitest not being seen as a browser
         userDataStore.write("name", "name");

@@ -16,4 +16,7 @@ export default defineConfig({
         name: 'chrome', // browser name is required
       },
   },
+  server: {
+    host: true
+  }
 })
