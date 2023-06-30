@@ -5,7 +5,23 @@
   import { browser } from '$app/environment';
 	import { getThemeAndAccent } from '$library/theming';
 	import { base } from '$app/paths';	
-	var email = "", pwd = "";
+	import { onMount } from 'svelte';
+	var email = "", pwd = "", emailBox:HTMLElement, pwdBox:HTMLElement;
+
+	onMount(() => {
+		pwdBox.addEventListener('keypress', function(event) {
+                if (event.key == "Enter") {
+                    event.preventDefault();
+                    sendLogin()
+                }
+            });
+		emailBox.addEventListener('keypress', function(event) {
+			if (event.key == "Enter") {
+				event.preventDefault();
+				pwdBox.focus()
+			}
+		});
+	})
 	
  	async function sendLogin() {
 	  const success = await checkCredentials(email, pwd);
@@ -25,8 +41,8 @@
 			<h2 class="h2 mb-2 lg:mb-16 mt-0">Welcome</h2>
 		</header>
 		
-		<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' bind:value={email} placeholder='Your Email' />
-		<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Password" type='password' bind:value={pwd} placeholder='Your Password' />
+		<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Email" type='email' bind:value={email} bind:this={emailBox} placeholder='Your Email' />
+		<input class="input w-fill-available moz-available m-2 text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Password" type='password' bind:value={pwd} bind:this={pwdBox} placeholder='Your Password' />
 	
 		
 		<footer class='flex justify-between m-2'>
