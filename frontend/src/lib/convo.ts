@@ -149,7 +149,7 @@ export function subscribeEventStream(cid: string, fn: (m:Message) => void | Prom
 export async function joinChat(room: string, pwd: string = '') : Promise<boolean> {
   const r = await patch('chats', {}, {'name': room, 'pwd': pwd}, userDataStore.readonce('token'));
   if (r.error) {
-    salert(`JOIN ERROR: ${r.data}`);
+    salert(`JOIN ERROR: ${r.data.detail}`);
     console.log(r);
   } else {
     // @ts-ignore
@@ -162,7 +162,7 @@ export async function joinClass(code: string) : Promise<boolean> {
   const r = await patch('classes', {}, {'code': code}, userDataStore.readonce('token'));
   if (r.error) {
     salert(`JOIN ERROR: ${r.data}`);
-    console.log(r);
+        console.log(r);
   } else {
     // @ts-ignore
     userDataStore.write('cid', r.data.cid);
@@ -179,7 +179,7 @@ export async function makeConvo(name: string, pwd: string, isChatroom: boolean) 
   }
   const r = await post('convos', data, userDataStore.readonce('token'));
   if (r.error) {
-    salert(`ERROR OPENING CONVO: ${r.data}`);
+    salert(`ERROR OPENING CONVO: ${r.data.detail}`);
     console.log(r);
   }
   return !r.error;

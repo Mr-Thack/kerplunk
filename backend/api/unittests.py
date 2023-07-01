@@ -277,7 +277,7 @@ class Test030_Convos(unittest.TestCase):
         # No SID required because this doesn't really need authentication
         # And no parameters required
         r = client.get('/api/chats').json()
-        self.assertEqual(r['chatrooms'], [convos[0].name])
+        self.assertEqual(r['chatrooms'], [[convos[0].name, bool(convos[0].pwd)]])
         
 
     def test030_first_user_join_chat(self):

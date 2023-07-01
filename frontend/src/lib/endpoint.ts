@@ -7,8 +7,8 @@ export function endpoint(endpoint: string) {
     endpoint = '/api/' + endpoint;
     // This wont work in prod, fix later
     return dev?
-        window.location.host.split(":")[0] + ":8000" + endpoint
-        : '3b4e-24-98-126-28.ngrok-free.app' + endpoint
+        (window.location.host.split(":")[0] + ":8000" + endpoint)
+        : ('3b4e-24-98-126-28.ngrok-free.app' + endpoint)
 }
 
 async function request(method: string, endPoint: string, hs: HeadersInit, body: string, token: string) {
@@ -27,7 +27,7 @@ async function request(method: string, endPoint: string, hs: HeadersInit, body: 
         reqData.body = body;
     }
     // We're currently using standard HTTP
-    await fetch(dev? 'http://': 'https://' + endpoint(endPoint), reqData)
+    await fetch((dev? 'http://': 'https://') + endpoint(endPoint), reqData)
     .then((res) => {
         rezStatus = res.status;
         if (!res.ok) {

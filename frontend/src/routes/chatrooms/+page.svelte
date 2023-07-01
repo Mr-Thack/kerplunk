@@ -8,16 +8,16 @@
   import { base } from '$app/paths';
   
   var chatName: string = "", chatPwd: string = "";
-  var chatrooms: string[] = [];
-  var updateInterval: number; // setInterval type is number
+  var chatrooms: Array<[string, boolean]> = [];
+  var updateInterval: NodeJS.Timer; // setInterval type is number
   let chatroomList:HTMLElement;
 
   window.addEventListener('resize', () => {
-        try {
-          chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
-        } catch {
-            // Real men don't solve their problems
-        }
+    try {
+      chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
+    } catch {
+      // Real men don't solve their problems
+    }
   });
 
   
@@ -38,38 +38,41 @@
     updateInterval = setInterval(updateChats, 5000);
   });
 
-  async function join(room: string) {
-    if (await joinChat(room)) {
+  async function join(room: string, isPwd: boolean) {
+    if (isPwd) {
+      proompt('Enter Password', async (pwd: string) => {
+        if (await joinChat(room, pwd)) {
+          goto(base + '/chat');
+        }
+      })
+    } else if (await joinChat(room)) {
       goto(base + '/chat');
     }
   }
 
-  async function makeChatroom(chatName: string, chatPwd: string) {
+  async function makeChatroom(chatName: string, chatPwd: string = '') {
     return await makeConvo(chatName, chatPwd, true)
   }
 
   async function promptRoom() {
     proompt("Name of the chatroom?", async (r: string) => {
-      var create = true;
       chatName = r;
       if (chatName) {
         askbool('Do You Want a Password?', async (b: boolean) => {
           if (b) {
             proompt("Password Of The Chat Room?", async (p: string) => {
               chatPwd = p;
+              if (await makeChatroom(chatName, chatPwd)) {
+                salert("All's well! Should show up soon!");
+              }
             })
+          } else if (await makeChatroom(chatName)) {
+            salert("All's well! Should show up soon!");
           }
         });
       } else {
-        var create = false;
         salert("You need a chat room name!")
       }
-      if (create) {
-        if (await makeChatroom(chatName, chatPwd)) {
-          salert("All's well! Should show up soon!");
-        }
-        
-    }
     });
   }
 
@@ -84,7 +87,7 @@
   <h1 class="h1 text-center mb-5">Chatrooms:</h1>  
   {#if chatrooms.length}
     {#each chatrooms as chatroom}
-      <button class="btn bg-gradient-to-br variant-filled-secondary mt-3 w-25 text-sm lg:text-base h-8 lg:h-10" on:click={() => join(chatroom)}>Join {chatroom}</button>
+      <button class="btn bg-gradient-to-br variant-filled-secondary mt-3 w-25 text-sm lg:text-base h-8 lg:h-10" on:click={() => join(chatroom[0], chatroom[1])}>Join {chatroom[0]}</button>
       <br />
     {/each}
   {:else}

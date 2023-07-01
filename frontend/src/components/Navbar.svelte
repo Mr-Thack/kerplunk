@@ -110,7 +110,7 @@
 <AppRail class="w-auto h-auto hidden lg:block">
   <svelte:fragment slot="lead">
     <!-- If you're logged in, we want you to go to home instead of the front page -->
-    <AppRailAnchor href={base + isLoggedIn? "/home":"/"} selected={$page.url.pathname === base + '/' || $page.url.pathname === base + '/home/'}>
+    <AppRailAnchor href={base + (isLoggedIn? "/home":"/")} selected={$page.url.pathname === base + '/' || $page.url.pathname === base + '/home/'}>
       <img src={base + "/icon_"+accent+".png"} alt="icon" class="w-20 h-20 p-2 hover:p-0 transition-all" />
     </AppRailAnchor>
   </svelte:fragment>
