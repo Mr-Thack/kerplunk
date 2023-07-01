@@ -11,7 +11,7 @@ from schools import start_register_school, finish_register_school, list_all_scho
 from users import multi_get, multi_set, valid_keys, valid_fields
 from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            usr_in_convo, add_user_to_chatroom, add_user_to_classroom, 
-                           read_msgs, post_msg, IncMsg, read_msgs_as_stream, get_convo, like_msg)
+                           read_msgs, post_msg, IncMsg, read_msgs_as_stream, get_convo, set_convo, delete_convo, like_msg)
 from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
 from os import path, environ
@@ -155,6 +155,15 @@ def get_conversation(cid: str, uuid: str = Depends(oauth_uuid)):
     else:
         raise HTTPException(status_code=400, detail="Either the CID doesn't exist, or you're not in the conversation.")
 
+@api.post('/convos/{cid}/info')
+def set_conversation_info(cid: str, fields: dict, uuid: str = Depends(oauth_uuid)):
+    convo = set_convo(uuid, fields, cid)
+    if convo:
+        return convo
+    else:
+        raise HTTPException(status_code=400, detail="Either the CID doesn't exist, or you're not in the conversation.")
+
+
 @api.post('/convos')
 async def open_conversation(data: InitConvoData,
                         uuid: str = Depends(oauth_uuid)):
@@ -224,6 +233,11 @@ def get_new_text_messages(start: int,
 async def post_message(msg: IncMsg, cid_uuid=Depends(convoids)):
     (cid, uuid) = cid_uuid
     return await post_msg(cid, uuid, msg)
+
+@api.get('/convos/{cid}/delete')
+async def delete_conversation(cid_uuid=Depends(convoids)):
+    (cid, uuid) = cid_uuid
+    return delete_convo(cid)
 
 @api.patch('/convos/{cid}/{mid}')
 def like_message(mid: int, cid_uuid=Depends(convoids)):

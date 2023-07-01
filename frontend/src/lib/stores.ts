@@ -9,7 +9,8 @@ type UserData = {
     photo: string,
     email: string,
     accent: string,
-    school: string
+    school: string, 
+    convo: string
 }
 
 
@@ -19,7 +20,6 @@ type UserData = {
 var initVal;
 if (browser) {
     initVal = JSON.parse(window.sessionStorage.getItem('userDataStore') || '{}');
-    console.log(initVal)
 }
 
 function createUserDataStore() {

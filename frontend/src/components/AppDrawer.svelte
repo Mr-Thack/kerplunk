@@ -8,6 +8,10 @@
 	import { onMount } from 'svelte';
 	import { getConvoInfo } from '$library/convo';
   import { base } from '$app/paths';
+	import { salert } from '$library/alerts';
+	import { get, post } from '$library/endpoint';
+
+  let thing;
 
   let chatName: string;
 
@@ -23,7 +27,6 @@
   async function setChat() {
     const data = await getConvoInfo($userDataStore.cid);
     chatName = data.name;
-    console.log(chatName)
   }
 
   $: {
@@ -32,10 +35,27 @@
     }
   }
 
+  async function updateChat() {
+    await post('convos/'+$drawerStore.meta.cid+'/info', {"name": chatName}, $userDataStore.token).then((upload) => {
+      if (upload.status === 200) {
+        $userDataStore.convo = chatName
+            salert("Your changes were updated successfully.")
+        } else {
+            salert("There was an error updating your changes.")
+        }
+    });
+  }
+
+  async function deleteChat() {
+    drawerStore.close()
+    await get('convos/'+$drawerStore.meta.cid+'/delete', $userDataStore.token).then((rez) => {
+      goto(base + "/chatrooms")
+    })
+  }
+
   onMount(async () => {
     const data = await getConvoInfo($userDataStore.cid);
     chatName = data.name;
-    console.log(chatName)
   })
   
   class DrawerBtn {
@@ -56,12 +76,12 @@
   ];
 
   const drawerBtnsChat = [
-    new DrawerBtn("Update", "sync", openSettings),
-    new DrawerBtn("Delete Chat", "delete", logout)
+    new DrawerBtn("Update", "sync", updateChat),
+    new DrawerBtn("Delete Chat", "delete", deleteChat)
   ];
 </script>
 
-<Drawer class="align-center text-center mx-auto">
+<Drawer class="align-center text-center mx-auto" on:backdrop={setChat}>
 	{#if $drawerStore.id == 'drawerAccount'}
     <div class="justify-center">
       <div class="rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 py-4 mb-2 lg:mb-8">
@@ -98,15 +118,16 @@
     </div>
   {:else if $drawerStore.id == "drawerChat"}
   <p class="p mt-4">Chat Name</p>
-  <input class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Chat Name" type='text' placeholder='Chatroom Name' bind:value={chatName}/>
-  <div class="flex justify-center m-4 lg:m-12">
+  <input class="input m-2 w-fill-available moz-available text-xs h-8 lg:m-4 lg:text-base lg:h-10" title="Chat Name" type='text' disabled={!($drawerStore.meta.owner)} placeholder='Chatroom Name' bind:value={chatName}/>
+  <div class="flex justify-center m-4 lg:m-8">
     {#each drawerBtnsChat as btn}
-      <button type="button" class="btn variant-filled-primary mx-auto text-sm lg:text-base h-8 lg:h-10" on:click={btn.func}>
+      <button type="button" class="btn variant-filled-primary mx-auto text-sm lg:text-base h-8 lg:h-10" on:click={btn.func} disabled={!($drawerStore.meta.owner)}>
         <span class="material-symbols-outlined">{btn.icon}</span>
         <span>{btn.text}</span>
       </button>
     {/each}
   </div>
+  <p class={$drawerStore.meta.owner? "p mt-4 hidden": 'p mt-4'}>You are not the owner of this chatroom.</p>
   {:else}
 		<!-- (fallback contents) -->
 	{/if}

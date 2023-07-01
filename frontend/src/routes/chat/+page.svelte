@@ -28,9 +28,8 @@
     notificationTest();
 
     let chatbox: HTMLElement;
-
     var users: Users;
-
+    var owner: string;
     let chatName: string;
 
     var header:HTMLElement; var inputbox:HTMLElement;
@@ -73,7 +72,8 @@
 
         const data = await getConvoInfo($userDataStore.cid);
         users = data.users;
-        chatName = data.name;
+        $userDataStore.convo = data.name;
+        owner = data.owner;
         
         // Get all the messages
         // @ts-ignore
@@ -110,7 +110,8 @@
             height: 'h-[220px]',
             padding: 'p-4',
             rounded: 'rounded-xl',
-            position: 'top'
+            position: 'top',
+            meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
         };
     } else if (window.innerWidth <= 1024) {
         drawerChat = {
@@ -119,7 +120,8 @@
             height: 'h-full',
             padding: 'p-4',
             rounded: 'rounded-xl',
-            position: 'right'
+            position: 'right',
+            meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
         };
     } else {
         drawerChat = {
@@ -127,7 +129,8 @@
             width: 'w-[280px] md:w-[480px]',
             padding: 'p-4',
             rounded: 'rounded-xl',
-            position: 'right'
+            position: 'right',
+            meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
         }
     }
     drawerStore.open(drawerChat);
@@ -137,7 +140,7 @@
 <div class="flex flex-col overflow-hidden px-4 lg:pl-0">
     <div class="h-auto flex flex-row variant-filled-primary mt-4 p-1" bind:this={header}>
         <a class="btn-icon material-symbols-outlined w-8 h-8" href="{base}/chatrooms">arrow_back_ios</a>
-        <h3 class="h3 px-2 my-auto">{chatName? chatName: 'Loading...'}</h3>
+        <h3 class="h3 px-2 my-auto">{$userDataStore.convo? $userDataStore.convo: 'Loading...'}</h3>
         <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto" on:click={openDrawer}>settings</button>
     </div>
     <section bind:this={chatbox}

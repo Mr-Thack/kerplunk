@@ -36,7 +36,6 @@ class Convo(BaseModel):
             'users': [get_field(user, 'sanitized') for user in self.users]
         }
 
-
 # This is specifically for an incoming message
 @dataclass
 class IncMsg():
@@ -128,6 +127,22 @@ def create_convo(data: InitConvoData, owner: str) -> str:
             
         return cid
 
+def delete_convo(cid: str):
+    try:
+        del convos[cid]
+        return 1
+    except:
+        return 0
+
+def set_convo_field(cid: str, field: str, val) -> bool:
+    convos[cid, field] = val
+    return True
+
+def set_convo(uuid: str, fields: dict, cid: str):
+    if usr_in_convo(uuid, cid):
+        for k, v in fields.items():
+            set_convo_field(cid, k, v)
+        return 1
 
 async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | None:
     cid = None
