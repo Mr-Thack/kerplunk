@@ -9,3 +9,4 @@ orjson
 lmdb
 sse_starlette
 gunicorn
+pillow

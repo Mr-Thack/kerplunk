@@ -2,6 +2,10 @@ from dblib import db
 from uuid import uuid1
 from dataclasses import dataclass, field
 from schools import add_person
+from PIL import Image
+from io import BytesIO
+import base64
+
 
 @dataclass
 class UserSchema():
@@ -97,6 +101,13 @@ def multi_get(uuid: str, fs: list[str]) -> dict:  # Takes fields as "fs"
 def multi_set(uuid: str, fs: dict) -> str:
     r = []
     for k, v in fs.items():
+        if k == "photo":
+            img = Image.open(BytesIO(base64.b64decode(v.split(",")[1])))
+            img.thumbnail((128,128), Image.Resampling.LANCZOS)
+            buffer = BytesIO()
+            img.save(buffer,format="png")
+            myimage = buffer.getvalue()                     
+            v = "data:image/png;base64,"+base64.b64encode(myimage).decode()
         set_field(uuid, k, v)
         r.append(k)
     return ' '.join(r)

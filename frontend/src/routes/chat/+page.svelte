@@ -14,8 +14,10 @@
     async function notificationTest() {
         let permissionGranted = await isPermissionGranted();
         if (!permissionGranted) {
-            const permission = await requestPermission();
-            permissionGranted = permission === 'granted';
+            const permission = await requestPermission().then((permission) => {
+                permissionGranted = permission === 'granted';
+            });
+            
         }
         if (permissionGranted) {
             sendNotification('Tauri is awesome!');
