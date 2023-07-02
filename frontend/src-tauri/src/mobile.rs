@@ -1,4 +1,7 @@
 #[tauri::mobile_entry_point]
 fn main() {
-  super::AppBuilder::new().run();
+  tauri::Builder::default()
+  .plugin(tauri_plugin_notification::init())
+  .run(tauri::generate_context!())
+  .expect("error while running tauri application");
 }

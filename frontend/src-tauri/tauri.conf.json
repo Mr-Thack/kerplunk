@@ -3,8 +3,9 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
-    "devPath": "https://mr-thack.github.io/kerplunk/",
-    "distDir": "../build"
+    "devPath": "http://192.168.1.7:5173",
+    "distDir": "../build",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "Kerplunk",

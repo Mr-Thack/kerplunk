@@ -10,19 +10,17 @@
         getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
     import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
 	import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
-    
+
+    let permissionGranted;
+
     async function notificationTest() {
-        let permissionGranted = await isPermissionGranted();
+        permissionGranted = await isPermissionGranted();
         if (!permissionGranted) {
             const permission = await requestPermission().then((permission) => {
                 permissionGranted = permission === 'granted';
             });
             
-        }
-        if (permissionGranted) {
-            sendNotification('Tauri is awesome!');
-            sendNotification({ title: 'TAURI', body: 'Tauri is awesome!' });
-        }        
+        }     
     }
 
     notificationTest();
@@ -58,7 +56,7 @@
     }
 
     function calculateHeight() {
-        return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox)
+        return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 1
     }
 
     onMount(async () => {
@@ -87,6 +85,11 @@
                 users = (await getConvoInfo($userDataStore.cid)).users;
             }
             messages = [...messages, m];
+            console.log(m)
+            if (permissionGranted) {
+            //sendNotification('Tauri is awesome!');
+                sendNotification({ title: m.author, body: m.text });
+            }  
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
 
