@@ -59,9 +59,13 @@
         return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 1
     }
 
-    onMount(async () => {
+    function scale() {
         chatbox.style.maxHeight = calculateHeight().toString()+"px";
-        chatbox.style.minHeight = calculateHeight().toString()+"px";
+        chatbox.style.height = calculateHeight().toString()+"px";
+    }
+
+    onMount(async () => {
+        scale();
         if (!$userDataStore.token) {
             falert('Open a chatroom first!', () => {
                 goto(base + '/chatrooms')
@@ -85,7 +89,6 @@
                 users = (await getConvoInfo($userDataStore.cid)).users;
             }
             messages = [...messages, m];
-            console.log(m)
             if (permissionGranted) {
             //sendNotification('Tauri is awesome!');
                 sendNotification({ title: m.author, body: m.text });
@@ -95,8 +98,7 @@
 
         window.addEventListener('resize', () => {
             try {
-                chatbox.style.maxHeight = calculateHeight().toString()+"px";
-                chatbox.style.minHeight = calculateHeight().toString()+"px";
+                scale();
             } catch {
                 // Real men don't solve their problems
             }
@@ -170,7 +172,7 @@
         {/if}
     </section>
     <div bind:this={inputbox}>
-        <KTextArea onclick={sendMsg} sendOnEnter={true} />
+        <KTextArea onclick={sendMsg} ontype={scale} sendOnEnter={true} />
     </div>
     
 </div>

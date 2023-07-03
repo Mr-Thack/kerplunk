@@ -11,12 +11,15 @@
 	import { salert } from '$library/alerts';
 	import { get, post } from '$library/endpoint';
 
-  let thing;
-
   let chatName: string;
+  let width = window.screen.width;
 
   window.addEventListener('resize', () => {
-    drawerStore.close()
+    if (width != window.screen.width) {
+      drawerStore.close()
+      width = window.screen.width;
+    }
+    
   });
 
   function openSettings() {
@@ -36,21 +39,26 @@
   }
 
   async function updateChat() {
-    await post('convos/'+$drawerStore.meta.cid+'/info', {"name": chatName}, $userDataStore.token).then((upload) => {
-      if (upload.status === 200) {
-        $userDataStore.convo = chatName
-            salert("Your changes were updated successfully.")
-        } else {
-            salert("There was an error updating your changes.")
-        }
-    });
+    if ($drawerStore.meta.owner) {
+      await post('convos/'+$drawerStore.meta.cid+'/info', {"name": chatName}, $userDataStore.token).then((upload) => {
+        if (upload.status === 200) {
+          $userDataStore.convo = chatName
+              salert("Your changes were updated successfully.")
+          } else {
+              salert("There was an error updating your changes.")
+          }
+      });
+    }
+
   }
 
   async function deleteChat() {
-    drawerStore.close()
-    await get('convos/'+$drawerStore.meta.cid+'/delete', $userDataStore.token).then((rez) => {
-      goto(base + "/chatrooms")
-    })
+    if ($drawerStore.meta.owner) {
+      drawerStore.close()
+      await get('convos/'+$drawerStore.meta.cid+'/delete', $userDataStore.token).then((rez) => {
+        goto(base + "/chatrooms")
+      })
+    }
   }
 
   onMount(async () => {

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   export let onclick: (s: string) => void;
   export let sendOnEnter: boolean;
+  export let ontype: () => void;
 
   
   let bindTo: HTMLTextAreaElement;
@@ -15,6 +16,7 @@
 
         // Set the textarea's height to match its scrollHeight
         this.style.height = this.scrollHeight + 'px';
+        ontype();
     });
 
     if (sendOnEnter) {
@@ -23,6 +25,9 @@
           event.preventDefault();
           onclick(value);
           value = "";
+          this.style.height = '40px';
+          ontype();
+          console.log("ok")
         }
       });
     }

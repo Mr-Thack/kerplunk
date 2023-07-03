@@ -34,10 +34,14 @@
         return window.innerHeight - getTotalHeight(header) - getTotalHeight(inputbox) - 32
     }
 
+    function scale() {
+        feed.style.maxHeight = calculateHeight().toString()+"px";
+        feed.style.height = calculateHeight().toString()+"px";
+    }
+
     window.addEventListener('resize', () => {
         try {
-            feed.style.maxHeight = calculateHeight().toString()+"px";
-            feed.style.minHeight = calculateHeight().toString()+"px";
+            scale();
         } catch {
             // Real men don't solve their problems
             // lol. Johnathan too funny.
@@ -131,8 +135,7 @@
         setInterval(updateLog, 1000 * 60);  // 1 Minute
 
         scrollFeedTop();
-        feed.style.maxHeight = calculateHeight().toString()+"px";
-        feed.style.minHeight = calculateHeight().toString()+"px";
+        scale();
     })
 
 
