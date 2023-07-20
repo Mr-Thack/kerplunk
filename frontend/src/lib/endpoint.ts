@@ -8,7 +8,7 @@ export function endpoint(endpoint: string) {
     // This wont work in prod, fix later
     return dev?
         (window.location.host.split(":")[0] + ":8000" + endpoint)
-        : ('5496-24-98-126-28.ngrok-free.app' + endpoint)
+        : ('572f-24-98-126-28.ngrok-free.app' + endpoint)
 }
 
 async function request(method: string, endPoint: string, hs: HeadersInit, body: string, token: string) {
