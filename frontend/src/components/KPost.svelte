@@ -14,16 +14,18 @@
 </script>
 
 
-<div class="card p-4 rounded-tl-none rounded-br-none space-y-2 variant-soft grid gap-2 text-left mx-auto w-6/12">
-  <header class="flex flex-row">
+<div class="card space-y-2 variant-soft grid gap-2 text-left mx-auto w-6/12">
+  <header class="flex flex-row px-auto py-1 variant-filled-primary rounded-t justify-center">
     <div class="flex-initial align-left">
       <KAvatar src={src} />
     </div>
-    <p class="font-bold text-center flex-grow">{msg.author}</p>
-    <p class="flex-initial align-right">{msg.elapsedTime()}</p>
+    <div class="flex-col px-2 my-auto">
+      <p class="font-bold text-center flex-grow">{msg.author}</p>
+      <p class="flex-initial align-right">{msg.elapsedTime()}</p>
+    </div>
   </header>
-  <p>{msg.text}</p>
-  <footer class="flex flex-row place-content-evenly">
+  <p class="mx-4 py-4 text-center">{msg.text}</p>
+  <footer class="flex flex-row place-content-evenly pb-4">
     <span class="chip variant-filled-error hover:variant-filled" on:click={() => like()} >
       <p> {msg.likes} </p> 
       <span class="material-symbols-outlined"> favorite </span>
