@@ -7,8 +7,9 @@ import asyncio
 
 
 class Event:
-    def __init__(self):
+    def __init__(self, code: str):
         self.queues = []
+        self.code = code
 
     async def pub(self, msg):
         for queue in self.queues:
@@ -23,8 +24,8 @@ class Event:
         return await self.queues[id].get()
 
     def unsub(self, id):
-        self.queues.pop(id)    
-
+        self.queues.pop(id)
+        events.del_event(self.code)
 
 
 class Events():
@@ -32,7 +33,7 @@ class Events():
         self.events = {}
 
     def add_event(self, code):
-        self.events[code] = Event()
+        self.events[code] = Event(code)
     
     async def send_msg(self, code, msg):
         await self.events[code].pub(msg)
@@ -43,7 +44,8 @@ class Events():
         return self.events[code]
 
     def del_event(self, code):
-        del self.events[code]
+        if self.does_exist(code):
+            del self.events[code]
 
     def does_exist(self, code):
         return code in self.events

@@ -250,7 +250,7 @@ async def get_messages_from_stream(req: Request,
                              end: int = None,
                              cid_uuid=Depends(convoids_url)):
     (cid, uuid) = cid_uuid  # Tried putting (cid, uuid) in params; won't work?
-    return EventSourceResponse(read_msgs_as_stream(req, cid, start, end)) #, media_type="text/event-stream")
+    return EventSourceResponse(read_msgs_as_stream(req, cid, start, end)) 
 
 
 # Tell us that we're on production

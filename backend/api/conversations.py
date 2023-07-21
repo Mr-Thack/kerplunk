@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from secrets import token_urlsafe
 from dblib import db
 from fastapi import Request
-from asyncio import sleep, CancelledError
+from asyncio import sleep, CancelledError, TimeoutError
 from events import events
 from datetime import datetime
 from json import dumps
@@ -262,7 +262,7 @@ def read_msgs(cid: str, start: int, end: int | None) -> [str]:
         return []  # Since having nothing is nonsensical, this should be interpreted as an error
     return [convo[i].sanitize(i) for i in range(start, len(convo) if not end else 1 + end)]
 
-opencids = {}
+
 
 async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | None):
     """Read all the messages from start to end, in a stream"""
@@ -272,17 +272,12 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
 
     
     # Keep track of the number of people reading this
-    if not cid in opencids:
-        opencids[cid] = 0
-    opencids[cid] = opencids[cid] + 1
-
     convo = open_convo(cid)
     
     if end and end >= len(convo):
-        opencids[cid] = opencids[cid] - 1
         return
-
-
+    
+    
     event = events.get_event(cid)
     eid = await event.sub()  # Event ID
 
@@ -296,20 +291,22 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
 
     # If there was a definite end, quit
     if end:
-        print("END")
         event.unsub(eid)
-        opencids[cid] = opencids[cid] - 1
         return
     
     while True:
-        msg = await event.get(eid)
-        yield {
-            "event": "message",
-            "data": dumps(msg)
-        }
-            
-    event.unsub(eid)
-    opencids[cid] = opencids[cid] - 1
+        if not await req.is_disconnected():
+            try:
+                msg = await event.get(eid)
+                yield {
+                    "event": "message",
+                    "data": dumps(msg)
+                }
+            except CancelledError:
+                continue
+        else:
+            event.unsub(eid)
+            return
 
 async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
     if not len(msg.text) or len(msg.text) > 250:
