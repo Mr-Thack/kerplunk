@@ -190,7 +190,7 @@ async def user_join_chatroom(name: str, pwd: str | None = None,
 @api.patch('/classes')
 async def user_join_classroom(code: str | None = None,
                               uuid: str = Depends(oauth_uuid)):
-    data = await add_user_to_classroom(uuid, code)
+    data = await add_user_to_classroom(uuid, code.upper())
     if data:
         return data
     else:
