@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1786093b-0d5d-4e67-bffb-a9b30117cc1d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" afterPath="$PROJECT_DIR$/gen/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/128x128.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/128x128.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/128x128@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/128x128@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/32x32.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/32x32.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square107x107Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square107x107Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square142x142Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square142x142Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square150x150Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square150x150Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square284x284Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square284x284Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square30x30Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square30x30Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square310x310Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square310x310Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square44x44Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square44x44Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square71x71Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square71x71Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/Square89x89Logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/Square89x89Logo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/StoreLogo.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/StoreLogo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/icon.icns" beforeDir="false" afterPath="$PROJECT_DIR$/icons/icon.icns" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/icon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/icons/icon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icons/icon.png" beforeDir="false" afterPath="$PROJECT_DIR$/icons/icon.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/mobile.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/mobile.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/lib/endpoint.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/lib/endpoint.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/routes/chat/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/../src/routes/chat/+page.svelte" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2S8qmkbQ6X8srSSl7ooLHE68Uuc" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "/home/j112er/Documents/kerplunk/kerplunk/frontend/src-tauri/tauri-plugin-mobile-notifications/android"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1786093b-0d5d-4e67-bffb-a9b30117cc1d" name="Changes" comment="" />
+      <created>1688538717100</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1688538717100</updated>
+    </task>
+    <servers />
+  </component>
+</project>

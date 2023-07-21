@@ -8,23 +8,29 @@
     import { base } from '$app/paths';
     import { Message, type Users, sendMessage, 
         getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
-    import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
-	import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
+    import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
+    import { invoke } from '@tauri-apps/api/tauri'
+    invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"base", channel_name:"Notifications"})
+    invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"messages", channel_name:"Chat Messages", channel_desc:"Messages sent in chats you are in."})
 
-    let permissionGranted;
-
-    async function notificationTest() {
-        permissionGranted = await isPermissionGranted();
-        if (!permissionGranted) {
-            const permission = await requestPermission().then((permission) => {
-                permissionGranted = permission === 'granted';
-            });
-            
-        }     
+    function sendNotification(title:string, content:string) {
+        invoke('plugin:AndroidNotifications|simpleNotification', {id:1, title:title, content:content, channel_id:"base"}).then((value) => {
+            console.log(value);
+        })
     }
 
-    notificationTest();
+    var chatMessages: Array<any> = [];
 
+    function sendChatNotification(text: string, time: number, sender: string, b64: string) {
+        chatMessages.push({text:text, time:time, sender:sender, avatarBase64:b64})
+        console.log(chatMessages)
+        invoke('plugin:AndroidNotifications|chatNotification', {id:2, messages:chatMessages, channel_id:"messages"}).then((value) => {
+            console.log(value);
+        })
+    }
+
+    sendNotification("Android Notifications Initialized!", "Good Luck")
+    
     let chatbox: HTMLElement;
     var users: Users;
     var owner: string;
@@ -89,10 +95,7 @@
                 users = (await getConvoInfo($userDataStore.cid)).users;
             }
             messages = [...messages, m];
-            if (permissionGranted) {
-            //sendNotification('Tauri is awesome!');
-                sendNotification({ title: m.author, body: m.text });
-            }  
+            sendChatNotification(m.text, m.unixTime(), m.author, users[m.author].photo.split(",")[1]);
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
 

@@ -3,7 +3,7 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
-    "devPath": "http://192.168.1.7:5173",
+    "devPath": "http://192.168.1.12:5173",
     "distDir": "../build",
     "withGlobalTauri": true
   },
@@ -27,7 +27,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.tauri.kerplunk",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

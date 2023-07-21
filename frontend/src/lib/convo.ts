@@ -101,6 +101,10 @@ export class Message {
     // mm/dd/yy
     return msgDate.getUTCMonth() + 1 + '/' + msgDate.getUTCDate() + '/' + msgDate.getUTCFullYear() - 2000;
   }
+
+  public unixTime() : number {
+    return Math.floor(new Date(this.time).getTime() / 1000)
+  }
 }
 
 

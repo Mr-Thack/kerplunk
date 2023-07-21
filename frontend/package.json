@@ -51,7 +51,7 @@
 	"type": "module",
 	"dependencies": {
 		"@tauri-apps/api": "^2.0.0-alpha.5",
-		"@tauri-apps/plugin-notification": "^2.0.0-alpha.0",
+		"@tauri-apps/plugin-shell": "^2.0.0-alpha.0",
 		"zxcvbn": "^4.4.2"
 	}
 }
