@@ -33,6 +33,6 @@
   {#if !name}
     Sign In!
   {:else}
-    Welcome, {name}!
+    Welcome, {name}! 
   {/if}
 </h1>
