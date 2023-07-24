@@ -1,14 +1,18 @@
 # Kerplunk
-Yes. We will run it.
+Our greatest invention.
 
 # API Documentation:
-go to ```http://localhost:8000/api/docs```
+Go to ```http://localhost:8000/api/docs``` to access.
 
 # Development without Docker:
+
+Backend: 
 ```
 cd backend
 npm run dev  // To run the frontend on http://localhost:5173/
-
+```
+Frontend:
+```
 cd frontend
 uvicorn main:app  // To run the backend on http://localhost:8000/
 ```
