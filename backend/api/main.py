@@ -11,7 +11,8 @@ from schools import start_register_school, finish_register_school, list_all_scho
 from users import multi_get, multi_set, valid_keys, valid_fields
 from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            usr_in_convo, add_user_to_chatroom, add_user_to_classroom, 
-                           read_msgs, post_msg, IncMsg, read_msgs_as_stream, get_convo, set_convo, delete_convo, like_msg)
+                           read_msgs, post_msg, IncMsg, read_msgs_as_stream, get_convo,
+                           set_convo, delete_convo, like_msg, read_notifications_as_stream)
 from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
 from os import path, environ
@@ -221,7 +222,7 @@ def get_new_text_messages(start: int,
                           end: int = None,
                           cid_uuid=Depends(convoids)):
     (cid, uuid) = cid_uuid  # Tried putting (cid, uuid) in params; won't work?
-    r = read_msgs(cid, start, end)
+    r = read_msgs(cid, uuid, start)
     if not len(r):
         raise HTTPException(status_code=403,
                             detail='There was an error. The end index is probably too high.')
@@ -246,16 +247,19 @@ def like_message(mid: int, cid_uuid=Depends(convoids)):
 
 @api.get('/stream_convos/{cid}')
 async def get_messages_from_stream(req: Request,
-                             start: int,
-                             end: int = None,
+                             start: int | None,
                              cid_uuid=Depends(convoids_url)):
-    (cid, uuid) = cid_uuid  # Tried putting (cid, uuid) in params; won't work?
-    return EventSourceResponse(read_msgs_as_stream(req, cid, start, end)) 
+    """If there is no start, it will read from last read message"""
+    (cid, uuid) = cid_uuid
+    return EventSourceResponse(read_msgs_as_stream(req, cid, uuid, start)) 
 
+@api.get('/notifications')
+async def get_notifications_from_stream(req: Request, uuid=Depends(url_uuid)):
+    return EventSourceResponse(read_notifications_as_stream(req, uuid))
 
 # Tell us that we're on production
-is_production = bool(environ.get('ISPRODUCTION'))
-
+is_production = not environ.get('ISPRODUCTION') in ("false", "False")
+print("You " + ("ARE" if is_production else "are NOT") + " on production mode!")
 
 app = FastAPI(title='main')
 # Enable Cross Origin Resource Sharing,

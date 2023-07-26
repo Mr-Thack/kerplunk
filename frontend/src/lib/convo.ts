@@ -149,6 +149,14 @@ export function subscribeEventStream(cid: string, fn: (m:Message) => void | Prom
   };
 }
 
+export function subscribeNotificationStream(fn: (id: string, m: Message) => void | Promise<void>) {
+  const eventStream = new EventSource(`${dev? "http":"https"}://${endpoint('notifications')}?token=${userDataStore.readonce('token')}`)
+  eventStream.onmessage = function (event) {
+    // Promise.resolve() will resolve a promise even if it's not a promise
+    const data = JSON.parse(event.data)
+    Promise.resolve(fn(data[0], new Message(data[1])));
+  };
+}
 
 export async function joinChat(room: string, pwd: string = '') : Promise<boolean> {
   const r = await patch('chats', {}, {'name': room, 'pwd': pwd}, userDataStore.readonce('token'));

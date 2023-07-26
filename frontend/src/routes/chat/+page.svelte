@@ -6,9 +6,10 @@
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
     import { base } from '$app/paths';
-    import { Message, type Users, sendMessage, 
-        getMessages, subscribeEventStream, getConvoInfo} from '$lib/convo';
+    import { Message, type Users, sendMessage, getMessages, subscribeEventStream, subscribeNotificationStream, getConvoInfo} from '$lib/convo';
     import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
+    
+    
     import { invoke } from '@tauri-apps/api/tauri'
     invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"base", channel_name:"Notifications"})
     invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"messages", channel_name:"Chat Messages", channel_desc:"Messages sent in chats you are in."})
@@ -98,6 +99,11 @@
             sendChatNotification(m.text, m.unixTime(), m.author, users[m.author].photo.split(",")[1]);
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
+
+        subscribeNotificationStream(async (cid: string, m: Message) => {
+            console.log(m);
+            console.log(cid)
+        })
 
         window.addEventListener('resize', () => {
             try {

@@ -18,15 +18,25 @@ class InitConvoData(BaseModel):
     pwd: str | None = None
 
 
-
 class Convo(BaseModel):
     name: str
     public: bool
     chatroom: bool
     owner: str  # This is a UUID str
     pwd: str | None = None
+    # Hold uuid, int
+    # Don't access it publicly
     users: list[str] = []
+    reads: list[int] = []
 
+    def add_user(self, uuid: str):
+        self.users.append(uuid)
+        self.reads.append(0)
+        print(self)
+
+    def get_user_reads(self, uuid):
+        return self.reads[self.users.index(uuid)]
+    
     def sanitize(self):
         return {
             'name': self.name,
@@ -35,6 +45,12 @@ class Convo(BaseModel):
             'owner': get_field(self.owner, 'name'),
             'users': [get_field(user, 'sanitized') for user in self.users]
         }
+
+def set_last_read_msg(cid, uuid, read):
+    convo = convos[cid]
+    index = convo.users.index(uuid)
+    convo.reads[index] = convo.reads[index] + 1
+    convos[cid] = convo
 
 # This is specifically for an incoming message
 @dataclass
@@ -112,7 +128,7 @@ def create_convo(data: InitConvoData, owner: str) -> str:
             data.pwd = gen_code()
         new_convo = Convo(owner=owner, **data.__dict__)
         
-        new_convo.users.append(owner)        
+        new_convo.add_user(owner)       
         add_convo_to_user_data(owner, cid)
                  
         convo_data = open_convo(cid)  # Open a fresh new one
@@ -128,20 +144,17 @@ def create_convo(data: InitConvoData, owner: str) -> str:
         return cid
 
 def delete_convo(cid: str):
-    try:
+    if cid in convos:
+        # [TODO]: Also delete this convo from user data
         del convos[cid]
-        return 1
-    except:
-        return 0
 
-def set_convo_field(cid: str, field: str, val) -> bool:
-    convos[cid, field] = val
-    return True
+    return cid in convos
 
 def set_convo(uuid: str, fields: dict, cid: str):
     if usr_in_convo(uuid, cid):
+        # [TODO]: Fix this security bug (they could try setting "users" or some other protected field)
         for k, v in fields.items():
-            set_convo_field(cid, k, v)
+            convos[cid, k] = v
         return 1
 
 async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | None:
@@ -162,7 +175,7 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
             add_convo_to_user_data(uuid, cid)
             
             # Add this user to the convo's list
-            convo.users.append(uuid)
+            convo.add_user(uuid)
             convos[cid] = convo  # In the previous line, we only updated our copy in memory
             # This line puts it back into the dict and then the db
             
@@ -197,7 +210,7 @@ async def add_user_to_classroom(uuid: str, pwd: str | None) -> dict | None:
         add_convo_to_user_data(uuid, cid)
             
         # Add this user to the convo's list
-        convo.users.append(uuid)
+        convo.add_user(uuid)
         convos[cid] = convo  # In the previous line, we only updated our copy in memory
         # This line puts it back into the dict and then the db
             
@@ -255,16 +268,16 @@ def like_msg(cid: str, uuid: str, mid: int) -> bool:
             return True
 
 
-def read_msgs(cid: str, start: int, end: int | None) -> [str]:
+def read_msgs(cid: str, uuid: str, start: int | None) -> [str]:
     """Read all messages from start index to end index, inclusive."""
     convo = open_convo(cid)
-    if end and len(convo) <= end:
-        return []  # Since having nothing is nonsensical, this should be interpreted as an error
-    return [convo[i].sanitize(i) for i in range(start, len(convo) if not end else 1 + end)]
-
-
-
-async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | None):
+    
+    r = [convo[i].sanitize(i) for i in range(start if start != None else 1 + convos[cid].get_user_reads(uuid), len(convo))]
+    set_last_read_msg(cid, uuid, len(convo))
+    convos[cid] = convos[cid]  # Force write
+    return r
+    
+async def read_msgs_as_stream(req: Request, cid: str, uuid: str, start: int | None):
     """Read all the messages from start to end, in a stream"""
     """end=None signifies read forever"""
     # This function should be used on chats.
@@ -274,39 +287,61 @@ async def read_msgs_as_stream(req: Request, cid: str, start: int, end: int | Non
     # Keep track of the number of people reading this
     convo = open_convo(cid)
     
-    if end and end >= len(convo):
-        return
-    
-    
     event = events.get_event(cid)
     eid = await event.sub()  # Event ID
 
     # yield all messages from start to end
-    for i in range(start, len(convo) if not end else end + 1):
+    for i in range(start if start != None else 1 + convos[cid].get_user_reads(uuid), len(convo)):
         yield {
             "event": "message",
             "id": i,
             "data": dumps(convo[i].sanitize(i))
         }
-
-    # If there was a definite end, quit
-    if end:
-        event.unsub(eid)
-        return
+        
+    set_last_read_msg(cid, uuid, len(convo))
     
     while True:
         if not await req.is_disconnected():
             try:
                 msg = await event.get(eid)
+                set_last_read_msg(cid, uuid, len(convo))
+                print(convos[cid].get_user_reads(uuid))
                 yield {
                     "event": "message",
                     "data": dumps(msg)
                 }
             except CancelledError:
                 continue
+                # This goes all the way back to the "else:"
         else:
             event.unsub(eid)
             return
+
+
+
+async def read_notifications_as_stream(req: Request, uuid: str):
+    """Read all notifications in a stream"""
+
+    alert = await events.get_notifier(get_field(uuid, 'convos'))
+    
+    while True:
+        if not await req.is_disconnected():
+            try:
+                (cid, msg) = await alert.get()
+                convo = open_convo(cid)
+                set_last_read_msg(cid, uuid, len(convo))
+                print(convos[cid].get_user_reads(uuid))
+                yield {
+                    "event": "message",
+                    "data": dumps((cid, msg))
+                }
+            except CancelledError:
+                continue
+                # This goes all the way back to the "else:"
+        else:
+            del alert
+            return
+
 
 async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
     if not len(msg.text) or len(msg.text) > 250:
