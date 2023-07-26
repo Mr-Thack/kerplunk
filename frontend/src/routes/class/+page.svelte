@@ -1,5 +1,6 @@
 <script lang="ts">
     import KPost from '$components/KPost.svelte';
+    import KReply from '$components/KReply.svelte';
     import KTextArea from '$components/KTextArea.svelte';
     import SystemMessage from '$components/SystemMessage.svelte';
     import { userDataStore } from '$library/stores';
@@ -165,8 +166,8 @@
                     {#each msg.replies as reply, j}
                         {#if j < 3}
                             <!-- This is how we make it mini -->
-                            <div class="w-9/12 mx-auto align-center">
-                                <KPost src={users[messages[reply].author].photo}
+                            <div class="w-5/12 mx-auto align-center">
+                                <KReply src={users[messages[reply].author].photo}
                                        msg={messages[reply]} 
                                        isReply={true}
                                        like={() => {like(reply)}}
