@@ -350,3 +350,4 @@ async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
                   reply_to=msg.reply_to,
                   author=uuid)
     return await write_msg(cid, msg)   
+
