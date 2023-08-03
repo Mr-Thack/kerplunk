@@ -27,7 +27,7 @@ async function request(method: string, endPoint: string, hs: HeadersInit, body: 
         reqData.body = body;
     }
     // We're currently using standard HTTP
-    await fetch((dev? 'http://': 'https://') + endpoint(endPoint), reqData)
+    await fetch((dev? 'http://': 'http://') + endpoint(endPoint), reqData)
     .then((res) => {
         rezStatus = res.status;
         if (!res.ok) {
