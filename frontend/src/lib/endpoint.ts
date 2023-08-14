@@ -4,11 +4,9 @@ const headers_json = {'Content-Type': 'application/json', 'Access-Control-Allow-
 const headers_form = {'Content-Type': 'application/x-www-form-urlencoded', 'Access-Control-Allow-Origin': '*'};
 
 export function endpoint(endpoint: string) {
-    endpoint = '/api/' + endpoint;
-    // This wont work in prod, fix later
     return dev?
-        (window.location.host.split(":")[0] + ":8000" + endpoint)
-        : ('24.99.231.214:8080' + endpoint)
+        (window.location.host.split(":")[0] + ":8000/api/" + endpoint)
+        : ('http://kerplunk.xyz:81/' + endpoint)
 }
 
 async function request(method: string, endPoint: string, hs: HeadersInit, body: string, token: string) {
