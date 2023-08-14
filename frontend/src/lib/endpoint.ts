@@ -6,7 +6,7 @@ const headers_form = {'Content-Type': 'application/x-www-form-urlencoded', 'Acce
 export function endpoint(endpoint: string) {
     return dev?
         (window.location.host.split(":")[0] + ":8000/api/" + endpoint)
-        : ('http://kerplunk.xyz:81/' + endpoint)
+        : ('kerplunk.xyz:81/' + endpoint)
 }
 
 async function request(method: string, endPoint: string, hs: HeadersInit, body: string, token: string) {
