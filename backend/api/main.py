@@ -272,22 +272,26 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*']
 )
-app.mount('/api/', api)
 
-# Static frontend files
-STATICDIR = '../../kerplunk-frontend'
-# User could've renamed it to 'frontend' due to old system
-if not path.isdir(STATICDIR):
-    STATICDIR = '../../frontend'
-
-STATICDIR = STATICDIR + "/build"
-
-# Check if this exists
-if not path.isdir(STATICDIR):
-    print('WARNING!')
-    print("THIS IS ONLY HARMLESS IN DEVELOPMENT!")
-    print("Run \"cd ../../frontend; npm run build\" in the terminal!")
-    print("YOU ARE MISSING COMPILED FRONTEND CODE.")
+if is_production:
+    app.mount('/', api)
 else:
-    app.mount('/', StaticFiles(directory=STATICDIR,
-                               html=True), 'ui')
+    app.mount('/api/', api)
+
+    # Static frontend files
+    STATICDIR = '../../kerplunk-frontend'
+    # User could've renamed it to 'frontend' due to old system
+    if not path.isdir(STATICDIR):
+        STATICDIR = '../../frontend'
+
+    STATICDIR = STATICDIR + "/build"
+
+    # Check if this exists
+    if not path.isdir(STATICDIR):
+        print('WARNING!')
+        print("THIS IS ONLY HARMLESS IN DEVELOPMENT!")
+        print("Run \"cd ../../frontend; npm run build\" in the terminal!")
+        print("YOU ARE MISSING COMPILED FRONTEND CODE.")
+    else:
+        app.mount('/', StaticFiles(directory=STATICDIR,
+                                   html=True), 'ui')
