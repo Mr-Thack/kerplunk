@@ -6,7 +6,7 @@ function forward {
         local external=${splits[0]}
         local internal=${splits[1]}
         iptables -t nat -A PREROUTING -p tcp --dport $external -j REDIRECT --to-port $internal
-        iptables -t nat -I OUTPUT -p tcp -d 127.0.0.1 --dport $external -j REDIRECT --to-ports $internal
+        # iptables -t nat -I OUTPUT -p tcp -d 127.0.0.1 --dport $external -j REDIRECT --to-ports $internal
 }
 
 # To give Docker some time to start up
