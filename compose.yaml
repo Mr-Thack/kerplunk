@@ -1,0 +1,22 @@
+version: '3'
+
+
+services:
+  backend:
+    build: ./backend
+    restart: always
+    environment:
+      ISPRODUCTION: True
+    ports:
+      - '8000:8000'
+    volumes:
+      - "/srv/kerplunk/:/root/data/"
+  
+  frontend:
+    build: ./frontend
+    ports:
+      - '8080:80'
+    restart: always
+    
+    
+  
