@@ -20,9 +20,7 @@ services:
     # I'd also have to embed the HTML files in the proxy
     # So, I'm gonna share them as a volume
     build: ./frontend
-    network_mode: "host"
-    volumes:
-      - "/srv/http/:/srv/http/"
+
 
   proxy:
     build: ./
