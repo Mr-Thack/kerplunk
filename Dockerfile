@@ -5,4 +5,4 @@
 FROM rtsp/lighttpd
 # Move the build files from RAM into storage
 VOLUME /srv/http
-COPY ./lighttpd.conf /etc/lighttpd/
+COPY ./frontend/lighttpd.conf /etc/lighttpd/
