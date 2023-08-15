@@ -13,10 +13,24 @@ services:
       - "/srv/kerplunk/:/root/data/"
   
   frontend:
+    # This is just for building the frontend
+    # I'm keeping the proxy in a seperate container
+    # Because I don't want to have to restart the proxy
+    # when I regenerate the frontend files
+    # I'd also have to embed the HTML files in the proxy
+    # So, I'm gonna share them as a volume
     build: ./frontend
+    volumes:
+      - "/srv/http/:/srv/http/"
+
+  proxy:
+    build: ./
     ports:
       - '8080:80'
     restart: always
+    network_mode: "host"
+    volumes:
+      - "/srv/http/:/srv/http/"
     
     
   
