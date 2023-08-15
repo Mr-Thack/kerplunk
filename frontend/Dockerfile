@@ -4,9 +4,12 @@
 FROM node AS compiler
 COPY package*.json ./
 RUN npm install
+ARG CACHEBUST=1
 COPY . .
+# Clear Cache every dependency update!
+RUN npm install
 RUN npm run build
 
-# Move the build files from RAM into storage
-RUN cp ./build/ /srv/http/
-RUN echo $(ls /srv/http)
+FROM rstp/lighttpd
+COPY --from=compiler ./build/ /srv/http/
+COPY ./lighttpd.conf /etc/lighttpd.conf
