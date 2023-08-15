@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
 
 # First, we'll build the frontend into static HTML
-FROM node
+FROM node AS compiler
+COPY package*.json ./
+RUN npm install
 COPY . .
-# Run build
-RUN npm install && npm run build
+RUN npm run build
 
 # Move the build files from RAM into storage
-VOLUME /srv/http
 RUN cp ./build/ /srv/http/
 RUN echo $(ls /srv/http)
