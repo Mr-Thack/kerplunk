@@ -10,6 +10,6 @@ COPY . .
 RUN npm install
 RUN npm run build
 
-FROM rstp/lighttpd
+FROM rtsp/lighttpd
 COPY --from=compiler ./build/ /srv/http/
 COPY ./lighttpd.conf /etc/lighttpd.conf
