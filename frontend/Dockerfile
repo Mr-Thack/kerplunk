@@ -11,5 +11,6 @@ RUN npm install
 RUN npm run build
 
 FROM rtsp/lighttpd
+ARG CACHEBUST=1
 COPY --from=compiler ./build/ /srv/http/
 COPY ./lighttpd.conf /etc/lighttpd.conf
