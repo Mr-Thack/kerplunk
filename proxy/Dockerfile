@@ -1,16 +1,14 @@
 # syntax=docker/dockerfile:1
 
 # First, we'll build the frontend into static HTML
-FROM node AS compiler
+FROM node AS Compiler
 COPY package*.json ./
 RUN npm install
-ARG CACHEBUST=1
-COPY . .
+COPY ../frontend/ ./
 # Clear Cache every dependency update!
 RUN npm install
 RUN npm run build
 
-FROM rtsp/lighttpd
-ARG CACHEBUST=1
-COPY --from=compiler ./build/ /srv/http/
+FROM rtsp/lighttpd AS Proxy
+COPY --from=Compiler ./build/ /srv/http/
 COPY ./lighttpd.conf /etc/lighttpd/lighttpd.conf
