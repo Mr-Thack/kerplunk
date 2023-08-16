@@ -15,7 +15,7 @@ services:
     # There is a way that we can seperate this but it's a security risk
     # since it will also allow all port traffic on all connected container
     # TLDR: Can't make frontend builder export to a another container without exposing all access
-    build: ./proxy
+    build: ./frontend
     ports:
       - '8080:80'
     restart: always
