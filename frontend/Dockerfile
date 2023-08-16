@@ -6,7 +6,6 @@ COPY ./package*.json .
 RUN npm install
 COPY . .
 # Clear Cache every dependency update!
-RUN npm install
 RUN npm run build
 
 FROM rtsp/lighttpd AS Proxy
