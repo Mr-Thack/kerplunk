@@ -10,5 +10,5 @@ RUN npm install
 RUN npm run build
 
 FROM rtsp/lighttpd AS Proxy
-COPY --from=Compiler ./build/ /srv/http/
 COPY ./lighttpd.conf /etc/lighttpd/lighttpd.conf
+COPY --from=Compiler ./build/ /srv/http/
