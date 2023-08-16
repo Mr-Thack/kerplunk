@@ -2,9 +2,9 @@
 
 # First, we'll build the frontend into static HTML
 FROM node AS Compiler
-COPY package*.json ./
+COPY ./package*.json .
 RUN npm install
-COPY ../frontend/ ./
+COPY . .
 # Clear Cache every dependency update!
 RUN npm install
 RUN npm run build
