@@ -4,10 +4,7 @@
 FROM node AS Compiler
 COPY ./package*.json .
 RUN npm install
-COPY ./[^p] ./
-COPY ./p[^r] ./
-COPY ./pr[^o] ./
-COPY ./pro[^x] ./
+COPY .eslintignore .npmrc .prettierrc postcss.config.cjs src static tailwind.config.cjs vite.config.ts. .eslintrc.cjs .prettierignore .svelte-kit  src-tauri svelte.config.js tsconfig.json ./
 
 # Clear Cache every dependency update!
 RUN npm run build
