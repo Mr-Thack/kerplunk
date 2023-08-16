@@ -4,7 +4,12 @@
 FROM node AS Compiler
 COPY ./package*.json .
 RUN npm install
-COPY . .
+COPY ./*js* ./
+COPY ./*ts* ./
+COPY ./*src* ./
+COPY ./static ./
+COPY ./.* ./
+
 # Clear Cache every dependency update!
 RUN npm run build
 
