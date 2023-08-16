@@ -4,11 +4,10 @@
 FROM node AS Compiler
 COPY ./package*.json .
 RUN npm install
-COPY ./*js* ./
-COPY ./*ts* ./
-COPY ./*src* ./
-COPY ./static ./
-COPY ./.* ./
+COPY ./[^p] ./
+COPY ./p[^r] ./
+COPY ./pr[^o] ./
+COPY ./pro[^x] ./
 
 # Clear Cache every dependency update!
 RUN npm run build
