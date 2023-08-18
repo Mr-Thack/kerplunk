@@ -17,5 +17,6 @@ services:
     # TLDR: Can't make frontend builder export to a another container without exposing all access
     build: ./frontend
     ports:
+      - '80:80'
       - '443:443'
     restart: always

@@ -3,7 +3,8 @@ from fastapi import (Depends, FastAPI, Request, Query, WebSocket,
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.responses import RedirectResponse
+from sse_starlette.sse import EventSourceResponse
 
 from auth import (login_user, start_signup_user, finish_signup_user,
                   start_reset_pwd, finish_reset_pwd, UpdatePwdData, update_pwd)
@@ -13,12 +14,20 @@ from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            usr_in_convo, add_user_to_chatroom, add_user_to_classroom, 
                            read_msgs, post_msg, IncMsg, read_msgs_as_stream, get_convo,
                            set_convo, delete_convo, like_msg, read_notifications_as_stream)
-from sse_starlette.sse import EventSourceResponse
 from sid import SIDValidity
 from os import path, environ
 
 
+# Tell us that we're on production
+is_production = not environ.get('ISPRODUCTION') in ("false", "False")
+print("You " + ("ARE" if is_production else "are NOT") + " on production mode!")
+
 api = FastAPI(title='api')
+if is_production:
+    @api.get('/')
+    def go_back_to_where_you_came_from():
+        return RedirectResponse('https://kerplunk.xyz')
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
 
@@ -257,11 +266,8 @@ async def get_messages_from_stream(req: Request,
 async def get_notifications_from_stream(req: Request, uuid=Depends(url_uuid)):
     return EventSourceResponse(read_notifications_as_stream(req, uuid))
 
-# Tell us that we're on production
-is_production = not environ.get('ISPRODUCTION') in ("false", "False")
-print("You " + ("ARE" if is_production else "are NOT") + " on production mode!")
 
-app = FastAPI(title='main')
+app = api if is_production else FastAPI(title='main')
 # Enable Cross Origin Resource Sharing,
 # Since we don't have a domain and the IP keeps shifting,
 # We need this
@@ -273,9 +279,7 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-if is_production:
-    app.mount('/', api)
-else:
+if not is_production:
     app.mount('/api/', api)
 
     # Static frontend files
