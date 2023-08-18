@@ -12,8 +12,7 @@ COPY ./static ./static/
 # Clear Cache every dependency update!
 RUN npm run build
 
-FROM rtsp/lighttpd AS Proxy
-RUN touch /var/log/lighttpd.log
-RUN chown lighttpd:lighttpd /var/log/lighttpd.log
-COPY ./proxy /etc/lighttpd/
-COPY --from=Compiler ./build/ /srv/http/
+FROM nginx AS Proxy
+RUN rm /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+COPY ./proxy /etc/nginx/
+COPY --from=Compiler ./build/ /var/www/html
