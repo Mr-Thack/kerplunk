@@ -19,7 +19,7 @@ from os import path, environ
 
 
 # Tell us that we're on production
-is_production = not environ.get('ISPRODUCTION') in ("false", "False")
+is_production = environ.get('ISPRODUCTION') in ("true", "True", "TRUE")
 print("You " + ("ARE" if is_production else "are NOT") + " on production mode!")
 
 api = FastAPI(title='api')
