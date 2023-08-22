@@ -18,6 +18,7 @@ from sid import SIDValidity
 from os import path, environ
 from poll import get_questions, write_resp, get_poll_results
 from typing import List
+from etc import PrettyJSONResponse
 
 # Tell us that we're on production
 is_production = environ.get('ISPRODUCTION') in ("true", "True", "TRUE")
@@ -279,7 +280,7 @@ def write_response(rz: List[int]):
 def return_results_file():
     return FileResponse("../data/poll.csv")
 
-@api.get('/results')
+@api.get('/results', response_class=PrettyJSONResponse)
 def return_results():
     return get_poll_results()
 
