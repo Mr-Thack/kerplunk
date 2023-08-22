@@ -3,7 +3,7 @@ from fastapi import (Depends, FastAPI, Request, Query, WebSocket,
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from sse_starlette.sse import EventSourceResponse
 
 from auth import (login_user, start_signup_user, finish_signup_user,
@@ -16,7 +16,8 @@ from conversations import (list_chat_rooms, create_convo, InitConvoData,
                            set_convo, delete_convo, like_msg, read_notifications_as_stream)
 from sid import SIDValidity
 from os import path, environ
-
+from poll import get_questions, write_resp, get_poll_results
+from typing import List
 
 # Tell us that we're on production
 is_production = environ.get('ISPRODUCTION') in ("true", "True", "TRUE")
@@ -266,6 +267,21 @@ async def get_messages_from_stream(req: Request,
 async def get_notifications_from_stream(req: Request, uuid=Depends(url_uuid)):
     return EventSourceResponse(read_notifications_as_stream(req, uuid))
 
+@api.get('/poll')
+def return_questions():
+    return {'questions': get_questions()}
+
+@api.post('/poll')
+def write_response(rz: List[int]):
+    write_resp(rz)
+
+@api.get('/results-file')
+def return_results_file():
+    return FileResponse("../data/poll.csv")
+
+@api.get('/results')
+def return_results():
+    return get_poll_results()
 
 app = api if is_production else FastAPI(title='main')
 # Enable Cross Origin Resource Sharing,
