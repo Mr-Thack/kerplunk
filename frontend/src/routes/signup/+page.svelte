@@ -13,7 +13,7 @@
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
 	let fname = '', lname = '', email = '',
-		  pwd = '', repPwd = '', school = '', schid = -1, isStudent = false, signupcode = '';
+		  pwd = '', repPwd = '', school = '', schid = -1, isStudent = false, signupcode = '', page:HTMLElement, sstep:HTMLElement;
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
@@ -150,8 +150,32 @@
 			pwdMatch = "";
 		}
 	}
-	
+	window.addEventListener('resize', () => {
+      if(window.innerWidth < 1024) {
+        try {
+          page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
+		  sstep.style.maxHeight = (window.innerHeight - 142).toString()+"px";
+        } catch {
+          // Real men don't solve their problems
+        }
+      } else {
+        page.style.maxHeight = (window.innerHeight).toString()+"px";
+		sstep.style.maxHeight = (window.innerHeight).toString()+"px";
+      }
+    });
+
 	onMount(async function() {
+		if(window.innerWidth < 1024) {
+			try {
+			page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
+			sstep.style.maxHeight = (window.innerHeight - 142).toString()+"px";
+			} catch {
+			// Real men don't solve their problems
+			}
+		} else {
+			page.style.maxHeight = (window.innerHeight).toString()+"px";
+			sstep.style.maxHeight = (window.innerHeight).toString()+"px";
+		}
 		await focusHandler(); // Just run it once
 		document.addEventListener("visibilitychange", focusHandler);
 	})
@@ -188,9 +212,9 @@
 <header class="mx-auto text-center pr-4">
 	<h2 class="h2">Signup!</h2>
 </header>
-<div class="w-full h-[calc(100vh-144px)] lg:h-fill flex items-center">
+<div bind:this={page} class="w-full lg:h-fill flex items-center">
 <!-- It complains on the next line that on:step function handler has a type mismatch, but it doesn't impact us -->
-	<Stepper on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4 w-full max-h-[calc(100vh-142px)] lg:max-h-full m-4">
+	<Stepper bind:this={sstep} on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4 w-full max-h-[calc(100vh-142px)] lg:max-h-full m-4">
 		<Step class="m-4 max-h-[calc(100vh-220px)] lg:max-h-full overflow-auto">
 			<svelte:fragment slot="header">Are you a student or a teacher?</svelte:fragment>
 			<div class="flex flex-row place-content-between justify-center w-full lg:my-8">

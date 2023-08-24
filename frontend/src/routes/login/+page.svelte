@@ -55,7 +55,7 @@
 <header class="mx-auto text-center pr-4 h-fill">
 	<h2 class="h2">Login!</h2>
 </header>
-<div bind:this={page} class="w-fulll lg:h-fill flex items-center">
+<div bind:this={page} class="w-full lg:h-fill flex items-center">
 	<div class='card p-4 w-full max-h-[calc(100vh-142px)] lg:max-h-full m-4'>
 		<header class='mx-auto mb-5 text-center'>
 			<h2 class="h2 mb-2 lg:mb-16 mt-0">Welcome</h2>
