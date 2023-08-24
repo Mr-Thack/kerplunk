@@ -14,7 +14,7 @@
 </script>
 
 
-<div class="card space-y-2 variant-soft grid gap-2 text-left mx-auto w-6/12">
+<div class="card space-y-2 variant-soft grid gap-2 text-left mx-auto w-full md:w-8/12 lg:w-6/12">
   <header class="flex flex-row px-auto py-1 variant-filled-primary rounded-t justify-center">
     <div class="flex-initial align-left">
       <KAvatar src={src} />

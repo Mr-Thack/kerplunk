@@ -166,7 +166,7 @@
                     {#each msg.replies as reply, j}
                         {#if j < 3}
                             <!-- This is how we make it mini -->
-                            <div class="w-5/12 mx-auto align-center">
+                            <div class="w-11/12 md:w-7/12 lg:w-5/12 mx-auto align-center">
                                 <KReply src={users[messages[reply].author].photo}
                                        msg={messages[reply]} 
                                        isReply={true}
