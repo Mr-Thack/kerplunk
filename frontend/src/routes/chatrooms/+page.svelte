@@ -13,14 +13,17 @@
   let chatroomList:HTMLElement;
 
   window.addEventListener('resize', () => {
-    try {
-      chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
-    } catch {
-      // Real men don't solve their problems
+    if(window.innerWidth < 1024) {
+      try {
+        chatroomList.style.maxHeight = (window.innerHeight - 304).toString()+"px";
+      } catch {
+        // Real men don't solve their problems
+      }
+    } else {
+      chatroomList.style.maxHeight = (window.innerHeight - 218).toString()+"px";
     }
   });
 
-  
   async function updateChats() {
     // @ts-ignore
     chatrooms = (await get('chats')).data.chatrooms;
@@ -30,7 +33,15 @@
     
       
   onMount( async function() {
-    chatroomList.style.maxHeight = (window.innerHeight - 134).toString()+"px";
+    if(window.innerWidth < 1024) {
+      try {
+        chatroomList.style.maxHeight = (window.innerHeight - 304).toString()+"px";
+      } catch {
+        // Real men don't solve their problems
+      }
+    } else {
+      chatroomList.style.maxHeight = (window.innerHeight - 218).toString()+"px";
+    }
     if (!$userDataStore.token) {
       goto(base + '/login');
     }
@@ -82,12 +93,18 @@
   });
 
 </script>
+<h1 class="h1 text-center my-4">Chatrooms:</h1>  
+<div class="flex flex-row justify-center">
+  <button class='btn mb-10 text-center variant-filled mx-2' on:click={promptRoom}><span class="material-symbols-outlined">create</span>Create</button>
+  <button class='btn mb-10 text-center variant-filled mx-2' on:click={promptRoom}><span class="material-symbols-outlined">add</span>Join</button>
+</div>
 <div bind:this={chatroomList} class="m-4 overflow-auto">
-  <button class='btn mb-10 text-center variant-filled' on:click={promptRoom}>Make Your Own!</button>
-  <h1 class="h1 text-center mb-5">Chatrooms:</h1>  
   {#if chatrooms.length}
     {#each chatrooms as chatroom}
-      <button class="btn bg-gradient-to-br variant-filled-secondary mt-3 w-25 text-sm lg:text-base h-8 lg:h-10" on:click={() => join(chatroom[0], chatroom[1])}>Join {chatroom[0]}</button>
+      <div class="btn flex flex-col bg-gradient-to-br mt-2 mx-auto pr-6 w-full md:w-7/12 lg:w-5/12 text-sm lg:text-base rounded-lg" on:click={() => join(chatroom[0], chatroom[1])}>
+        <div class="p-4 variant-filled-primary w-full ml-2 rounded-t-lg">{chatroom[0]}</div>
+        <div class="flex flex-row justify-center p-4 variant-ghost-primary w-full rounded-b-lg"><p class="material-symbols-outlined">person</p><p>{chatroom[2].length}</p></div>
+      </div>
       <br />
     {/each}
   {:else}

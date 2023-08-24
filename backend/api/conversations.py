@@ -104,7 +104,7 @@ def is_name_taken(name: str) -> bool:
 def list_chat_rooms() -> [str]:
     """List all chat rooms by their display name"""
     # Returns (Name, isPassword)
-    return [(convo.name, bool(convo.pwd)) for (cid, convo) in convos if convo.chatroom]
+    return [(convo.name, bool(convo.pwd), convo.users) for (cid, convo) in convos if convo.chatroom]
 
 def open_convo(cid: str):
     if cid not in opened_convos:
