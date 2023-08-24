@@ -87,7 +87,10 @@
       });
     }
   
-   
+   async function goBack() {
+        goto(base + '/chatrooms')
+   }
+
     onDestroy(() => {
       clearInterval(updateInterval);
     });
@@ -95,7 +98,7 @@
   </script>
   <h1 class="h1 text-center my-4">Add a chat:</h1>  
   <div class="flex flex-row justify-center">
-    <button class='btn mb-10 text-center variant-filled mx-2' on:click={promptRoom}><span class="material-symbols-outlined">create</span>Create</button>
+    <button class='btn mb-10 text-center variant-filled mx-2' on:click={goBack}><span class="material-symbols-outlined">arrow_back_ios</span>Back</button>
   </div>
   <div bind:this={chatroomList} class="m-4 overflow-auto">
     {#if chatrooms.length}

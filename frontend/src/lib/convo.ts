@@ -37,6 +37,14 @@ export type Class = {
   cid?: string;
 }
 
+export type Chat = {
+  name: string;
+  public: boolean;
+  chatroom: boolean;
+  owner: string;
+  users: Array<string>;
+  cid?: string;
+}
 
 
 export class Message {

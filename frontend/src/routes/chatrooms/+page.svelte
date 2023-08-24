@@ -4,9 +4,11 @@
   import { onDestroy, onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { salert, askbool, proompt } from '$library/alerts';
-  import { joinChat, makeConvo } from '$lib/convo';
+  import { joinChat, makeConvo, getConvoInfo, type Chat } from '$lib/convo';
   import { base } from '$app/paths';
+  import getSettings from '$lib/settings';
   
+  let chats: Array<Chat> =  [];
   var chatName: string = "", chatPwd: string = "";
   var chatrooms: Array<[string, boolean]> = [];
   var updateInterval: NodeJS.Timer; // setInterval type is number
@@ -26,11 +28,19 @@
 
   async function updateChats() {
     // @ts-ignore
-    chatrooms = (await get('chats')).data.chatrooms;
+    const cids: Array<string> = (await getSettings(['convos'])).data.convos;
+    chatrooms = [];
+    cids.forEach(async (cid: string) => {
+      // @ts-ignore
+      const cls: Class = await getConvoInfo(cid);
+      if (cls.chatroom) {
+        cls.cid = cid;
+        chatrooms.push(cls);
+        chatrooms = chatrooms;  // Force rerender DOM
+      }
+    })
     console.log(chatrooms);
   };
-
-    
       
   onMount( async function() {
     if(window.innerWidth < 1024) {
@@ -87,6 +97,9 @@
     });
   }
 
+  async function addChat() {
+    goto(base + '/chatlist')
+  }
  
   onDestroy(() => {
     clearInterval(updateInterval);
@@ -96,14 +109,14 @@
 <h1 class="h1 text-center my-4">Chatrooms:</h1>  
 <div class="flex flex-row justify-center">
   <button class='btn mb-10 text-center variant-filled mx-2' on:click={promptRoom}><span class="material-symbols-outlined">create</span>Create</button>
-  <button class='btn mb-10 text-center variant-filled mx-2' on:click={promptRoom}><span class="material-symbols-outlined">add</span>Join</button>
+  <button class='btn mb-10 text-center variant-filled mx-2' on:click={addChat}><span class="material-symbols-outlined">add</span>Join</button>
 </div>
 <div bind:this={chatroomList} class="m-4 overflow-auto">
   {#if chatrooms.length}
     {#each chatrooms as chatroom}
       <div class="btn flex flex-col bg-gradient-to-br mt-2 mx-auto pr-6 w-full md:w-7/12 lg:w-5/12 text-sm lg:text-base rounded-lg" on:click={() => join(chatroom[0], chatroom[1])}>
-        <div class="p-4 variant-filled-primary w-full ml-2 rounded-t-lg">{chatroom[0]}</div>
-        <div class="flex flex-row justify-center p-4 variant-ghost-primary w-full rounded-b-lg"><p class="material-symbols-outlined">person</p><p>{chatroom[2]}</p></div>
+        <div class="p-4 variant-filled-primary w-full ml-2 rounded-t-lg">{chatroom.name}</div>
+        <div class="flex flex-row justify-center p-4 variant-ghost-primary w-full rounded-b-lg"><p class="material-symbols-outlined">person</p><p>{Object.keys(chatroom.users).length}</p></div>
       </div>
       <br />
     {/each}
