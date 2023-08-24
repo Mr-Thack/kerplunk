@@ -8,15 +8,27 @@
 	var email = "", pwd = "", emailBox:HTMLElement, pwdBox:HTMLElement, page:HTMLElement;
 
     window.addEventListener('resize', () => {
-		try {
-			page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
-		} catch {
-			// Real men don't solve their problems
-		}
+      if(window.innerWidth < 1024) {
+        try {
+          page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
+        } catch {
+          // Real men don't solve their problems
+        }
+      } else {
+        page.style.maxHeight = (window.innerHeight).toString()+"px";
+      }
     });
 
 	onMount(() => {
-		page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
+		if(window.innerWidth < 1024) {
+			try {
+			page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
+			} catch {
+			// Real men don't solve their problems
+			}
+		} else {
+			page.style.maxHeight = (window.innerHeight).toString()+"px";
+		}
 		pwdBox.addEventListener('keypress', function(event) {
                 if (event.key == "Enter") {
                     event.preventDefault();
