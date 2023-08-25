@@ -56,17 +56,10 @@
       goto(base + '/login');
     }
     updateChats();
-    updateInterval = setInterval(updateChats, 5000);
   });
 
-  async function join(room: string, isPwd: boolean) {
-    if (isPwd) {
-      proompt('Enter Password', async (pwd: string) => {
-        if (await joinChat(room, pwd)) {
-          goto(base + '/chat');
-        }
-      })
-    } else if (await joinChat(room)) {
+  async function join(room: string,) {
+    if (await joinChat(room)) {
       goto(base + '/chat');
     }
   }
@@ -114,13 +107,13 @@
 <div bind:this={chatroomList} class="m-4 overflow-auto">
   {#if chatrooms.length}
     {#each chatrooms as chatroom}
-      <div class="btn flex flex-col bg-gradient-to-br mt-2 mx-auto pr-6 w-full md:w-7/12 lg:w-5/12 text-sm lg:text-base rounded-lg" on:click={() => join(chatroom.name, !chatroom.public)}>
+      <div class="btn flex flex-col bg-gradient-to-br mt-2 mx-auto pr-6 w-full md:w-7/12 lg:w-5/12 text-sm lg:text-base rounded-lg" on:click={() => join(chatroom.name)}>
         <div class="p-4 variant-filled-primary w-full ml-2 rounded-t-lg">{chatroom.name}</div>
         <div class="flex flex-row justify-center p-4 variant-ghost-primary w-full rounded-b-lg"><p class="material-symbols-outlined">person</p><p>{Object.keys(chatroom.users).length}</p></div>
       </div>
       <br />
     {/each}
   {:else}
-    <h2 class="h2 text-center">There aren't any yet! Make one!</h2>
+    <h2 class="h2 text-center">Join a chatroom or make one</h2>
   {/if}
 </div>

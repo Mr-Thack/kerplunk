@@ -104,13 +104,13 @@
     {#if chatrooms.length}
       {#each chatrooms as chatroom}
         <div class="btn flex flex-col bg-gradient-to-br mt-2 mx-auto pr-6 w-full md:w-7/12 lg:w-5/12 text-sm lg:text-base rounded-lg" on:click={() => join(chatroom[0], chatroom[1])}>
-          <div class="p-4 variant-filled-primary w-full ml-2 rounded-t-lg">{chatroom[0]}</div>
+          <div class="p-4 flex flex-row justify-center variant-filled-primary w-full ml-2 rounded-t-lg"><p>{chatroom[0]}</p>{#if chatroom[1]}<p class="material-symbols-outlined mx-2">lock</p>{/if}</div>
           <div class="flex flex-row justify-center p-4 variant-ghost-primary w-full rounded-b-lg"><p class="material-symbols-outlined">person</p><p>{chatroom[2]}</p></div>
         </div>
         <br />
       {/each}
     {:else}
-      <h2 class="h2 text-center">There aren't any yet! Make one!</h2>
+      <h2 class="h2 text-center">No chatrooms were found</h2>
     {/if}
   </div>
   

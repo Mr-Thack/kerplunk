@@ -9,7 +9,7 @@ export function salert(title: string, body: string = "") {
     body: body,
     buttonTextCancel: 'OK'
   };
-  modalStore.trigger(SimpleAlert)
+  modalStore.trigger(SimpleAlert);
 }
 
 // Function Alert
@@ -20,7 +20,7 @@ export function falert(title: string, fn: () => void) {
     response: fn,
     buttonTextCancel: 'OK'
   }
-  modalStore.trigger(FunctionAlert)
+  modalStore.trigger(FunctionAlert);
 }
 
 // Proompt

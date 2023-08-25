@@ -167,7 +167,7 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
         return
 
     convo = convos[cid]  # Instead of accessing the dict over and over again, we're gonna do this
-    if not convo.pwd or (pwd and convo.pwd == pwd) or convo.owner == uuid:
+    if not convo.pwd or (pwd and convo.pwd == pwd) or convo.owner == uuid or uuid in convo.users:
         # If this UUID isn't recognized
         if uuid not in convo.users:
             
@@ -190,6 +190,8 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
             'owner': get_field(convo.owner, 'name'),
             'users': [get_field(user, 'name') for user in convo.users]
         }
+    else:
+        print(convo.users, uuid)
 
 
 
