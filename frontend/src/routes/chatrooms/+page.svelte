@@ -18,7 +18,8 @@
     if(window.innerWidth < 1024) {
       try {
         chatroomList.style.maxHeight = (window.innerHeight - 304).toString()+"px";
-      } catch {
+      } catch (e) {
+        console.log(e);
         // Real men don't solve their problems
       }
     } else {

@@ -2,15 +2,14 @@
     import KTextArea from '$components/KTextArea.svelte';
     import KMessage from '$components/KMessage.svelte';
     import { userDataStore } from '$library/stores';
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
     import { falert } from '$library/alerts';
     import { base } from '$app/paths';
-    import { Message, type Users, sendMessage, getMessages, subscribeEventStream, subscribeNotificationStream, getConvoInfo} from '$lib/convo';
+    import { Message, type Users, sendMessage, getMessages, getConvoInfo} from '$lib/convo';
     import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
     
-    
-    import { invoke } from '@tauri-apps/api/tauri'
+    /* import { invoke } from '@tauri-apps/api/tauri'
     invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"base", channel_name:"Notifications"})
     invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"messages", channel_name:"Chat Messages", channel_desc:"Messages sent in chats you are in."})
 
@@ -18,19 +17,21 @@
         invoke('plugin:AndroidNotifications|simpleNotification', {id:1, title:title, content:content, channel_id:"base"}).then((value) => {
             console.log(value);
         })
-    }
+    }*/
 
+    /*
     var chatMessages: Array<any> = [];
 
     function sendChatNotification(text: string, time: number, sender: string, b64: string) {
         chatMessages.push({text:text, time:time, sender:sender, avatarBase64:b64})
         console.log(chatMessages)
+        
         invoke('plugin:AndroidNotifications|chatNotification', {id:2, messages:chatMessages, channel_id:"messages"}).then((value) => {
             console.log(value);
         })
     }
-
-    sendNotification("Android Notifications Initialized!", "Good Luck")
+    */
+    // sendNotification("Android Notifications Initialized!", "Good Luck")
     
     let chatbox: HTMLElement;
     var users: Users;
@@ -71,6 +72,36 @@
         chatbox.style.height = calculateHeight().toString()+"px";
     }
 
+
+    let mustRerender = false;
+    // I need to set a 50ms timeout for this anyway,
+    // so for optimization, I'm putting them in the same loop
+
+    function intervalHandler() {
+        if (mustRerender) {
+            scrollChatBottom();
+            mustRerender = false;
+        }
+        fetchNewMessages();
+        // I don't know what this is for, but I kept it here in case you need it Johnathan
+        // sendChatNotification(m.text, m.unixTime(), m.author, users[m.author].photo.split(",")[1]);
+     }
+            
+    function fetchNewMessages() {
+        if (window.mqueue) {
+            let message = window.mqueue.shift();
+            if (message) {
+                messages = [...messages, message];
+                fetchNewMessages();
+                mustRerender = true;
+            }
+        }
+    }
+
+    onDestroy(() => {
+       $userDataStore.cid = ""; 
+    });
+
     onMount(async () => {
         scale();
         if (!$userDataStore.token) {
@@ -90,7 +121,10 @@
         // Now scroll to the bottom
         setTimeout(scrollChatBottom, 150);
 
+
+        setInterval(intervalHandler, 50);
         // Setup the Event Stream
+        /*
         subscribeEventStream($userDataStore.cid, async (m: Message) => {
             if (!Object.keys(users).includes(m.author)) {
                 users = (await getConvoInfo($userDataStore.cid)).users;
@@ -99,11 +133,12 @@
             sendChatNotification(m.text, m.unixTime(), m.author, users[m.author].photo.split(",")[1]);
             setTimeout(scrollChatBottom, 75)
         }, messages.length);
-
+        */
+        /*
         subscribeNotificationStream(async (cid: string, m: Message) => {
             console.log(m);
-            console.log(cid)
-        })
+            console.log(cid);
+        });*/
 
         window.addEventListener('resize', () => {
             try {
@@ -115,40 +150,40 @@
     })
 
     async function openDrawer() {
-    var drawerChat : DrawerSettings;
+        var drawerChat : DrawerSettings;
     
-    if (window.innerWidth <= 639) {
-        drawerChat = {
-            id: 'drawerChat',
-            width: 'w-screen',
-            height: 'h-[220px]',
-            padding: 'p-4',
-            rounded: 'rounded-xl',
-            position: 'top',
-            meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
-        };
-    } else if (window.innerWidth <= 1024) {
-        drawerChat = {
-            id: 'drawerChat',
-            width: 'w-[340px]',
-            height: 'h-full',
-            padding: 'p-4',
-            rounded: 'rounded-xl',
-            position: 'right',
-            meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
-        };
-    } else {
-        drawerChat = {
-            id: 'drawerChat',
-            width: 'w-[280px] md:w-[480px]',
-            padding: 'p-4',
-            rounded: 'rounded-xl',
-            position: 'right',
-            meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
+        if (window.innerWidth <= 639) {
+            drawerChat = {
+                id: 'drawerChat',
+                width: 'w-screen',
+                height: 'h-[220px]',
+                padding: 'p-4',
+                rounded: 'rounded-xl',
+                position: 'top',
+                meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
+            };
+        } else if (window.innerWidth <= 1024) {
+            drawerChat = {
+                id: 'drawerChat',
+                width: 'w-[340px]',
+                height: 'h-full',
+                padding: 'p-4',
+                rounded: 'rounded-xl',
+                position: 'right',
+                meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
+            };
+        } else {
+            drawerChat = {
+                id: 'drawerChat',
+                width: 'w-[280px] md:w-[480px]',
+                padding: 'p-4',
+                rounded: 'rounded-xl',
+                position: 'right',
+                meta: { owner: $userDataStore.name === owner, cid: $userDataStore.cid }
+            }
         }
+        drawerStore.open(drawerChat);
     }
-    drawerStore.open(drawerChat);
-  }
     
 </script>
 <div class="flex flex-col overflow-hidden px-4 lg:pl-0">

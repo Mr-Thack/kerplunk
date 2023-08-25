@@ -1,9 +1,15 @@
 import getSettings from '$lib/settings';
-import { get, post, patch, endpoint } from '$lib/endpoint';
+import { get as hget, post, patch, endpoint } from '$lib/endpoint';
 import { salert, falert } from '$lib/alerts';
 import { userDataStore } from '$lib/stores';
 import { dev } from '$app/environment';
 import { Modal, modalStore } from '@skeletonlabs/skeleton';
+import { goto } from '$app/navigation'
+import { page } from '$app/stores';
+import { get } from 'svelte/store';
+import { toastStore } from '@skeletonlabs/skeleton';
+
+
 
 export type User  = {
   email: string;
@@ -125,7 +131,7 @@ export async function sendMessage(cid: string, text: string, replyTo?: number) {
 }
 
 export async function getConvoInfo(cid: string) {
-  const convoInfo = (await get(`convos/${cid}/info`, {}, userDataStore.readonce('token'))).data;
+  const convoInfo = (await hget(`convos/${cid}/info`, {}, userDataStore.readonce('token'))).data;
   const tmp: Users = {};
   // @ts-ignore
   convoInfo.users.forEach((u: User) => {tmp[u.name] = u});
@@ -143,7 +149,7 @@ export async function getConvoInfo(cid: string) {
 }
 
 export async function getMessages(cid: string) : Promise<Array<Message>> {
-  return (await get(`convos/${cid}`, {
+  return (await hget(`convos/${cid}`, {
     'start': 0
   // @ts-ignore
   }, userDataStore.readonce('token')))
@@ -158,13 +164,33 @@ export function subscribeEventStream(cid: string, fn: (m:Message) => void | Prom
   };
 }
 
-export function subscribeNotificationStream(fn: (id: string, m: Message) => void | Promise<void>) {
+
+export function subscribeNotificationStream() {
+  // if this has already been run once, quit
+  if (window.mqueue) {
+    return false;
+  }
+  window.mqueue = [];
+  // window.nqueue = [];
+  // I think I need to make these global, even though I really don't think that's a good idea...
+  // Don't have much of an option
   const eventStream = new EventSource(`${dev? "http":"https"}://${endpoint('notifications')}?token=${userDataStore.readonce('token')}`)
-  eventStream.onmessage = function (event) {
+  eventStream.onmessage = (event) => {
     // Promise.resolve() will resolve a promise even if it's not a promise
     const data = JSON.parse(event.data)
-    Promise.resolve(fn(data[0], new Message(data[1])));
+    if (data[0] == userDataStore.readonce('cid')) {
+      window.mqueue.push(new Message(data[1])); 
+    } else {
+      console.log(data);
+      toastStore.trigger({
+        message: data[1].author + ": " + data[1].text,
+        timeout: 3000
+      })
+      
+      // window.nqueue.push([ data[0], new Message(data[1]) ]);
+    }
   };
+  return true;
 }
 
 export async function joinChat(room: string, pwd: string = '') : Promise<boolean> {

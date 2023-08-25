@@ -10,11 +10,17 @@
 	import '../app.postcss';
 
 	import { AppShell, setModeCurrent, setModeUserPrefers } from '@skeletonlabs/skeleton';
-	import { Modal } from '@skeletonlabs/skeleton';
+	import { Modal, Toast } from '@skeletonlabs/skeleton';
 	import getSettings from '$library/settings';
 	import { onMount } from 'svelte';
 	import Tabbar from '$components/Tabbar.svelte';
 	import AppDrawer from '$components/AppDrawer.svelte';
+
+	import { userDataStore } from '$lib/stores';
+	import { page } from '$app/stores';
+	import { base } from '$app/paths';
+	import { goto } from '$app/navigation';
+	import { subscribeNotificationStream } from '$library/convo';
 
 	onMount(async () => {
 		var rez = await getSettings(["theme", 'accent']);
@@ -27,11 +33,17 @@
 			document.documentElement.classList.add('red');
 			document.documentElement.classList.add('dark');
 		}
+		if (!$userDataStore.token && $page.url.pathname !== "login") {
+    	goto(base + '/login')
+  	} else {
+			subscribeNotificationStream();
+		}
 	})
 
 
 </script>
 
+<Toast />
 <Modal />
 <AppDrawer />
 

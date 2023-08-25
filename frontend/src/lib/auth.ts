@@ -3,7 +3,8 @@ import { userDataStore } from '$lib/stores';
 import { salert } from '$lib/alerts';
 import { dev } from '$app/environment';
 import getSettings from '$lib/settings';
-import { base }from '$app/paths';
+import { base } from '$app/paths';
+import { subscribeNotificationStream, Message } from '$lib/convo';
 
 async function setInfo() {
     const rez = await getSettings(["name", "photo", "schid"]);
@@ -31,6 +32,7 @@ export async function checkCredentials(email: string, pwd: string): Promise<bool
     if (!rez.error) {
         userDataStore.write('token', rez.data.access_token);
         setInfo();
+        subscribeNotificationStream();
     } else {
         console.log(rez);
         salert(`LOGIN ERROR: ${rez.data.detail}`);
