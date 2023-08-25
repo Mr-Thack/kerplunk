@@ -109,11 +109,13 @@
 	let schoolOptions: AutocompleteOption[] = [];
 
 	async function focusHandler() {
+		console.log('1111111')
 		if (document.visibilityState === "visible") {
 			let tmp = await get('schools');
 
 			schoolOptions = [];
 			if (tmp.error) {
+				console.log('halllp')
 				//@ts-ignore
 				salert('Error: '  + tmp.error.detail);
 			} else {
@@ -125,6 +127,7 @@
 						'keywords': school.altnames 
 					});
 				}
+				console.log(schoolOptions);
 			}
 		}
 	}
@@ -165,18 +168,18 @@
     });
 
 	onMount(async function() {
-		if(window.innerWidth < 1024) {
-			try {
-			page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
-			sstep.style.maxHeight = (window.innerHeight - 142).toString()+"px";
-			} catch {
-			// Real men don't solve their problems
+		try {
+			if(window.innerWidth < 1024) {
+				page.style.maxHeight = (window.innerHeight - 144).toString()+"px";
+				sstep.style.maxHeight = (window.innerHeight - 142).toString()+"px";
+			} else {
+				page.style.maxHeight = (window.innerHeight).toString()+"px";
+				sstep.style.maxHeight = (window.innerHeight).toString()+"px";
 			}
-		} else {
-			page.style.maxHeight = (window.innerHeight).toString()+"px";
-			sstep.style.maxHeight = (window.innerHeight).toString()+"px";
+		} catch (e) {
+			console.log(e);
 		}
-		await focusHandler(); // Just run it once
+		await focusHandler(); // run it once to populate
 		document.addEventListener("visibilitychange", focusHandler);
 	})
 
