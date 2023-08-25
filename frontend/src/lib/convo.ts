@@ -168,16 +168,15 @@ export function subscribeNotificationStream(fn: (id: string, m: Message) => void
 }
 
 export async function joinChat(room: string, pwd: string = '') : Promise<boolean> {
-  const r = await patch('chats', {}, {'name': room, 'pwd': pwd}, userDataStore.readonce('token')).then((r) => {
-    if (r.error) {
-      salert(`JOIN ERROR: ${r.data.detail}`);
-      console.log(r);
-    } else {
-      // @ts-ignore
-      userDataStore.write('cid', r.data.cid);
-    }
-    return !r.error;
-  });
+  const r = await patch('chats', {}, {'name': room, 'pwd': pwd}, userDataStore.readonce('token'));
+  if (r.error) {
+    salert(`JOIN ERROR: ${r.data.detail}`);
+    console.log(r);
+  } else {
+    // @ts-ignore
+    userDataStore.write('cid', r.data.cid);
+  }
+  return !r.error;
 }
 
 export async function joinClass(code: string) : Promise<boolean> {
