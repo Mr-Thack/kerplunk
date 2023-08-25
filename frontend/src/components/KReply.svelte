@@ -14,15 +14,13 @@
 </script>
 
 
-<div class="card space-y-2 variant-soft grid text-left mx-auto">
-  <header class="flex flex-row px-auto py-1 rounded-t justify-center">
-    <div class="flex-initial align-left my-auto">
-      <KAvatar src={src} />
-    </div>
+<div class="space-y-0 grid text-left mx-auto rounded-none">
+  <header class="flex flex-row px-auto py-1 justify-center">
     <div class="flex flex-col p-2 space-x-4">
       <div class="flex flex-row">
-        <p class="font-bold flex-grow mx-4">{msg.author}</p>
-        <p class="flex-initial align-right">{msg.elapsedTime()}</p>
+        <KAvatar src={src} />
+        <p class="font-bold flex-grow mx-4 my-auto">{msg.author}</p>
+        <p class="flex-initial align-right my-auto">{msg.elapsedTime()}</p>
       </div>
       <p class="mx-4 my-2 text-center">{msg.text}</p>
     </div>

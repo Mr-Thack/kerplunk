@@ -151,7 +151,7 @@
         <KTextArea onclick={sendMsg} sendOnEnter={false} />
     </div>
     <section bind:this={feed}
-        class="flex flex-col-reverse p-4 overflow-y-auto space-y-4 mb-8"
+        class="flex flex-col-reverse p-4 overflow-y-auto mb-8"
         class:placeholder='{!messages.length}'
         class:animate-pulse='{!messages.length}'>
         {#if !$userDataStore.name || !users || !messages.length}
@@ -164,16 +164,27 @@
                 {:else if !msg.replyTo}
                     <!-- reply is an int -->
                     {#each msg.replies as reply, j}
-                        {#if j < 3}
+                    <div class="variant-soft w-11/12 md:w-7/12 lg:w-5/12 mx-auto">                        
+                        {#if j < 2}
                             <!-- This is how we make it mini -->
-                            <div class="w-11/12 md:w-7/12 lg:w-5/12 mx-auto align-center">
+                            <div class="mx-auto align-center">
                                 <KReply src={users[messages[reply].author].photo}
-                                       msg={messages[reply]} 
-                                       isReply={true}
-                                       like={() => {like(reply)}}
+                                    msg={messages[reply]} 
+                                    isReply={true}
+                                    like={() => {like(reply)}}
                                 />
                             </div>
+                        {:else if j<3}
+                            <div class="w-11/12 md:w-7/12 lg:w-5/12 mx-auto align-center rounded-b-xl">
+                                <KReply src={users[messages[reply].author].photo}
+                                    msg={messages[reply]} 
+                                    isReply={true}
+                                    like={() => {like(reply)}}
+                                />
+                            </div>       
                         {/if}
+                    </div>
+
                     {/each}
                     <!-- You'd think this goes before the replies, but no! -->
                     <!-- We use flex-reverse or something to style the container so that they show up in reverse order (so earliest first)-->
