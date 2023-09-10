@@ -14,7 +14,7 @@
 	// whereas schid is the ID# of the school they chose
 	let fname = '', lname = '', email = '',
 		  pwd = '', repPwd = '', school = '', schid = -1, isStudent = false, signupcode = '', page:HTMLElement, sstep:HTMLElement;
-
+	let suggestions: Array <string> = [];  
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
 
@@ -134,7 +134,16 @@
 
 	function pwdCheck() {
 		if (pwd) {
-			pwdScore = zxcvbn(pwd).score + 1;
+			let result = zxcvbn(pwd);
+			let tmp: Array <string> = [];
+			if (typeof(result.feedback.warning) === 'string' || result.feedback.warning instanceof String) {
+					tmp = [result.feedback.warning];
+			} else {
+					tmp = tmp.concat(result.feedback.warning);
+			}
+			tmp = tmp.concat(result.feedback.suggestions);
+			suggestions = tmp;
+			pwdScore = result.score + 1;
 			let options = [
 				['bg-error-900', 'Poor'],
 				['bg-warning-900', 'OK'],
@@ -248,6 +257,11 @@
 			<div class="flex justify-center">
 				<ProgressBar label="Password Score" class="m-2 w-[50vw]" meter={pwdScoreColor} bind:value={pwdScore} max={5} />
 				<p class="p">{pwdScoreText}</p>
+			</div>
+			<div>
+				{#each suggestions as suggestion}
+				<p class = "p"> {suggestion} </p>
+				{/each}
 			</div>
 			<div class="input-group input-group-divider grid-cols-[1fr_auto] m-2 lg:m-4 w-fill-available moz-available">
 				<input id="repeat-password" bind:value={repPwd} on:input={pwdCheck} class="input text-xs h-8 lg:text-base lg:h-10" title="Repeat Password" type='password' placeholder='Repeat Password' />
