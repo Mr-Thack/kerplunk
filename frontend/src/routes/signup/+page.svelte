@@ -13,7 +13,7 @@
 	// school is the actual data they wrote to input,
 	// whereas schid is the ID# of the school they chose
 	let fname = '', lname = '', email = '',
-		  pwd = '', repPwd = '', school = '', schid = -1, isStudent = false, signupcode = '', page:HTMLElement, sstep:HTMLElement;
+		  pwd = '', repPwd = '', school = '', schid = -1, isStudent = false, signupcode = '', page:HTMLElement, sstep: Stepper;
 
 	const MINREQ = 4; // Minimum required score for signup (on scale 1-5)
 
