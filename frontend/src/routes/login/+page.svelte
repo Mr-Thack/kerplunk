@@ -1,11 +1,15 @@
 <script lang="ts">
-	import { checkCredentials } from '$lib/auth';
-  import { goto } from '$app/navigation';
-  import { browser } from '$app/environment';
+    import { getModalStore } from '@skeletonlabs/skeleton';
+    import Alerter from '$lib/alerter';
+    import { checkCredentials } from '$lib/auth';
+    import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
 	import { getThemeAndAccent } from '$library/theming';
 	import { base } from '$app/paths';	
 	import { onMount } from 'svelte';
 	var email = "", pwd = "", emailBox:HTMLElement, pwdBox:HTMLElement, page:HTMLElement;
+
+    const alerter = new Alerter(getModalStore());
 
     window.addEventListener('resize', () => {
       if(window.innerWidth < 1024) {
@@ -44,7 +48,7 @@
 	})
 	
  	async function sendLogin() {
-	  const success = await checkCredentials(email, pwd);
+	  const success = await checkCredentials(alerter, email, pwd);
 		if (browser && success) {
 			getThemeAndAccent();
 			goto(base + '/home');

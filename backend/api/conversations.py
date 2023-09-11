@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from secrets import token_urlsafe
 from dblib import db
 from fastapi import Request
-from asyncio import sleep, CancelledError, TimeoutError
+from asyncio import CancelledError
 from events import events
 from datetime import datetime
 from json import dumps
@@ -36,7 +36,7 @@ class Convo(BaseModel):
 
     def get_user_reads(self, uuid):
         return self.reads[self.users.index(uuid)]
-    
+
     def sanitize(self):
         return {
             'name': self.name,
@@ -46,11 +46,13 @@ class Convo(BaseModel):
             'users': [get_field(user, 'sanitized') for user in self.users]
         }
 
+
 def set_last_read_msg(cid, uuid, read):
     convo = convos[cid]
     index = convo.users.index(uuid)
     convo.reads[index] = convo.reads[index] + 1
     convos[cid] = convo
+
 
 # This is specifically for an incoming message
 @dataclass
@@ -59,7 +61,8 @@ class IncMsg():
     reply_to: int | None = None
 
 
-# This is specifically for a message in the db, or something we're sending to the user
+# This is specifically for a message in the db,
+# or something we're sending to the user
 @dataclass
 class Message():
     author: str
@@ -84,9 +87,11 @@ class Message():
             'likes': len(self.likers)
         }
 
+
 """
-In the conversation environement, we'll have a subdatabase for each conversation.
-This one will hold the info on all the conversations, but not the actualy messages,
+In the conversation environement, we have a subdatabase for each conversation.
+This one will hold the info on all the conversations,
+but not the actual messages,
 because the info will be accessed constantly, whereas the texts aren't.
 So, only when required we'll open up the subdb holding the texts.
 For simplicity, we'll just call the subdb for each convo by it's convo id (cid)
@@ -101,10 +106,12 @@ def is_name_taken(name: str) -> bool:
         if name == convo.name:
             return True
 
+
 def list_chat_rooms() -> [str]:
     """List all chat rooms by their display name"""
     # Returns (Name, isPassword)
     return [(convo.name, bool(convo.pwd), len(convo.users)) for (cid, convo) in convos if convo.chatroom]
+
 
 def open_convo(cid: str):
     if cid not in opened_convos:
@@ -115,10 +122,10 @@ def open_convo(cid: str):
 def add_convo_to_user_data(uuid: str, cid: str):
     """Add this convo to the user's list"""
     user_convos = get_field(uuid, 'convos')
-    if not cid in user_convos:
+    if cid not in user_convos:
         user_convos.append(cid)
         set_field(uuid, 'convos', user_convos)
-    
+
 
 def create_convo(data: InitConvoData, owner: str) -> str:
     # We take owner as a UUID str
@@ -127,14 +134,13 @@ def create_convo(data: InitConvoData, owner: str) -> str:
         if not data.chatroom:
             data.pwd = gen_code()
         new_convo = Convo(owner=owner, **data.__dict__)
-        
-        new_convo.add_user(owner)       
+
+        new_convo.add_user(owner)
         add_convo_to_user_data(owner, cid)
-                 
+
         convo_data = open_convo(cid)  # Open a fresh new one
         convos[cid] = new_convo  # Write info to the db
-        
-                
+
         if data.chatroom:
             convo_data[0] = Message(text=f"User {get_field(owner, 'name')} has created chatroom {new_convo.name}!", author='SYSTEM')
         else:
@@ -143,12 +149,19 @@ def create_convo(data: InitConvoData, owner: str) -> str:
             
         return cid
 
+
 def delete_convo(cid: str):
     if cid in convos:
         # [TODO]: Also delete this convo from user data
+        convo = convos[cid]
+        for uuid in convo.users:
+            user_convos = set(get_field(uuid, 'convos'))
+            user_convos.pop(cid)
+            set_field(uuid, 'convos', list(user_convos))
         del convos[cid]
 
     return cid in convos
+
 
 def set_convo(uuid: str, fields: dict, cid: str):
     if usr_in_convo(uuid, cid):
@@ -156,6 +169,7 @@ def set_convo(uuid: str, fields: dict, cid: str):
         for k, v in fields.items():
             convos[cid, k] = v
         return 1
+
 
 async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | None:
     cid = None
@@ -170,20 +184,20 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
     if not convo.pwd or (pwd and convo.pwd == pwd) or convo.owner == uuid or uuid in convo.users:
         # If this UUID isn't recognized
         if uuid not in convo.users:
-            
+
             # Add this convo to the user's list
             add_convo_to_user_data(uuid, cid)
-            
+
             # Add this user to the convo's list
             convo.add_user(uuid)
             convos[cid] = convo  # In the previous line, we only updated our copy in memory
             # This line puts it back into the dict and then the db
-            
+
             name = get_field(uuid, 'name')
             if convo.chatroom:
                 msg = Message(text=f"{name} has joined the chat!",
                               author='SYSTEM')
-                              # [NOTE]: 'SYSTEM' messages
+                # [NOTE]: 'SYSTEM' messages
                 await write_msg(cid, msg)  # write to db
         return {
             'cid': cid,
@@ -192,8 +206,6 @@ async def add_user_to_chatroom(uuid: str, name: str, pwd: str | None) -> dict | 
         }
     else:
         print(convo.users, uuid)
-
-
 
 
 async def add_user_to_classroom(uuid: str, pwd: str | None) -> dict | None:
@@ -205,17 +217,19 @@ async def add_user_to_classroom(uuid: str, pwd: str | None) -> dict | None:
     if not cid:
         return
 
-    convo = convos[cid]  # Instead of accessing the dict over and over again, we're gonna do this
+    convo = convos[cid]
+    # Instead of accessing the dict over and over again, we're gonna do this
     # If this UUID isn't recognized
-    if uuid not in convo.users or uuid == convo.owner:       
+    if uuid not in convo.users or uuid == convo.owner:
         # Add this convo to the user's list
         add_convo_to_user_data(uuid, cid)
-            
+
         # Add this user to the convo's list
         convo.add_user(uuid)
-        convos[cid] = convo  # In the previous line, we only updated our copy in memory
+        convos[cid] = convo
+        # In the previous line, we only updated our copy in memory
         # This line puts it back into the dict and then the db
-            
+
         name = get_field(uuid, 'name')
         if convo.chatroom:
             msg = Message(text=f"{name} has joined the chat!",
@@ -235,15 +249,15 @@ def usr_in_convo(uuid: str, cid: str):
     convo = convos[cid]
     return convo and uuid in convo.users or uuid == convo.owner
 
+
 def get_convo(uuid: str, cid: str):
     if usr_in_convo(uuid, cid):
         return convos[cid].sanitize()
-        
+
 
 async def write_msg(cid: str, msg: Message) -> bool:
     # TODO: Check for problems in txt msg or smth
     convo = open_convo(cid)
-
 
     if not events.does_exist(cid):
         events.add_event(cid)
@@ -259,6 +273,7 @@ async def write_msg(cid: str, msg: Message) -> bool:
         # Since indices start at 0, len() will return 1 + the last index
         return True
 
+
 def like_msg(cid: str, uuid: str, mid: int) -> bool:
     convo = open_convo(cid)
 
@@ -273,22 +288,22 @@ def like_msg(cid: str, uuid: str, mid: int) -> bool:
 def read_msgs(cid: str, uuid: str, start: int | None) -> [str]:
     """Read all messages from start index to end index, inclusive."""
     convo = open_convo(cid)
-    
+
     r = [convo[i].sanitize(i) for i in range(start if start != None else 1 + convos[cid].get_user_reads(uuid), len(convo))]
     set_last_read_msg(cid, uuid, len(convo))
     convos[cid] = convos[cid]  # Force write
     return r
-    
+
+
 async def read_msgs_as_stream(req: Request, cid: str, uuid: str, start: int | None):
     """Read all the messages from start to end, in a stream"""
     """end=None signifies read forever"""
     # This function should be used on chats.
     # Threads should use long polling.
 
-    
     # Keep track of the number of people reading this
     convo = open_convo(cid)
-    
+
     event = events.get_event(cid)
     eid = await event.sub()  # Event ID
 
@@ -299,9 +314,9 @@ async def read_msgs_as_stream(req: Request, cid: str, uuid: str, start: int | No
             "id": i,
             "data": dumps(convo[i].sanitize(i))
         }
-        
+
     set_last_read_msg(cid, uuid, len(convo))
-    
+
     while True:
         if not await req.is_disconnected():
             try:
@@ -320,12 +335,11 @@ async def read_msgs_as_stream(req: Request, cid: str, uuid: str, start: int | No
             return
 
 
-
 async def read_notifications_as_stream(req: Request, uuid: str):
     """Read all notifications in a stream"""
 
     alert = await events.get_notifier(get_field(uuid, 'convos'))
-    
+
     while True:
         if not await req.is_disconnected():
             try:
@@ -351,5 +365,4 @@ async def post_msg(cid: str, uuid: str, msg: IncMsg) -> bool:
     msg = Message(text=msg.text,
                   reply_to=msg.reply_to,
                   author=uuid)
-    return await write_msg(cid, msg)   
-
+    return await write_msg(cid, msg)

@@ -1,23 +1,15 @@
 <script lang="ts">
-	import { page } from "$app/stores";
-	import { TabGroup, TabAnchor, drawerStore } from "@skeletonlabs/skeleton";
+  import { page } from "$app/stores";
+  import { TabGroup, TabAnchor, getDrawerStore } from "@skeletonlabs/skeleton";
   import type { DrawerSettings } from '@skeletonlabs/skeleton';
   import { userDataStore } from '$lib/stores'
   import getSettings from '$lib/settings';
   import { base } from '$app/paths';
-  
+
+  const drawerStore = getDrawerStore();
+
   var isLoggedIn = false;
   // I wanted to have this isLoggedIn function in $lib/auth, but it's not playing nice with Svelte Stores
-
-  var accent = 'red';
-
-  async function change() {
-    const rez = await getSettings(['accent']);
-    if (!rez.error) {
-      // @ts-ignore
-      accent = rez.data.accent;
-    }
-  }
 
   class Page {
     url: string;
@@ -67,7 +59,6 @@
         '/signup',
         '/login'
       ]);
-      change();
       // Twice because signup and login at the end
     } else {
       isLoggedIn = false;
@@ -116,7 +107,7 @@
 	class="bg-surface-100-800-token w-full block lg:hidden">
       <!-- If you're logged in, we want you to go to home instead of the front page -->
       <TabAnchor class="max-w-[94px] transition-all" padding='px-2 py-0' href={base + (isLoggedIn? "/home":"/")} selected={$page.url.pathname === base + '/' || $page.url.pathname === base + '/home/'}>
-        <img src={base + "/icon_"+accent+".png"} alt="icon" class="my-1 mx-auto w-14 h-14" />
+        <img src={base + "/icon_"+$userDataStore.accent+".png"} alt="icon" class="my-1 mx-auto w-14 h-14" />
       </TabAnchor>
       {#each navs as nav}
         <TabAnchor class="max-w-[94px]" id={nav.icon} href={base + nav.url} selected={$page.url.pathname === base + nav.url + "/" || $page.url.pathname === base + nav.alturl + "/"}>

@@ -1,45 +1,45 @@
 <script lang="ts">
-  import { Stepper, Step, InputChip } from "@skeletonlabs/skeleton";
-  import isValidEmail from "$lib/email";
-  import { get, post } from '$lib/endpoint';
-  import { salert, falert } from "$lib/alerts";
+    import { Stepper, Step, InputChip, getModalStore } from "@skeletonlabs/skeleton";
+    import isValidEmail from "$lib/email";
+    import { get, post } from '$lib/endpoint';
+    import Alerter from "$lib/alerter";
 
-  let schoolName = "", schoolEmail = "", signupcode="";
-  let altNames = ["high", "middle", "mtn"]; 
+    const alerter = new Alerter(getModalStore());
 
-  async function onComplete() {
-    const rez = await get('register', {
-      'code': signupcode
-    });
+    let schoolName = "", schoolEmail = "", signupcode="";
+    let altNames = ["high", "middle", "mtn"]; 
 
-    if (rez.status === 200) {
-      falert("Congrats! You're done registering this school!", () => {
-        window.close();
-      });
-    } else {
-      // @ts-ignore
-      salert("An error has occured: " + rez.data.detail)
+    async function onComplete() {
+        const rez = await get('register', {
+            'code': signupcode
+        });
+
+        if (rez.status === 200) {
+            alerter.falert("Congrats! You're done registering this school!", () => {
+            window.close();
+        });
+        } else {
+            alerter.salert("An error has occured: " + rez.data.detail)
+        }
     }
-  }
  
-	async function onStepHandler(e: {detail: {step: number, state: {current: number, total: number}}}) {
-		if (e.detail.step !== 0 && e.detail.step + 1 !== e.detail.state.current) {
-      return;
-    }
+    async function onStepHandler(e: {detail: {step: number, state: {current: number, total: number}}}) {
+        if (e.detail.step !== 0 && e.detail.step + 1 !== e.detail.state.current) {
+            return;
+        }
     
-    const rz = await post('register', {
-      'name': schoolName,
-      'altnames': altNames,
-      'email': schoolEmail
-    });
+        const rz = await post('register', {
+            'name': schoolName,
+            'altnames': altNames,
+            'email': schoolEmail
+        });
 
-    if (rz.status === 200) {
-      salert("Please check your email!");
-    } else {
-      // @ts-ignore
-      salert("An error has occured: " + rz.error.detail);
+        if (rz.status === 200) {
+            alerter.salert("Please check your email!");
+        } else {
+            alerter.salert("An error has occured: " + rz.data.detail);
+        }
     }
-	}
 
 </script>
 <header class="mx-auto mb-5 text-center">
@@ -55,9 +55,6 @@
   </Step>
   <Step locked={!signupcode}>
     <svelte:fragment slot="header">Check Your Email</svelte:fragment>
-
-    <!-- I would componentize this, but I don't see this being used more than 3 times in our app -->
-    <!-- That's probably not a good excuse though, is it? -->
     <input class="input m-2" type="text" name="Code" bind:value={signupcode} placeholder="Check your Email!" />    
   </Step>
 </Stepper>

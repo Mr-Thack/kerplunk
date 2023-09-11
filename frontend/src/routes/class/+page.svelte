@@ -6,11 +6,12 @@
     import { userDataStore } from '$library/stores';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
-    import { falert } from '$library/alerts';
+    import Alerter from '$lib/alerter';
     import { base } from '$app/paths';
     import { Message, type User, sendMessage, getConvoInfo, getMessages, likeMsg} from '$lib/convo';
-    import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
+    import { getDrawerStore, getModalStore, type DrawerSettings } from '@skeletonlabs/skeleton';
 
+    const alerter = new Alerter(getModalStore());
     let feed: HTMLElement;
 
     type Users = { [name: string]: User; }
@@ -21,7 +22,7 @@
 
     var messages: Array<Message> = [];
 
-    var header:HTMLElement; var inputbox:HTMLElement;
+    var header: HTMLElement, inputbox: HTMLElement;
 
     function getTotalHeight(element: HTMLElement) {
         const height = element.offsetHeight;
@@ -43,7 +44,8 @@
     window.addEventListener('resize', () => {
         try {
             scale();
-        } catch {
+        } catch (e) {
+            console.log(e);
             // Real men don't solve their problems
             // lol. Johnathan too funny.
         }
@@ -55,7 +57,8 @@
 
 
     let mid: number|undefined = undefined;
-    
+
+    const drawerStore = getDrawerStore();
     const drawerReplies : DrawerSettings = {
         id: 'drawerReplies',
 	      width: 'mx-auto align-center content-center w-9/12',
@@ -96,6 +99,7 @@
         }
         drawerReplies.meta.users = users;
         drawerReplies.meta.mid = m;
+        
         drawerStore.open(drawerReplies);
     }
 
@@ -116,18 +120,15 @@
     
     onMount(async () => {
         if (!$userDataStore.token) {
-            falert('Sign in to a class first!', () => {
+            alerter.falert('Sign in to a class first!', () => {
                 goto(base + '/classes')
             });
         }
         const classInfo = await getConvoInfo($userDataStore.cid);
 
-        // @ts-ignore            
         className = classInfo.name;
-        // @ts-ignore
         users = classInfo.users;
         // Get all the messages
-        // @ts-ignore
         messages = await getMessages($userDataStore.cid);
         // I don't think we should scroll the feed automatically
         // Now scroll to the bottom
@@ -148,7 +149,7 @@
         <button class="material-symbols-outlined ml-auto mr-3 w-8 h-8 my-auto">settings</button>
     </div>
     <div bind:this={inputbox}>
-        <KTextArea onclick={sendMsg} sendOnEnter={false} />
+        <KTextArea ontype={() => {}} onclick={sendMsg} sendOnEnter={false} />
     </div>
     <section bind:this={feed}
         class="flex flex-col-reverse p-4 overflow-y-auto mb-8"

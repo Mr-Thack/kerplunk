@@ -1,81 +1,82 @@
 <script lang="ts">
-  import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
-  import { Stepper, Step } from '@skeletonlabs/skeleton';
-  import { modalStore, type ModalSettings } from "@skeletonlabs/skeleton";
-  import { base } from '$app/paths';
-  import { goto } from '$app/navigation';
-  import { post } from '$lib/endpoint';
-  import { falert } from '$lib/alerts';
-  import { onMount } from 'svelte';
-  
-  type Question = {
-    question: string;
-    answers: Array<string>;
-    value: number;
-    icons: Array<string>;
-  }
-  let questions: Array<Question> = [
-    {
-      question: "Are you a teacher or a student?",
-      answers: [
-        "Teacher",
-        "Student"
-      ],
-      value: -1,
-      icons: [
-        "face_retouching_natural",
-        "child_care"
-      ]
-    },
-    {
-      question: "On what device do you use Remind?",
-      answers: [
-        "Cellphone",
-        "Tablet",
-        "Desktop/Laptop"
-      ],
-      value: -1,
-      icons: [
-        "smartphone",
-        "tablet",
-        "computer"
-      ]
-    }
-  ]
+    import { RadioGroup, RadioItem, Stepper, Step, getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+    import { base } from '$app/paths';
+    import { goto } from '$app/navigation';
+    import { post } from '$lib/endpoint';
+    import Alerter from '$lib/alerter';
+    import { onMount } from 'svelte';
 
-  onMount(async () => {
+    const modalStore = getModalStore();
+    const alerter = new Alerter(modalStore);
+
+    type Question = {
+        question: string;
+        answers: Array<string>;
+        value: number;
+        icons: Array<string>;
+    }
+
+    let questions: Array<Question> = [
+        {
+            question: "Are you a teacher or a student?",
+            answers: [
+                "Teacher",
+                "Student"
+            ],
+            value: -1,
+            icons: [
+                "face_retouching_natural",
+                "child_care"
+            ]
+        },
+        {
+            question: "On what device do you use Remind?",
+            answers: [
+                "Cellphone",
+                "Tablet",
+                "Desktop/Laptop"
+            ],
+            value: -1,
+            icons: [
+                "smartphone",
+                "tablet",
+                "computer"
+            ]
+        }
+    ];
+
+    onMount(async () => {
     
-  })
+    })
 
-  const isDone = 'IsKerplunkPollCompleted?';
+    const isDone = 'IsKerplunkPollCompleted?';
 
-  const thanksModal: ModalSettings = {
-    type: 'alert',
-    title: 'Thank you for your Response!',
-    body: "We're redirecting you back to the homepage...",
-    buttonTextCancel: "Let's Go!",
-    response: async () => {
-      let result = await post('poll', 
-        questions.map(q => q.value)
-      );
-      console.log(result)
-      if (!result.error) {
-        localStorage.setItem(isDone, 'TRUE')
-      }
-      goto(base + '/');
+    const thanksModal: ModalSettings = {
+        type: 'alert',
+        title: 'Thank you for your Response!',
+        body: "We're redirecting you back to the homepage...",
+        buttonTextCancel: "Let's Go!",
+        response: async () => {
+            let result = await post('poll', 
+            questions.map(q => q.value)
+        );
+        if (!result.error) {
+            localStorage.setItem(isDone, 'TRUE')
+        }
+            goto(base + '/');
+        }
     }
-  }
 
 
-  async function submitHandler() {
-    modalStore.trigger(thanksModal);
-  }
+    async function submitHandler() {
+        modalStore.trigger(thanksModal);
+    }
 
-  if (localStorage.getItem(isDone) == 'TRUE') {
-    falert("You've already answered this poll!", () => {
-      goto(base + '/');
-    });
-  }
+    if (localStorage.getItem(isDone) == 'TRUE') {
+        alerter.falert("You've already answered this poll!", () => {
+            goto(base + '/');
+        });
+    }
 </script>
 
 <div class="w-full h-[calc(100vh-144px)] lg:h-fill flex items-center">

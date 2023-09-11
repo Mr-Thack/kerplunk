@@ -1,11 +1,13 @@
 <script lang="ts">
+    import { getModalStore } from '@skeletonlabs/skeleton';
 	import { checkCredentials } from '$lib/auth';
-  import { get ,post } from '$lib/endpoint';
-	import { userDataStore } from '$lib/stores';
-  import { goto } from '$app/navigation';
-  import { browser } from '$app/environment';
-	import { salert, proompt } from '$lib/alerts';
-	
+    import { get, post } from '$lib/endpoint';
+    import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
+	import Alerter from '$lib/alerter';
+    import { base } from '$app/paths'; 
+    const alerter = new Alerter(getModalStore());
+
 	var email = "", pwd = "";
 	
 	async function sendReset() {
@@ -15,24 +17,22 @@
 		});
 
 		if (rz.error) {
-			// @ts-ignore
-			salert("Error: " + rz.data.detail);
+			alerter.salert("Error: " + rz.data.detail);
 		} else {
-			salert('Check Your Email!');
-			proompt('What is the Code?', async (code: string) => {
+			alerter.salert('Check Your Email!');
+			alerter.proompt('What is the Code?', async (code: string) => {
 				let rez = await get('reset', {
 					'code': code
 				});
 				if (rez.error) {
-					// @ts-ignore
-					salert("Error: " + rz.data.detail)
+					alerter.salert("Error: " + rz.data.detail)
 				} else {
-					salert("Congrats! The password has been reset!");
-					const success = await checkCredentials(email, pwd);
-    			if (browser && success) {
-      			goto(base + '/home');
-    			}
-				}				
+					alerter.salert("Congrats! The password has been reset!");
+					const success = await checkCredentials(alerter, email, pwd);
+    			    if (browser && success) {
+      			        goto(base + '/home');
+    			    }
+				}			
 			});
 		}
 	}

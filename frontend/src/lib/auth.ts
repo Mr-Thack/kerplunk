@@ -1,24 +1,23 @@
 import { formdata_post, get } from '$lib/endpoint';
 import { userDataStore } from '$lib/stores';
-import { salert } from '$lib/alerts';
-import { dev } from '$app/environment';
+import type Alerter from '$lib/alerter';
 import getSettings from '$lib/settings';
 import { base } from '$app/paths';
-import { subscribeNotificationStream, Message } from '$lib/convo';
+import { subscribeNotificationStream } from '$lib/convo';
 
 async function setInfo() {
     const rez = await getSettings(["name", "photo", "schid"]);
     if (rez && !rez.error) {
         userDataStore.write("name", rez.data.name);
         userDataStore.write("photo", rez.data.photo);
-        await get('schools/'+rez.data.schid.toString(), {}, userDataStore.readonce("token")).then((schoolInfo) => {
+        await get('schools/'+rez.data.schid.toString(), {}, userDataStore.get().token).then((schoolInfo) => {
             userDataStore.write("school", schoolInfo.data.name);
         })
         
     }
 }
 
-export async function checkCredentials(email: string, pwd: string): Promise<boolean> {
+export async function checkCredentials(alerter: Alerter, email: string, pwd: string): Promise<boolean> {
     const data = {
         'grant_type': '',
         // We login with email cuz that doesn't change often
@@ -35,7 +34,7 @@ export async function checkCredentials(email: string, pwd: string): Promise<bool
         subscribeNotificationStream();
     } else {
         console.log(rez);
-        salert(`LOGIN ERROR: ${rez.data.detail}`);
+        alerter.salert(`LOGIN ERROR: ${rez.data.detail}`);
     }
     return !rez.error;
 }

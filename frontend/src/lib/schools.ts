@@ -1,4 +1,3 @@
-import getSettings from '$lib/settings';
 import { get } from '$lib/endpoint';
 import { userDataStore } from '$lib/stores';
 
@@ -10,5 +9,5 @@ export type School = {
 }
 
 export async function getSchool(schid: number) : Promise<School> {
-  return (await get('schools/' + schid, {}, userDataStore.readonce('token'))).data;
+  return (await get('schools/' + schid, {}, userDataStore.get('token'))).data;
 }

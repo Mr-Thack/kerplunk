@@ -9,17 +9,25 @@ export function endpoint(endpoint: string) {
         : ('www.kerplunk.xyz/' + endpoint)
 }
 
+
+interface ReqData {
+    method: string;
+    headers: Headers;
+    body?: string;
+}
+
 async function request(method: string, endPoint: string, hs: HeadersInit, body: string, token: string) {
     // hs stands for headerSend
+    const rhs = new Headers(hs);
     if (token) {
-        hs.Authorization = 'Bearer ' + token;
+        rhs.set('Authorization', 'Bearer ' + token);
     }
     let error = false;
-    let data: object = {};
+    let data: any = {};
     let rezStatus: number = 0;
-    const reqData = {
+    const reqData: ReqData = {
         method: method,
-        headers: hs
+        headers: rhs
     }
     if (method !== 'GET') {
         reqData.body = body;
@@ -33,7 +41,7 @@ async function request(method: string, endPoint: string, hs: HeadersInit, body: 
         }
         return res.json();
     })
-    .then((d:object) => data=d)
+    .then((d: any) => data=d)
     .catch((e) => {
         error = true;
         data = e
@@ -47,14 +55,11 @@ function encodeObj(obj: object) {
         if (
             typeof value === "string" ||
             typeof value === "number" ||
-            typeof value === "boolean" ||
-            value instanceof String ||
-            value instanceof Number ||
-            value instanceof Boolean
+            typeof value === "boolean" 
         ) {
             rez.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
         } else {
-            value.forEach(subvalue => {
+            value.forEach((subvalue: string | number | boolean) => {
                 rez.push(encodeURIComponent(key) + '=' + encodeURIComponent(subvalue));
             })
         }

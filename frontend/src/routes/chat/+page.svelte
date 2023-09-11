@@ -1,15 +1,17 @@
 <script lang="ts">
     import KTextArea from '$components/KTextArea.svelte';
     import KMessage from '$components/KMessage.svelte';
-    import { userDataStore } from '$library/stores';
+    import { userDataStore } from '$lib/stores';
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
-    import { falert } from '$library/alerts';
+    import Alerter from '$lib/alerter';
     import { base } from '$app/paths';
     import { Message, type Users, sendMessage, getMessages, getConvoInfo} from '$lib/convo';
-    import { drawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
-    
-    /* import { invoke } from '@tauri-apps/api/tauri'
+    import { getDrawerStore, getModalStore, type DrawerSettings } from '@skeletonlabs/skeleton';
+
+
+    /*
+    import { invoke } from '@tauri-apps/api/tauri'
     invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"base", channel_name:"Notifications"})
     invoke('plugin:AndroidNotifications|createNotificationChannel', {channel_id:"messages", channel_name:"Chat Messages", channel_desc:"Messages sent in chats you are in."})
 
@@ -17,7 +19,8 @@
         invoke('plugin:AndroidNotifications|simpleNotification', {id:1, title:title, content:content, channel_id:"base"}).then((value) => {
             console.log(value);
         })
-    }*/
+    }
+    */
 
     /*
     var chatMessages: Array<any> = [];
@@ -36,9 +39,10 @@
     let chatbox: HTMLElement;
     var users: Users;
     var owner: string;
-    let chatName: string;
 
-    var header:HTMLElement; var inputbox:HTMLElement;
+    var header: HTMLElement, inputbox: HTMLElement;
+    const drawerStore = getDrawerStore();
+    const alerter = new Alerter(getModalStore());
 
     function scrollChatBottom() {
         if (chatbox) {
@@ -105,7 +109,7 @@
     onMount(async () => {
         scale();
         if (!$userDataStore.token) {
-            falert('Open a chatroom first!', () => {
+            alerter.falert('Open a chatroom first!', () => {
                 goto(base + '/chatrooms')
             });
         }

@@ -1,54 +1,54 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 
 
-type UserData = {
-    token: string,
+interface UserData extends Object {
+    token?: string,
     name: string,
     cid: string,
     photo: string,
-    email: string,
+    email?: string,
+    theme: number,
     accent: string,
     school: string, 
-    convo: string
+    convo?: string
 }
 
-
-
-// This is for getting the user information that's already there,
-// in case they like left for a while and came back to their own computer
-var initVal;
-if (browser) {
-    initVal = JSON.parse(window.sessionStorage.getItem('userDataStore') || '{}');
+const defaultValue: UserData = {
+    accent: "red",
+    theme: 1,
+    name: "If you see this, there is an error",
+    cid: "",
+    school: "If you see this, there is an error",
+    photo: ""
 }
+
 
 function createUserDataStore() {
-    const {subscribe, set, update } = writable<UserData>(initVal);
+    let tmp = window.sessionStorage.getItem('userDataStore');
+    const initVal: UserData = (tmp && tmp != '{}')? JSON.parse(tmp) : defaultValue;
+
+    const store = writable<UserData>(initVal);
     // Setup our own custom function for updating the userDataStore
     return {
-        set: (k) => {console.log(k), set(k)},
-        subscribe,
-        write: (key: string, value: any) => update(u => {
-            u[key] = value;
+        get: () => {
+            return get(store);
+        },
+        set: store.set,
+        subscribe: store.subscribe,
+        write: (key: string, value: any) => store.update((u: UserData) => {
+            u[key as keyof UserData] = value;
             return u;        
         }),
-        wipe: () => set({}),
-        readonce: (key: string) => {
-            let val = ""
-            const unsub = subscribe(v => {
-                val = (v)? v[key]: v;
-            });
-            unsub();
-            return val;
-        }
+        wipe: () => store.set(defaultValue)
     }
 }
 
 export const userDataStore = createUserDataStore();
 
 // Whenever any change is made to our user data, it is automatically stored in session storage
-userDataStore.subscribe((value) => {
-    if (browser) {
+if (browser) {
+    userDataStore.subscribe((value) => {
         window.sessionStorage.setItem('userDataStore', JSON.stringify(value));
-    }
-});
+    });
+}
