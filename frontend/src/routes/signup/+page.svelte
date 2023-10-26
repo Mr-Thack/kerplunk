@@ -39,7 +39,7 @@
     }
 
     
-    function checkUserDetails() {
+    function checkUserDetails(): boolean {
         // source: https://stackoverflow.com/questions/201323/how-can-i-validate-an-email-address-using-a-regular-expression
         let isEmailGood = isValidEmail(email);
         // ZXCVBN normally returns on scale 0-4, add 1 to get scale 1-5
@@ -69,7 +69,7 @@
         }
     }
     
-    async function startSignup() {
+    async function startSignup() : Promise<boolean> {
         const rez = await post('signup', {
             'fname': fname,
             'lname': lname,
@@ -148,16 +148,17 @@
         schid = event.detail.value; // school id
     }
 
-    function onStepHandler(e: {detail: {step: number, state: {current: number, total: number}}}): void {
-        if (e.detail.step + 1 !== e.detail.state.current) {
-            return;
-        }
+    async function onNextHandler(e: {detail: {step: number, state: {current: number, total: number}}}) {
+        // e.detail.step is the step where navigation occurred
+        // e.detail.state.current is the step shown after this function is run
 
+        // This is a list of checking functions starting from step #2
         const checkFns = [checkUserDetails, startSignup];
 
         const lastStep = e.detail.step;
-        let fn = checkFns[lastStep - 1];
-        if (!fn) {
+        // Then pull the function from the last step
+        // If the lastStep is not the first step and the corresponding check function returns false, then DO NOT proceed 
+        if (!(lastStep === 0 || await Promise.resolve(checkFns[lastStep - 1]()))) {
             e.detail.state.current = lastStep;
         }
     }
@@ -168,7 +169,7 @@
 </header>
 <div bind:this={page} class="w-full lg:h-fill flex items-center">
 <!-- It complains on the next line that on:step function handler has a type mismatch, but it doesn't impact us -->
-    <Stepper bind:this={sstep} on:complete={onCompleteHandler} on:step={onStepHandler} class="card p-4 w-full max-h-[calc(100vh-142px)] lg:max-h-full m-4">
+    <Stepper bind:this={sstep} on:complete={onCompleteHandler} on:next={onNextHandler} class="card p-4 w-full max-h-[calc(100vh-142px)] lg:max-h-full m-4">
         <Step class="m-4 max-h-[calc(100vh-220px)] lg:max-h-full overflow-auto">
             <svelte:fragment slot="header">Are you a student or a teacher?</svelte:fragment>
             <div class="flex flex-row place-content-between justify-center w-full lg:my-8">
