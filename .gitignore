@@ -16,3 +16,5 @@ backend/api/.python-version
 backend/data/*
 backend/api/__pycache__/
 .devcontainer/devcontainer.json
+
+.vscode
