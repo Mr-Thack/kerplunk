@@ -1,0 +1,6 @@
+[SvelteKit](https://kit.svelte.dev/)
+[Svelte](https://svelte.dev)
+[Tailwind CSS](http://tailwindcss.com)
+[Skeleton CSS](https://www.skeleton.dev/)
+[ZXCVBN](https://github.com/dropbox/zxcvbn)
+[Fast API](https://fastapi.tiangolo.com/)
