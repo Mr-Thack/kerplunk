@@ -1,11 +1,4 @@
 <script lang="ts">
-	import '../themes/theme_red.postcss';
-	import '../themes/theme_orange.postcss';
-	import '../themes/theme_yellow.postcss';
-	import '../themes/theme_green.postcss';
-	import '../themes/theme_blue.postcss';
-	import '../themes/theme_purple.postcss';
-	import '../app.postcss';
 
 	import { AppShell, initializeStores, Modal, Toast } from '@skeletonlabs/skeleton';
     
@@ -21,6 +14,14 @@
 	import { goto } from '$app/navigation';
 	import { subscribeNotificationStream } from '$lib/convo';
     import { getThemeAndAccent } from '$lib/theming';
+
+	import '../themes/theme_red.postcss';
+	import '../themes/theme_orange.postcss';
+	import '../themes/theme_yellow.postcss';
+	import '../themes/theme_green.postcss';
+	import '../themes/theme_blue.postcss';
+	import '../themes/theme_purple.postcss';
+	import '../app.postcss';
 
     
     initializeStores();

@@ -38,6 +38,9 @@ export async function getThemeAndAccent() {
                 addClass("dark");
             }
             noTheme = false;
+        } else {
+            // For some reason, dark isn't the default theme anymore. This fixes that.
+            addClass("dark");
         }
     }
     
